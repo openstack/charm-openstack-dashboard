@@ -47,19 +47,23 @@ class TestHorizonContexts(CharmTestCase):
         self.pwgen.return_value = "secret"
 
     def test_Apachecontext(self):
+        self.test_config.set('apache_http_addendum', 'RewriteEngine on')
         self.assertEquals(horizon_contexts.ApacheContext()(),
-                          {'http_port': 70, 'https_port': 433})
+                          {'http_port': 70, 'https_port': 433,
+                           'apache_http_addendum': 'RewriteEngine on'})
 
     @patch.object(horizon_contexts, 'get_ca_cert', lambda: None)
     @patch('os.chmod')
     def test_ApacheSSLContext_enabled(self, _chmod):
         self.get_cert.return_value = ('cert', 'key')
         self.b64decode.side_effect = ['cert', 'key']
+        self.test_config.set('apache_https_addendum', 'RewriteEngine off')
         with patch_open() as (_open, _file):
             self.assertEquals(horizon_contexts.ApacheSSLContext()(),
                               {'ssl_configured': True,
                                'ssl_cert': '/etc/ssl/certs/dashboard.cert',
-                               'ssl_key': '/etc/ssl/private/dashboard.key'})
+                               'ssl_key': '/etc/ssl/private/dashboard.key',
+                               'apache_https_addendum': 'RewriteEngine off'})
             _open.assert_has_calls([
                 call('/etc/ssl/certs/dashboard.cert', 'w'),
                 call('/etc/ssl/private/dashboard.key', 'w')
@@ -75,7 +79,8 @@ class TestHorizonContexts(CharmTestCase):
     def test_ApacheSSLContext_disabled(self):
         self.get_cert.return_value = (None, None)
         self.assertEquals(horizon_contexts.ApacheSSLContext()(),
-                          {'ssl_configured': False})
+                          {'ssl_configured': False,
+                           'apache_https_addendum': ''})
 
     def test_HorizonContext_defaults(self):
         self.assertEquals(horizon_contexts.HorizonContext()(),
