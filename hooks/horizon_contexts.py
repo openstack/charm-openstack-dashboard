@@ -172,7 +172,8 @@ class ApacheContext(OSContextGenerator):
         ''' Grab cert and key from configuraton for SSL config '''
         ctxt = {
             'http_port': 70,
-            'https_port': 433
+            'https_port': 433,
+            'apache_http_addendum': config("apache_http_addendum"),
         }
         return ctxt
 
@@ -200,6 +201,7 @@ class ApacheSSLContext(OSContextGenerator):
             ctxt = {
                 'ssl_configured': False,
             }
+        ctxt['apache_https_addendum'] = config("apache_https_addendum")
         return ctxt
 
 

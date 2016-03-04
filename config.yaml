@@ -171,7 +171,7 @@ options:
       .
         juju-postgresql-0
       .
-      If you're running multiple environments with the same services in them
+      If you are running multiple environments with the same services in them
       this allows you to differentiate between them.
   nagios_check_http_params:
     default: "-H localhost -I 127.0.0.1 -u '/' -e 200,301,302"
@@ -217,3 +217,15 @@ options:
     description: |
        Connect timeout configuration in ms for haproxy, used in HA
        configurations. If not provided, default value of 5000ms is used.
+  apache_http_addendum:
+    type: string
+    default: ''
+    description: |
+      Extra stanzas to be inserted into the HTTP virtual host configuration.
+      May be used,for example, to specify rewrite rules.
+  apache_https_addendum:
+    type: string
+    default: ''
+    description: |
+      Extra stanzas to be inserted into the HTTPS virtual host configuration.
+      May be used,for example, to specify rewrite rules.

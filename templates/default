@@ -29,4 +29,6 @@
 
         CustomLog ${APACHE_LOG_DIR}/access.log combined
 
+{{ apache_http_addendum }}
+
 </VirtualHost>

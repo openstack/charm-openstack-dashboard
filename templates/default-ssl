@@ -46,5 +46,7 @@
                 downgrade-1.0 force-response-1.0
         BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
 
+{{ apache_https_addendum }}
+
     </VirtualHost>
 </IfModule>
