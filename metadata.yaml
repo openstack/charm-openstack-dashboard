@@ -9,7 +9,6 @@ tags:
   - misc
 series:
   - xenial
-  - zesty
   - trusty
   - yakkety
 provides:
