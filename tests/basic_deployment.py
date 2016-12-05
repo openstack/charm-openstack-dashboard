@@ -125,49 +125,20 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
 
             branch = 'stable/' + self._get_openstack_release_string()
 
-            if self._get_openstack_release() == self.trusty_juno:
-                openstack_origin_git = {
-                    'repositories': [
-                        {'name': 'requirements',
-                         'repository': reqs_repo,
-                         'branch': branch},
-                        # NOTE(coreycb): Pin oslo libraries here because
-                        # they're not capped and recently released versions
-                        # causing issues for juno.
-                        {'name': 'oslo-config',
-                         'repository': 'git://github.com/openstack/oslo.config',  # noqa
-                         'branch': '1.6.0'},
-                        {'name': 'oslo-i18n',
-                         'repository': 'git://github.com/openstack/oslo.i18n',
-                         'branch': '1.3.1'},
-                        {'name': 'oslo-serialization',
-                         'repository': 'git://github.com/openstack/oslo.serialization',  # noqa
-                         'branch': '1.2.0'},
-                        {'name': 'oslo-utils',
-                         'repository': 'git://github.com/openstack/oslo.utils',
-                         'branch': '1.4.0'},
-                        {'name': 'horizon',
-                         'repository': horizon_repo,
-                         'branch': branch},
-                    ],
-                    'directory': '/mnt/openstack-git',
-                    'http_proxy': amulet_http_proxy,
-                    'https_proxy': amulet_http_proxy,
-                }
-            else:
-                openstack_origin_git = {
-                    'repositories': [
-                        {'name': 'requirements',
-                         'repository': reqs_repo,
-                         'branch': branch},
-                        {'name': 'horizon',
-                         'repository': horizon_repo,
-                         'branch': branch},
-                    ],
-                    'directory': '/mnt/openstack-git',
-                    'http_proxy': amulet_http_proxy,
-                    'https_proxy': amulet_http_proxy,
-                }
+            openstack_origin_git = {
+                'repositories': [
+                    {'name': 'requirements',
+                     'repository': reqs_repo,
+                     'branch': branch},
+                    {'name': 'horizon',
+                     'repository': horizon_repo,
+                     'branch': branch},
+                ],
+                'directory': '/mnt/openstack-git',
+                'http_proxy': amulet_http_proxy,
+                'https_proxy': amulet_http_proxy,
+            }
+
             horizon_config['openstack-origin-git'] = \
                 yaml.dump(openstack_origin_git)
 
