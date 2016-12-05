@@ -868,6 +868,19 @@ REST_API_REQUIRED_SETTINGS = ['OPENSTACK_HYPERVISOR_FEATURES',
 # Enable the Ubuntu theme if it is present.
 DEFAULT_THEME = 'ubuntu'
 {% elif default_theme %}
+try:
+  AVAILABLE_THEMES
+except NameError:
+  try:
+    from openstack_dashboard.settings import AVAILABLE_THEMES
+  except ImportError:
+    AVAILABLE_THEMES = []
+    pass
+if '{{ default_theme }}' not in [el[0] for el in AVAILABLE_THEMES]:
+  AVAILABLE_THEMES += [
+      ('{{ default_theme }}', '{{ default_theme }}',
+       'themes/{{ default_theme }}'),
+  ]
 DEFAULT_THEME = '{{ default_theme }}'
 {% endif %}
 
