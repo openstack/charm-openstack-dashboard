@@ -182,6 +182,7 @@ class HorizonContext(OSContextGenerator):
             'compress_offline':
                 bool_from_string(config('offline-compression')),
             'debug': bool_from_string(config('debug')),
+            'customization_module': config('customization-module'),
             'default_role': config('default-role'),
             "webroot": config('webroot'),
             "ubuntu_theme": bool_from_string(config('ubuntu-theme')),

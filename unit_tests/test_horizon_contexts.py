@@ -102,6 +102,7 @@ class TestHorizonContexts(CharmTestCase):
     def test_HorizonContext_defaults(self):
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': False,
+                           'customization_module': '',
                            'default_role': 'Member', 'webroot': '/horizon',
                            'ubuntu_theme': True,
                            'default_theme': None,
@@ -122,6 +123,7 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('debug', 'yes')
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': True,
+                           'customization_module': '',
                            'default_role': 'Member', 'webroot': '/horizon',
                            'ubuntu_theme': True,
                            'default_theme': None,
@@ -142,6 +144,7 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('ubuntu-theme', 'False')
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': False,
+                           'customization_module': '',
                            'default_role': 'Member', 'webroot': '/horizon',
                            'ubuntu_theme': False,
                            'default_theme': None,
@@ -163,6 +166,7 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('default-theme', 'material')
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': False,
+                           'customization_module': '',
                            'default_role': 'Member', 'webroot': '/horizon',
                            'ubuntu_theme': False,
                            'default_theme': 'material',
@@ -187,6 +191,7 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('offline-compression', 'no')
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': False, 'debug': False,
+                           'customization_module': '',
                            'default_role': 'Member', 'webroot': '/horizon',
                            'ubuntu_theme': True,
                            'default_theme': None,
@@ -207,6 +212,7 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('default-role', 'foo')
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': False,
+                           'customization_module': '',
                            'default_role': 'foo', 'webroot': '/horizon',
                            'ubuntu_theme': True,
                            'default_theme': None,
@@ -227,6 +233,7 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('webroot', '/')
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': False,
+                           'customization_module': '',
                            'default_role': 'Member', 'webroot': '/',
                            'ubuntu_theme': True,
                            'default_theme': None,
@@ -252,6 +259,7 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('cinder-backup', True)
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': False,
+                           'customization_module': '',
                            'default_role': 'Member', 'webroot': '/horizon',
                            'ubuntu_theme': True,
                            'default_theme': None,
@@ -272,6 +280,7 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('password-retrieve', True)
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': False,
+                           'customization_module': '',
                            'default_role': 'Member', 'webroot': '/horizon',
                            'ubuntu_theme': True,
                            'default_theme': None,
@@ -285,6 +294,27 @@ class TestHorizonContexts(CharmTestCase):
                            "neutron_network_vpn": False,
                            "cinder_backup": False,
                            "password_retrieve": True,
+                           }
+                          )
+
+    def test_HorizonContext_customization_module(self):
+        self.test_config.set('customization-module', 'customization.py')
+        self.assertEquals(horizon_contexts.HorizonContext()(),
+                          {'compress_offline': True, 'debug': False,
+                           'customization_module': 'customization.py',
+                           'default_role': 'Member', 'webroot': '/horizon',
+                           'ubuntu_theme': True,
+                           'default_theme': None,
+                           'virtualenv': None,
+                           'secret': 'secret',
+                           'support_profile': None,
+                           "neutron_network_dvr": False,
+                           "neutron_network_l3ha": False,
+                           "neutron_network_lb": False,
+                           "neutron_network_firewall": False,
+                           "neutron_network_vpn": False,
+                           "cinder_backup": False,
+                           "password_retrieve": False,
                            }
                           )
 

@@ -94,6 +94,8 @@ WEBROOT = '/'
 # including on the login form.
 #HORIZON_CONFIG["disable_password_reveal"] = False
 
+HORIZON_CONFIG["customization_module"] = "{{ customization_module }}"
+
 LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Set custom secret key:

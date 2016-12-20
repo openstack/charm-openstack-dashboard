@@ -315,3 +315,9 @@ options:
     default: horizon
     type: string
     description: Database name for Horizon (if enabled)
+  customization-module:
+    default: ""
+    type: string
+    description: |
+      Module that overriding layout for customization.
+      This is available from Liberty
