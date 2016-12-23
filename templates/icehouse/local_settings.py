@@ -521,4 +521,8 @@ COMPRESS_OFFLINE = {{ compress_offline }}
 # see https://docs.djangoproject.com/en/dev/ref/settings/.
 ALLOWED_HOSTS = '*'
 
+{% if password_retrieve %}
+OPENSTACK_ENABLE_PASSWORD_RETRIEVE = True
+{% endif %}
+
 {{ settings|join('\n\n') }}

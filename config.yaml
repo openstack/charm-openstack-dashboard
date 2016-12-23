@@ -215,6 +215,10 @@ options:
     type: boolean
     default: False
     description: Enable cinder backup panel.
+  password-retrieve:
+    type: boolean
+    default: False
+    description: Enable "Retrieve password" instance action.
   prefer-ipv6:
     type: boolean
     default: False
