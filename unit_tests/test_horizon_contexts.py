@@ -133,7 +133,7 @@ class TestHorizonContexts(CharmTestCase):
                            "cinder_backup": False})
 
     def test_HorizonContext_ubuntu_theme(self):
-        self.test_config.set('ubuntu-theme', False)
+        self.test_config.set('ubuntu-theme', 'False')
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': False,
                            'default_role': 'Member', 'webroot': '/horizon',
@@ -150,7 +150,7 @@ class TestHorizonContexts(CharmTestCase):
                            "cinder_backup": False})
 
     def test_HorizonContext_default_theme(self):
-        self.test_config.set('ubuntu-theme', False)
+        self.test_config.set('ubuntu-theme', 'False')
         self.test_config.set('default-theme', 'material')
         self.assertEquals(horizon_contexts.HorizonContext()(),
                           {'compress_offline': True, 'debug': False,
@@ -166,6 +166,10 @@ class TestHorizonContexts(CharmTestCase):
                            "neutron_network_firewall": False,
                            "neutron_network_vpn": False,
                            "cinder_backup": False})
+
+    def test_HorizonContext_default_theme_true(self):
+        self.test_config.set('ubuntu-theme', 'true')
+        self.assertTrue(horizon_contexts.HorizonContext()()['ubuntu_theme'])
 
     def test_HorizonContext_compression(self):
         self.test_config.set('offline-compression', 'no')

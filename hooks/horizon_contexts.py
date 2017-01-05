@@ -25,6 +25,7 @@ from charmhelpers.core.hookenv import (
     WARNING,
     ERROR,
 )
+from charmhelpers.core.strutils import bool_from_string
 from charmhelpers.contrib.openstack.context import (
     OSContextGenerator,
     HAProxyContext,
@@ -178,11 +179,12 @@ class HorizonContext(OSContextGenerator):
         ''' Provide all configuration for Horizon '''
         projects_yaml = git_default_repos(config('openstack-origin-git'))
         ctxt = {
-            'compress_offline': config('offline-compression') in ['yes', True],
-            'debug': config('debug') in ['yes', True],
+            'compress_offline':
+                bool_from_string(config('offline-compression')),
+            'debug': bool_from_string(config('debug')),
             'default_role': config('default-role'),
             "webroot": config('webroot'),
-            "ubuntu_theme": config('ubuntu-theme') in ['yes', True],
+            "ubuntu_theme": bool_from_string(config('ubuntu-theme')),
             "default_theme": config('default-theme'),
             "secret": config('secret') or pwgen(),
             'support_profile': config('profile')
