@@ -256,6 +256,9 @@ OPENSTACK_KEYSTONE_BACKEND = {
 # Setting this to True, will add a new "Retrieve Password" action on instance,
 # allowing Admin session password retrieval/decryption.
 #OPENSTACK_ENABLE_PASSWORD_RETRIEVE = False
+{% if password_retrieve %}
+OPENSTACK_ENABLE_PASSWORD_RETRIEVE = True
+{% endif %}
 
 # The Launch Instance user experience has been significantly enhanced.
 # You can choose whether to enable the new launch instance experience,

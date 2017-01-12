@@ -195,6 +195,7 @@ class HorizonContext(OSContextGenerator):
             "neutron_network_firewall": config("neutron-network-firewall"),
             "neutron_network_vpn": config("neutron-network-vpn"),
             "cinder_backup": config("cinder-backup"),
+            "password_retrieve": config("password-retrieve"),
             'virtualenv': git_pip_venv_dir(projects_yaml)
             if config('openstack-origin-git') else None,
         }
