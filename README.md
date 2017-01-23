@@ -71,7 +71,7 @@ If 'dns-ha' is set and none of the os-{admin,internal,public}-hostname(s) are
 set
 
 Whichever method has been used to cluster the charm the 'secret' option
-should be set to ensure that the Django secret is consistent accross all units.
+should be set to ensure that the Django secret is consistent across all units.
 
 Keystone V3
 ===========
