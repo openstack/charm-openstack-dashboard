@@ -276,7 +276,8 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
 
         # Services which are expected to restart upon config change,
         # and corresponding config files affected by the change
-        services = {'apache2': '/etc/openstack-dashboard/local_settings.py'}
+        services = {'apache2': '/etc/openstack-dashboard/local_settings.py',
+                    'memcached': '/etc/openstack-dashboard/local_settings.py'}
 
         # Make config change, check for service restarts
         u.log.debug('Making config change on {}...'.format(juju_service))

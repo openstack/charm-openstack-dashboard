@@ -83,20 +83,30 @@ class TestHorizohorizon_utils(CharmTestCase):
 
     def test_restart_map(self):
         ex_map = OrderedDict([
-            ('/etc/openstack-dashboard/local_settings.py', ['apache2']),
-            ('/etc/apache2/conf.d/openstack-dashboard.conf', ['apache2']),
+            ('/etc/openstack-dashboard/local_settings.py',
+             ['apache2', 'memcached']),
+            ('/etc/apache2/conf.d/openstack-dashboard.conf',
+             ['apache2', 'memcached']),
             ('/etc/apache2/conf-available/openstack-dashboard.conf',
-             ['apache2']),
-            ('/etc/apache2/sites-available/default-ssl', ['apache2']),
-            ('/etc/apache2/sites-available/default-ssl.conf', ['apache2']),
-            ('/etc/apache2/sites-available/default', ['apache2']),
-            ('/etc/apache2/sites-available/000-default.conf', ['apache2']),
-            ('/etc/apache2/ports.conf', ['apache2']),
-            ('/etc/haproxy/haproxy.cfg', ['haproxy']),
+             ['apache2', 'memcached']),
+            ('/etc/apache2/sites-available/default-ssl',
+             ['apache2', 'memcached']),
+            ('/etc/apache2/sites-available/default-ssl.conf',
+             ['apache2', 'memcached']),
+            ('/etc/apache2/sites-available/default',
+             ['apache2', 'memcached']),
+            ('/etc/apache2/sites-available/000-default.conf',
+             ['apache2', 'memcached']),
+            ('/etc/apache2/ports.conf',
+             ['apache2', 'memcached']),
+            ('/etc/haproxy/haproxy.cfg',
+             ['haproxy']),
             ('/usr/share/openstack-dashboard/openstack_dashboard/enabled/'
-             '_40_router.py', ['apache2']),
+             '_40_router.py',
+             ['apache2', 'memcached']),
             ('/usr/share/openstack-dashboard/openstack_dashboard/conf/'
-             'keystonev3_policy.json', ['apache2']),
+             'keystonev3_policy.json',
+             ['apache2', 'memcached']),
         ])
         self.assertEquals(horizon_utils.restart_map(), ex_map)
 

@@ -130,39 +130,39 @@ CONFIG_FILES = OrderedDict([
                           horizon_contexts.IdentityServiceContext(),
                           context.SyslogContext(),
                           horizon_contexts.LocalSettingsContext()],
-        'services': ['apache2']
+        'services': ['apache2', 'memcached']
     }),
     (APACHE_CONF, {
         'hook_contexts': [horizon_contexts.HorizonContext(),
                           context.SyslogContext()],
-        'services': ['apache2'],
+        'services': ['apache2', 'memcached'],
     }),
     (APACHE_24_CONF, {
         'hook_contexts': [horizon_contexts.HorizonContext(),
                           context.SyslogContext()],
-        'services': ['apache2'],
+        'services': ['apache2', 'memcached'],
     }),
     (APACHE_SSL, {
         'hook_contexts': [horizon_contexts.ApacheSSLContext(),
                           horizon_contexts.ApacheContext()],
-        'services': ['apache2'],
+        'services': ['apache2', 'memcached'],
     }),
     (APACHE_24_SSL, {
         'hook_contexts': [horizon_contexts.ApacheSSLContext(),
                           horizon_contexts.ApacheContext()],
-        'services': ['apache2'],
+        'services': ['apache2', 'memcached'],
     }),
     (APACHE_DEFAULT, {
         'hook_contexts': [horizon_contexts.ApacheContext()],
-        'services': ['apache2'],
+        'services': ['apache2', 'memcached'],
     }),
     (APACHE_24_DEFAULT, {
         'hook_contexts': [horizon_contexts.ApacheContext()],
-        'services': ['apache2'],
+        'services': ['apache2', 'memcached'],
     }),
     (PORTS_CONF, {
         'hook_contexts': [horizon_contexts.ApacheContext()],
-        'services': ['apache2'],
+        'services': ['apache2', 'memcached'],
     }),
     (HAPROXY_CONF, {
         'hook_contexts': [
@@ -173,11 +173,11 @@ CONFIG_FILES = OrderedDict([
     }),
     (ROUTER_SETTING, {
         'hook_contexts': [horizon_contexts.RouterSettingContext()],
-        'services': ['apache2'],
+        'services': ['apache2', 'memcached'],
     }),
     (KEYSTONEV3_POLICY, {
         'hook_contexts': [horizon_contexts.IdentityServiceContext()],
-        'services': ['apache2'],
+        'services': ['apache2', 'memcached'],
     }),
 ])
 

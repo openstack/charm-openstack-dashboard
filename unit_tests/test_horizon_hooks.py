@@ -189,8 +189,10 @@ class TestHorizonHooks(CharmTestCase):
         self.assertTrue(self.CONFIGS.write_all.called)
         ex = [
             call('stop', 'apache2'),
+            call('stop', 'memcached'),
             call('stop', 'haproxy'),
             call('start', 'apache2'),
+            call('start', 'memcached'),
             call('start', 'haproxy'),
         ]
         self.assertEquals(ex, _service.call_args_list)
