@@ -184,7 +184,7 @@ class HorizonContext(OSContextGenerator):
             'debug': bool_from_string(config('debug')),
             'customization_module': config('customization-module'),
             'default_role': config('default-role'),
-            "webroot": config('webroot'),
+            "webroot": config('webroot') or '/',
             "ubuntu_theme": bool_from_string(config('ubuntu-theme')),
             "default_theme": config('default-theme'),
             "secret": config('secret') or pwgen(),
