@@ -272,7 +272,7 @@ class LocalSettingsContext(OSContextGenerator):
 
         relations = []
 
-        for rid in relation_ids("plugin"):
+        for rid in relation_ids("dashboard-plugin"):
             try:
                 unit = related_units(rid)[0]
             except IndexError:
