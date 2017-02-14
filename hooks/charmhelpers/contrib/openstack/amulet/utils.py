@@ -20,6 +20,7 @@ import re
 import six
 import time
 import urllib
+import urlparse
 
 import cinderclient.v1.client as cinder_client
 import glanceclient.v1.client as glance_client
@@ -37,6 +38,7 @@ import swiftclient
 from charmhelpers.contrib.amulet.utils import (
     AmuletUtils
 )
+from charmhelpers.core.decorators import retry_on_exception
 
 DEBUG = logging.DEBUG
 ERROR = logging.ERROR
@@ -303,6 +305,46 @@ class OpenStackAmuletUtils(AmuletUtils):
         self.log.debug('Checking if tenant exists ({})...'.format(tenant))
         return tenant in [t.name for t in keystone.tenants.list()]
 
+    @retry_on_exception(5, base_delay=10)
+    def keystone_wait_for_propagation(self, sentry_relation_pairs,
+                                      api_version):
+        """Iterate over list of sentry and relation tuples and verify that
+           api_version has the expected value.
+
+        :param sentry_relation_pairs: list of sentry, relation name tuples used
+                                      for monitoring propagation of relation
+                                      data
+        :param api_version: api_version to expect in relation data
+        :returns: None if successful.  Raise on error.
+        """
+        for (sentry, relation_name) in sentry_relation_pairs:
+            rel = sentry.relation('identity-service',
+                                  relation_name)
+            self.log.debug('keystone relation data: {}'.format(rel))
+            if rel['api_version'] != str(api_version):
+                raise Exception("api_version not propagated through relation"
+                                " data yet ('{}' != '{}')."
+                                "".format(rel['api_version'], api_version))
+
+    def keystone_configure_api_version(self, sentry_relation_pairs, deployment,
+                                       api_version):
+        """Configure preferred-api-version of keystone in deployment and
+           monitor provided list of relation objects for propagation
+           before returning to caller.
+
+        :param sentry_relation_pairs: list of sentry, relation tuples used for
+                                      monitoring propagation of relation data
+        :param deployment: deployment to configure
+        :param api_version: value preferred-api-version will be set to
+        :returns: None if successful.  Raise on error.
+        """
+        self.log.debug("Setting keystone preferred-api-version: '{}'"
+                       "".format(api_version))
+
+        config = {'preferred-api-version': api_version}
+        deployment.d.configure('keystone', config)
+        self.keystone_wait_for_propagation(sentry_relation_pairs, api_version)
+
     def authenticate_cinder_admin(self, keystone_sentry, username,
                                   password, tenant):
         """Authenticates admin user with cinder."""
@@ -310,6 +352,37 @@ class OpenStackAmuletUtils(AmuletUtils):
         keystone_ip = keystone_sentry.info['public-address']
         ept = "http://{}:5000/v2.0".format(keystone_ip.strip().decode('utf-8'))
         return cinder_client.Client(username, password, tenant, ept)
+
+    def authenticate_keystone(self, keystone_ip, username, password,
+                              api_version=False, admin_port=False,
+                              user_domain_name=None, domain_name=None,
+                              project_domain_name=None, project_name=None):
+        """Authenticate with Keystone"""
+        self.log.debug('Authenticating with keystone...')
+        port = 5000
+        if admin_port:
+            port = 35357
+        base_ep = "http://{}:{}".format(keystone_ip.strip().decode('utf-8'),
+                                        port)
+        if not api_version or api_version == 2:
+            ep = base_ep + "/v2.0"
+            return keystone_client.Client(username=username, password=password,
+                                          tenant_name=project_name,
+                                          auth_url=ep)
+        else:
+            ep = base_ep + "/v3"
+            auth = keystone_id_v3.Password(
+                user_domain_name=user_domain_name,
+                username=username,
+                password=password,
+                domain_name=domain_name,
+                project_domain_name=project_domain_name,
+                project_name=project_name,
+                auth_url=ep
+            )
+            return keystone_client_v3.Client(
+                session=keystone_session.Session(auth=auth)
+            )
 
     def authenticate_keystone_admin(self, keystone_sentry, user, password,
                                     tenant=None, api_version=None,
@@ -319,30 +392,28 @@ class OpenStackAmuletUtils(AmuletUtils):
         if not keystone_ip:
             keystone_ip = keystone_sentry.info['public-address']
 
-        base_ep = "http://{}:35357".format(keystone_ip.strip().decode('utf-8'))
-        if not api_version or api_version == 2:
-            ep = base_ep + "/v2.0"
-            return keystone_client.Client(username=user, password=password,
-                                          tenant_name=tenant, auth_url=ep)
-        else:
-            ep = base_ep + "/v3"
-            auth = keystone_id_v3.Password(
-                user_domain_name='admin_domain',
-                username=user,
-                password=password,
-                domain_name='admin_domain',
-                auth_url=ep,
-            )
-            sess = keystone_session.Session(auth=auth)
-            return keystone_client_v3.Client(session=sess)
+        user_domain_name = None
+        domain_name = None
+        if api_version == 3:
+            user_domain_name = 'admin_domain'
+            domain_name = user_domain_name
+
+        return self.authenticate_keystone(keystone_ip, user, password,
+                                          project_name=tenant,
+                                          api_version=api_version,
+                                          user_domain_name=user_domain_name,
+                                          domain_name=domain_name,
+                                          admin_port=True)
 
     def authenticate_keystone_user(self, keystone, user, password, tenant):
         """Authenticates a regular user with the keystone public endpoint."""
         self.log.debug('Authenticating keystone user ({})...'.format(user))
         ep = keystone.service_catalog.url_for(service_type='identity',
                                               endpoint_type='publicURL')
-        return keystone_client.Client(username=user, password=password,
-                                      tenant_name=tenant, auth_url=ep)
+        keystone_ip = urlparse.urlparse(ep).hostname
+
+        return self.authenticate_keystone(keystone_ip, user, password,
+                                          project_name=tenant)
 
     def authenticate_glance_admin(self, keystone):
         """Authenticates admin user with glance."""
@@ -1133,3 +1204,70 @@ class OpenStackAmuletUtils(AmuletUtils):
         else:
             msg = 'No message retrieved.'
             amulet.raise_status(amulet.FAIL, msg)
+
+    def validate_memcache(self, sentry_unit, conf, os_release,
+                          earliest_release=5, section='keystone_authtoken',
+                          check_kvs=None):
+        """Check Memcache is running and is configured to be used
+
+        Example call from Amulet test:
+
+            def test_110_memcache(self):
+                u.validate_memcache(self.neutron_api_sentry,
+                                    '/etc/neutron/neutron.conf',
+                                    self._get_openstack_release())
+
+        :param sentry_unit: sentry unit
+        :param conf: OpenStack config file to check memcache settings
+        :param os_release: Current OpenStack release int code
+        :param earliest_release: Earliest Openstack release to check int code
+        :param section: OpenStack config file section to check
+        :param check_kvs: Dict of settings to check in config file
+        :returns: None
+        """
+        if os_release < earliest_release:
+            self.log.debug('Skipping memcache checks for deployment. {} <'
+                           'mitaka'.format(os_release))
+            return
+        _kvs = check_kvs or {'memcached_servers': 'inet6:[::1]:11211'}
+        self.log.debug('Checking memcached is running')
+        ret = self.validate_services_by_name({sentry_unit: ['memcached']})
+        if ret:
+            amulet.raise_status(amulet.FAIL, msg='Memcache running check'
+                                'failed {}'.format(ret))
+        else:
+            self.log.debug('OK')
+        self.log.debug('Checking memcache url is configured in {}'.format(
+            conf))
+        if self.validate_config_data(sentry_unit, conf, section, _kvs):
+            message = "Memcache config error in: {}".format(conf)
+            amulet.raise_status(amulet.FAIL, msg=message)
+        else:
+            self.log.debug('OK')
+        self.log.debug('Checking memcache configuration in '
+                       '/etc/memcached.conf')
+        contents = self.file_contents_safe(sentry_unit, '/etc/memcached.conf',
+                                           fatal=True)
+        ubuntu_release, _ = self.run_cmd_unit(sentry_unit, 'lsb_release -cs')
+        if ubuntu_release <= 'trusty':
+            memcache_listen_addr = 'ip6-localhost'
+        else:
+            memcache_listen_addr = '::1'
+        expected = {
+            '-p': '11211',
+            '-l': memcache_listen_addr}
+        found = []
+        for key, value in expected.items():
+            for line in contents.split('\n'):
+                if line.startswith(key):
+                    self.log.debug('Checking {} is set to {}'.format(
+                        key,
+                        value))
+                    assert value == line.split()[-1]
+                    self.log.debug(line.split()[-1])
+                    found.append(key)
+        if sorted(found) == sorted(expected.keys()):
+            self.log.debug('OK')
+        else:
+            message = "Memcache config error in: /etc/memcached.conf"
+            amulet.raise_status(amulet.FAIL, msg=message)
