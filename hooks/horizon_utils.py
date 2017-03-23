@@ -40,6 +40,7 @@ from charmhelpers.contrib.openstack.utils import (
     make_assess_status_func,
     is_unit_paused_set,
     os_application_version_set,
+    CompareOpenStackReleases,
 )
 from charmhelpers.contrib.python.packages import (
     pip_install,
@@ -58,6 +59,7 @@ from charmhelpers.core.host import (
     service_restart,
     path_hash,
     service,
+    CompareHostReleases,
 )
 from charmhelpers.fetch import (
     apt_upgrade,
@@ -192,7 +194,7 @@ def register_configs():
              HAPROXY_CONF,
              PORTS_CONF]
 
-    if release >= 'mitaka':
+    if CompareOpenStackReleases(release) >= 'mitaka':
         configs.register(KEYSTONEV3_POLICY,
                          CONFIG_FILES[KEYSTONEV3_POLICY]['hook_contexts'])
         CONFIG_FILES[LOCAL_SETTINGS]['hook_contexts'].append(
@@ -275,7 +277,7 @@ def determine_packages():
 
     release = get_os_codename_install_source(config('openstack-origin'))
     # Really should be handled as a dep in the openstack-dashboard package
-    if release >= 'mitaka':
+    if CompareOpenStackReleases(release) >= 'mitaka':
         packages.append('python-pymysql')
     return list(set(packages))
 
@@ -307,14 +309,15 @@ def do_openstack_upgrade(configs):
 
 def setup_ipv6():
     ubuntu_rel = lsb_release()['DISTRIB_CODENAME'].lower()
-    if ubuntu_rel < "trusty":
+    if CompareHostReleases(ubuntu_rel) < "trusty":
         raise Exception("IPv6 is not supported in the charms for Ubuntu "
                         "versions less than Trusty 14.04")
 
     # Need haproxy >= 1.5.3 for ipv6 so for Trusty if we are <= Kilo we need to
     # use trusty-backports otherwise we can use the UCA.
-    os_pkg = 'openstack-dashboard'
-    if ubuntu_rel == 'trusty' and os_release(os_pkg) < 'liberty':
+    _os_release = os_release('openstack-dashboard')
+    if (ubuntu_rel == 'trusty' and
+            CompareOpenStackReleases(_os_release) < 'liberty'):
         add_source('deb http://archive.ubuntu.com/ubuntu trusty-backports '
                    'main')
         apt_update()

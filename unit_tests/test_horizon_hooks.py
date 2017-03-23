@@ -146,6 +146,7 @@ class TestHorizonHooks(CharmTestCase):
     @patch.object(hooks, 'determine_packages')
     @patch.object(utils, 'git_install_requested')
     def test_install_hook_git(self, _git_requested, _determine_packages):
+        self.os_release.return_value = 'havana'
         _determine_packages.return_value = []
         _git_requested.return_value = True
         self.filter_installed_packages.return_value = ['foo', 'bar']

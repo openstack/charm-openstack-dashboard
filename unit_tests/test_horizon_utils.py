@@ -178,7 +178,7 @@ class TestHorizohorizon_utils(CharmTestCase):
     @patch('os.path.isdir')
     def test_register_configs_pre_install(self, _isdir):
         _isdir.return_value = False
-        self.os_release.return_value = None
+        self.os_release.return_value = 'havana'
         configs = horizon_utils.register_configs()
         confs = [horizon_utils.LOCAL_SETTINGS,
                  horizon_utils.HAPROXY_CONF,

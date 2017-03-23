@@ -47,6 +47,7 @@ from charmhelpers.contrib.openstack.utils import (
     os_release,
     save_script_rc,
     sync_db_with_multi_ipv6_addresses,
+    CompareOpenStackReleases,
 )
 from charmhelpers.contrib.openstack.ha.utils import (
     update_dns_ha_resource_params,
@@ -92,7 +93,8 @@ def install():
 
     apt_update(fatal=True)
     packages = determine_packages()
-    if os_release('openstack-dashboard') < 'icehouse':
+    _os_release = os_release('openstack-dashboard')
+    if CompareOpenStackReleases(_os_release) < 'icehouse':
         packages += ['nodejs', 'node-less']
     if lsb_release()['DISTRIB_CODENAME'] == 'precise':
         # Explicitly upgrade python-six Bug#1420708

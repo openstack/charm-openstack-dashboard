@@ -59,6 +59,7 @@ from charmhelpers.core.host import (
     write_file,
     pwgen,
     lsb_release,
+    CompareHostReleases,
 )
 from charmhelpers.contrib.hahelpers.cluster import (
     determine_apache_port,
@@ -155,7 +156,8 @@ class OSContextGenerator(object):
 
         if self.missing_data:
             self.complete = False
-            log('Missing required data: %s' % ' '.join(self.missing_data), level=INFO)
+            log('Missing required data: %s' % ' '.join(self.missing_data),
+                level=INFO)
         else:
             self.complete = True
         return self.complete
@@ -213,8 +215,9 @@ class SharedDBContext(OSContextGenerator):
                 hostname_key = "{}_hostname".format(self.relation_prefix)
             else:
                 hostname_key = "hostname"
-            access_hostname = get_address_in_network(access_network,
-                                                     unit_get('private-address'))
+            access_hostname = get_address_in_network(
+                access_network,
+                unit_get('private-address'))
             set_hostname = relation_get(attribute=hostname_key,
                                         unit=local_unit())
             if set_hostname != access_hostname:
@@ -308,7 +311,10 @@ def db_ssl(rdata, ctxt, ssl_dir):
 
 class IdentityServiceContext(OSContextGenerator):
 
-    def __init__(self, service=None, service_user=None, rel_name='identity-service'):
+    def __init__(self,
+                 service=None,
+                 service_user=None,
+                 rel_name='identity-service'):
         self.service = service
         self.service_user = service_user
         self.rel_name = rel_name
@@ -457,19 +463,17 @@ class AMQPContext(OSContextGenerator):
                     host = format_ipv6_addr(host) or host
                     rabbitmq_hosts.append(host)
 
-                ctxt['rabbitmq_hosts'] = ','.join(sorted(rabbitmq_hosts))
+                rabbitmq_hosts = sorted(rabbitmq_hosts)
+                ctxt['rabbitmq_hosts'] = ','.join(rabbitmq_hosts)
                 transport_hosts = rabbitmq_hosts
 
             if transport_hosts:
-                transport_url_hosts = ''
-                for host in transport_hosts:
-                    if transport_url_hosts:
-                        format_string = ",{}:{}@{}:{}"
-                    else:
-                        format_string = "{}:{}@{}:{}"
-                    transport_url_hosts += format_string.format(
-                        ctxt['rabbitmq_user'], ctxt['rabbitmq_password'],
-                        host, rabbitmq_port)
+                transport_url_hosts = ','.join([
+                    "{}:{}@{}:{}".format(ctxt['rabbitmq_user'],
+                                         ctxt['rabbitmq_password'],
+                                         host_,
+                                         rabbitmq_port)
+                    for host_ in transport_hosts])
                 ctxt['transport_url'] = "rabbit://{}/{}".format(
                     transport_url_hosts, vhost)
 
@@ -1601,7 +1605,8 @@ class MemcacheContext(OSContextGenerator):
         if ctxt['use_memcache']:
             # Trusty version of memcached does not support ::1 as a listen
             # address so use host file entry instead
-            if lsb_release()['DISTRIB_CODENAME'].lower() > 'trusty':
+            release = lsb_release()['DISTRIB_CODENAME'].lower()
+            if CompareHostReleases(release) > 'trusty':
                 ctxt['memcache_server'] = '::1'
             else:
                 ctxt['memcache_server'] = 'ip6-localhost'

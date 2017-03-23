@@ -31,6 +31,7 @@ from charmhelpers.core.hookenv import (
 
 from charmhelpers.core.host import (
     lsb_release,
+    CompareHostReleases,
 )
 
 try:
@@ -67,6 +68,24 @@ def no_ip_found_error_out(network):
     raise ValueError(errmsg)
 
 
+def _get_ipv6_network_from_address(address):
+    """Get an netaddr.IPNetwork for the given IPv6 address
+    :param address: a dict as returned by netifaces.ifaddresses
+    :returns netaddr.IPNetwork: None if the address is a link local or loopback
+    address
+    """
+    if address['addr'].startswith('fe80') or address['addr'] == "::1":
+        return None
+
+    prefix = address['netmask'].split("/")
+    if len(prefix) > 1:
+        netmask = prefix[1]
+    else:
+        netmask = address['netmask']
+    return netaddr.IPNetwork("%s/%s" % (address['addr'],
+                                        netmask))
+
+
 def get_address_in_network(network, fallback=None, fatal=False):
     """Get an IPv4 or IPv6 address within the network from the host.
 
@@ -100,11 +119,9 @@ def get_address_in_network(network, fallback=None, fatal=False):
 
             if network.version == 6 and netifaces.AF_INET6 in addresses:
                 for addr in addresses[netifaces.AF_INET6]:
-                    if not addr['addr'].startswith('fe80'):
-                        cidr = netaddr.IPNetwork("%s/%s" % (addr['addr'],
-                                                            addr['netmask']))
-                        if cidr in network:
-                            return str(cidr.ip)
+                    cidr = _get_ipv6_network_from_address(addr)
+                    if cidr and cidr in network:
+                        return str(cidr.ip)
 
     if fallback is not None:
         return fallback
@@ -180,18 +197,18 @@ def _get_for_address(address, key):
 
         if address.version == 6 and netifaces.AF_INET6 in addresses:
             for addr in addresses[netifaces.AF_INET6]:
-                if not addr['addr'].startswith('fe80'):
-                    network = netaddr.IPNetwork("%s/%s" % (addr['addr'],
-                                                           addr['netmask']))
-                    cidr = network.cidr
-                    if address in cidr:
-                        if key == 'iface':
-                            return iface
-                        elif key == 'netmask' and cidr:
-                            return str(cidr).split('/')[1]
-                        else:
-                            return addr[key]
+                network = _get_ipv6_network_from_address(addr)
+                if not network:
+                    continue
 
+                cidr = network.cidr
+                if address in cidr:
+                    if key == 'iface':
+                        return iface
+                    elif key == 'netmask' and cidr:
+                        return str(cidr).split('/')[1]
+                    else:
+                        return addr[key]
     return None
 
 
@@ -521,7 +538,8 @@ def port_has_listener(address, port):
 
 def assert_charm_supports_ipv6():
     """Check whether we are able to support charms ipv6."""
-    if lsb_release()['DISTRIB_CODENAME'].lower() < "trusty":
+    release = lsb_release()['DISTRIB_CODENAME'].lower()
+    if CompareHostReleases(release) < "trusty":
         raise Exception("IPv6 is not supported in the charms for Ubuntu "
                         "versions less than Trusty 14.04")
 
