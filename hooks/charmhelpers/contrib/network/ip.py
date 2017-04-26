@@ -111,11 +111,11 @@ def get_address_in_network(network, fallback=None, fatal=False):
         for iface in netifaces.interfaces():
             addresses = netifaces.ifaddresses(iface)
             if network.version == 4 and netifaces.AF_INET in addresses:
-                addr = addresses[netifaces.AF_INET][0]['addr']
-                netmask = addresses[netifaces.AF_INET][0]['netmask']
-                cidr = netaddr.IPNetwork("%s/%s" % (addr, netmask))
-                if cidr in network:
-                    return str(cidr.ip)
+                for addr in addresses[netifaces.AF_INET]:
+                    cidr = netaddr.IPNetwork("%s/%s" % (addr['addr'],
+                                                        addr['netmask']))
+                    if cidr in network:
+                        return str(cidr.ip)
 
             if network.version == 6 and netifaces.AF_INET6 in addresses:
                 for addr in addresses[netifaces.AF_INET6]:
@@ -237,6 +237,16 @@ def format_ipv6_addr(address):
         return "[%s]" % address
 
     return None
+
+
+def is_ipv6_disabled():
+    try:
+        result = subprocess.check_output(
+            ['sysctl', 'net.ipv6.conf.all.disable_ipv6'],
+            stderr=subprocess.STDOUT)
+        return "net.ipv6.conf.all.disable_ipv6 = 1" in result
+    except subprocess.CalledProcessError:
+        return True
 
 
 def get_iface_addr(iface='eth0', inet_type='AF_INET', inc_aliases=False,
@@ -544,31 +554,38 @@ def assert_charm_supports_ipv6():
                         "versions less than Trusty 14.04")
 
 
-def get_relation_ip(interface, config_override=None):
-    """Return this unit's IP for the given relation.
+def get_relation_ip(interface, cidr_network=None):
+    """Return this unit's IP for the given interface.
 
     Allow for an arbitrary interface to use with network-get to select an IP.
-    Handle all address selection options including configuration parameter
-    override and IPv6.
+    Handle all address selection options including passed cidr network and
+    IPv6.
 
-    Usage: get_relation_ip('amqp', config_override='access-network')
+    Usage: get_relation_ip('amqp', cidr_network='10.0.0.0/8')
 
     @param interface: string name of the relation.
-    @param config_override: string name of the config option for network
-           override. Supports legacy network override configuration parameters.
+    @param cidr_network: string CIDR Network to select an address from.
     @raises Exception if prefer-ipv6 is configured but IPv6 unsupported.
     @returns IPv6 or IPv4 address
     """
+    # Select the interface address first
+    # For possible use as a fallback bellow with get_address_in_network
+    try:
+        # Get the interface specific IP
+        address = network_get_primary_address(interface)
+    except NotImplementedError:
+        # If network-get is not available
+        address = get_host_ip(unit_get('private-address'))
 
-    fallback = get_host_ip(unit_get('private-address'))
     if config('prefer-ipv6'):
+        # Currently IPv6 has priority, eventually we want IPv6 to just be
+        # another network space.
         assert_charm_supports_ipv6()
         return get_ipv6_addr()[0]
-    elif config_override and config(config_override):
-        return get_address_in_network(config(config_override),
-                                      fallback)
-    else:
-        try:
-            return network_get_primary_address(interface)
-        except NotImplementedError:
-            return fallback
+    elif cidr_network:
+        # If a specific CIDR network is passed get the address from that
+        # network.
+        return get_address_in_network(cidr_network, address)
+
+    # Return the interface address
+    return address

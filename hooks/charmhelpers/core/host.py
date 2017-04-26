@@ -191,7 +191,7 @@ def service_pause(service_name, init_dir="/etc/init", initd_dir="/etc/init.d",
     upstart_file = os.path.join(init_dir, "{}.conf".format(service_name))
     sysv_file = os.path.join(initd_dir, service_name)
     if init_is_systemd():
-        service('disable', service_name)
+        service('mask', service_name)
     elif os.path.exists(upstart_file):
         override_path = os.path.join(
             init_dir, '{}.override'.format(service_name))
@@ -224,7 +224,7 @@ def service_resume(service_name, init_dir="/etc/init",
     upstart_file = os.path.join(init_dir, "{}.conf".format(service_name))
     sysv_file = os.path.join(initd_dir, service_name)
     if init_is_systemd():
-        service('enable', service_name)
+        service('unmask', service_name)
     elif os.path.exists(upstart_file):
         override_path = os.path.join(
             init_dir, '{}.override'.format(service_name))

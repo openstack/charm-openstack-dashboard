@@ -18,9 +18,6 @@ import amulet
 import os
 import urllib2
 import yaml
-import subprocess
-import json
-import time
 
 from charmhelpers.contrib.openstack.amulet.deployment import (
     OpenStackAmuletDeployment
@@ -84,32 +81,6 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         }
         super(OpenstackDashboardBasicDeployment, self)._add_relations(
             relations)
-
-    def _run_action(self, unit_id, action, *args):
-        command = ["juju", "action", "do", "--format=json", unit_id, action]
-        command.extend(args)
-        print("Running command: %s\n" % " ".join(command))
-        output = subprocess.check_output(command)
-        output_json = output.decode(encoding="UTF-8")
-        data = json.loads(output_json)
-        action_id = data[u'Action queued with id']
-        return action_id
-
-    def _wait_on_action(self, action_id):
-        command = ["juju", "action", "fetch", "--format=json", action_id]
-        while True:
-            try:
-                output = subprocess.check_output(command)
-            except Exception as e:
-                print(e)
-                return False
-            output_json = output.decode(encoding="UTF-8")
-            data = json.loads(output_json)
-            if data[u"status"] == "completed":
-                return True
-            elif data[u"status"] == "failed":
-                return False
-            time.sleep(2)
 
     def _configure_services(self):
         """Configure all of the services."""
@@ -310,16 +281,16 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         assert u.status_get(unit)[0] == "active"
 
         u.log.debug('Running pause action on {}'.format(unit_name))
-        action_id = self._run_action(unit_name, "pause")
+        action_id = u.run_action(unit, "pause")
         u.log.debug('Waiting on action {}'.format(action_id))
-        assert self._wait_on_action(action_id), "Pause action failed."
+        assert u.wait_on_action(action_id), "Pause action failed."
         u.log.debug('Checking for maintenance status on {}'.format(unit_name))
         assert u.status_get(unit)[0] == "maintenance"
 
         u.log.debug('Running resume action on {}'.format(unit_name))
-        action_id = self._run_action(unit_name, "resume")
+        action_id = u.run_action(unit, "resume")
         u.log.debug('Waiting on action {}'.format(action_id))
-        assert self._wait_on_action(action_id), "Resume action failed."
+        assert u.wait_on_action(action_id), "Resume action failed."
         u.log.debug('Checking for active status on {}'.format(unit_name))
         assert u.status_get(unit)[0] == "active"
         u.log.debug('OK')

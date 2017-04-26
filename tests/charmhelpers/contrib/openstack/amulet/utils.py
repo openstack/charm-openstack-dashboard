@@ -547,7 +547,7 @@ class OpenStackAmuletUtils(AmuletUtils):
         """Create the specified instance."""
         self.log.debug('Creating instance '
                        '({}|{}|{})'.format(instance_name, image_name, flavor))
-        image = nova.images.find(name=image_name)
+        image = nova.glance.find_image(image_name)
         flavor = nova.flavors.find(name=flavor)
         instance = nova.servers.create(name=instance_name, image=image,
                                        flavor=flavor)
