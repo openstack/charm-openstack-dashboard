@@ -71,7 +71,6 @@ from horizon_utils import (
 from charmhelpers.contrib.network.ip import (
     get_iface_for_address,
     get_netmask_for_address,
-    get_ipv6_addr,
     is_ipv6,
     get_relation_ip,
 )
@@ -189,10 +188,9 @@ def keystone_changed():
 
 @hooks.hook('cluster-relation-joined')
 def cluster_joined(relation_id=None):
-    if config('prefer-ipv6'):
-        private_addr = get_ipv6_addr(exc_list=[config('vip')])[0]
-        relation_set(relation_id=relation_id,
-                     relation_settings={'private-address': private_addr})
+    private_addr = get_relation_ip('cluster')
+    relation_set(relation_id=relation_id,
+                 relation_settings={'private-address': private_addr})
 
 
 @hooks.hook('cluster-relation-departed',
