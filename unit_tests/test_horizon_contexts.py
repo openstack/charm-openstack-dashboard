@@ -32,7 +32,7 @@ TO_PATCH = [
     'local_unit',
     'unit_get',
     'pwgen',
-    'get_host_ip'
+    'resolve_address',
 ]
 
 
@@ -67,10 +67,10 @@ class TestHorizonContexts(CharmTestCase):
 
     def test_Apachecontext_enforce_ssl(self):
         self.test_config.set('enforce-ssl', True)
-        self.get_host_ip.return_value = '10.0.0.1'
+        self.resolve_address.return_value = 'horizon.example.stack'
         self.assertEqual(horizon_contexts.ApacheContext()(),
                          {'http_port': 70, 'https_port': 433,
-                          'ssl_addr': '10.0.0.1'})
+                          'ssl_addr': 'horizon.example.stack'})
 
     @patch.object(horizon_contexts, 'get_ca_cert', lambda: None)
     @patch('os.chmod')
