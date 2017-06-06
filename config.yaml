@@ -2,70 +2,80 @@ options:
   debug:
     type: string
     default: "no"
-    description: Show Django debug messages.
+    description: Enable Django debug messages.
   use-syslog:
     type: boolean
     default: False
     description: |
       Setting this to True will allow supporting services to log to syslog.
   openstack-origin:
-    default: distro
     type: string
+    default: distro
     description: |
-      Repository from which to install.  May be one of the following:
+      Repository from which to install. May be one of the following:
       distro (default), ppa:somecustom/ppa, a deb url sources entry,
-      or a supported Cloud Archive release pocket.
-
-      Supported Cloud Archive sources include:
-
+      or a supported Ubuntu Cloud Archive e.g.
+      .
       cloud:<series>-<openstack-release>
       cloud:<series>-<openstack-release>/updates
       cloud:<series>-<openstack-release>/staging
       cloud:<series>-<openstack-release>/proposed
-
-      For series=Precise we support cloud archives for openstack-release:
-         * icehouse
-
-      For series=Trusty we support cloud archives for openstack-release:
-         * juno
-         * kilo
-         * ...
-
+      .
+      See https://wiki.ubuntu.com/OpenStack/CloudArchive for info on which
+      cloud archives are available and supported.
+      .
       NOTE: updating this setting to a source that is known to provide
-      a later version of OpenStack will trigger a software upgrade.
+      a later version of OpenStack will trigger a software upgrade unless
+      action-managed-upgrade is set to True.
   openstack-origin-git:
-    default:
     type: string
+    default:
     description: |
       Specifies a default OpenStack release name, or a YAML dictionary
       listing the git repositories to install from.
-
+      .
       The default Openstack release name may be one of the following, where
       the corresponding OpenStack github branch will be used:
-        * liberty
-        * mitaka
-        * newton
-        * master
-
+       * liberty
+       * mitaka
+       * newton
+       * master
+      .
       The YAML must minimally include requirements and horizon repositories,
       and may also include repositories for other dependencies:
-        repositories:
-        - {name: requirements,
-           repository: 'git://github.com/openstack/requirements',
-           branch: master}
-        - {name: horizon,
-           repository: 'git://github.com/openstack/horizon',
-           branch: master}
-        release: master
-  webroot:
-    default: "/horizon"
+       repositories:
+       - {name: requirements,
+          repository: 'git://github.com/openstack/requirements',
+          branch: master}
+       - {name: horizon,
+          repository: 'git://github.com/openstack/horizon',
+          branch: master}
+       release: master
+  action-managed-upgrade:
+    type: boolean
+    default: False
+    description: |
+      If True enables openstack upgrades for this charm via juju actions.
+      You will still need to set openstack-origin to the new repository but
+      instead of an upgrade running automatically across all units, it will
+      wait for you to execute the openstack-upgrade action for this charm on
+      each unit. If False it will revert to existing behavior of upgrading
+      all units on config change.
+  harden:
     type: string
+    default:
+    description: |
+      Apply system hardening. Supports a space-delimited list of modules
+      to run. Supported modules currently include os, ssh, apache and mysql.
+  webroot:
+    type: string
+    default: "/horizon"
     description: |
       Directory where application will be accessible, relative to
       http://$hostname/.
   default-role:
-    default: "Member"
     type: string
+    default: "Member"
     description: |
       Default role for Horizon operations that will be created in
       Keystone upon introduction of an identity-service relation.
@@ -73,8 +83,8 @@ options:
     type: boolean
     default: False
     description: |
-        Use DNS HA with MAAS 2.0. Note if this is set do not set vip
-        settings below.
+      Use DNS HA with MAAS 2.0. Note if this is set do not set vip
+      settings below.
   vip:
     type: string
     default:
@@ -110,11 +120,11 @@ options:
     description: |
       The hostname or address of the public endpoints created for
       openstack-dashboard.
-
+      .
       This value will be used for public endpoints. For example, an
       os-public-hostname set to 'horizon.example.com' with will create
       the following public endpoint for the swift-proxy:
-
+      .
       https://horizon.example.com/horizon
   os-internal-hostname:
     type: string
@@ -122,11 +132,11 @@ options:
     description: |
       The hostname or address of the internal endpoints created for
       openstack-dashboard.
-
+      .
       This value will be used for internal endpoints. For example, an
       os-internal-hostname set to 'horizon.internal.example.com' with will
       create the following internal endpoint for the swift-proxy:
-
+      .
       https://horizon.internal.example.com/horizon
   os-admin-hostname:
     type: string
@@ -134,21 +144,20 @@ options:
     description: |
       The hostname or address of the admin endpoints created for
       openstack-dashboard.
-
+      .
       This value will be used for admin endpoints. For example, an
       os-admin-hostname set to 'horizon.admin.example.com' with will create
       the following admin endpoint for the swift-proxy:
-
+      .
       https://horizon.admin.example.com/horizon
-  # User provided SSL cert/key/ca
   ssl_cert:
     type: string
     default:
     description: |
       Base64-encoded SSL certificate to install and use for Horizon.
-
-       juju set openstack-dashbaord ssl_cert="$(cat cert| base64)" \
-                                    ssl_key="$(cat key| base64)"
+      .
+      juju set openstack-dashboard ssl_cert="$(cat cert| base64)" \
+                               ssl_key="$(cat key| base64)"
   ssl_key:
     type: string
     default:
@@ -173,10 +182,11 @@ options:
     type: string
     default:
     description: |
-      Specify path to theme to use
-      (relative to /usr/share/openstack-dashboard/openstack_dashboard/themes/).
-      NOTE: This setting is supported when deploying OpenStack Liberty or
-      newer. This setting and ubuntu-theme setting are mutually exclusive.
+      Specify path to theme to use (relative to
+      /usr/share/openstack-dashboard/openstack_dashboard/themes/).
+      .
+      NOTE: This setting is supported >= OpenStack Liberty and
+      this setting is mutually exclusive to ubuntu-theme.
   secret:
     type: string
     default:
@@ -240,8 +250,8 @@ options:
       and 'adminURL'. Both the primary and secondary endpoint types can
       be specified by providing multiple comma delimited values.
   nagios_context:
-    default: "juju"
     type: string
+    default: "juju"
     description: |
       Used by the nrpe-external-master subordinate charm.
       A string that will be prepended to instance name to set the host name
@@ -252,55 +262,39 @@ options:
       If you're running multiple environments with the same services in them
       this allows you to differentiate between them.
   nagios_check_http_params:
-    default: "-H localhost -I 127.0.0.1 -u '/' -e 200,301,302"
     type: string
+    default: "-H localhost -I 127.0.0.1 -u '/' -e 200,301,302"
     description: Parameters to pass to the nrpe plugin check_http.
   nagios_servicegroups:
-    default: ""
     type: string
+    default: ""
     description: |
       A comma-separated list of nagios servicegroups. If left empty, the
       nagios_context will be used as the servicegroup.
-  action-managed-upgrade:
-    type: boolean
-    default: False
-    description: |
-      If True enables openstack upgrades for this charm via juju actions.
-      You will still need to set openstack-origin to the new repository but
-      instead of an upgrade running automatically across all units, it will
-      wait for you to execute the openstack-upgrade action for this charm on
-      each unit. If False it will revert to existing behavior of upgrading
-      all units on config change.
   haproxy-server-timeout:
     type: int
     default:
     description: |
-       Server timeout configuration in ms for haproxy, used in HA
-       configurations. If not provided, default value of 30000ms is used.
+      Server timeout configuration in ms for haproxy, used in HA
+      configurations. If not provided, default value of 30000ms is used.
   haproxy-client-timeout:
     type: int
     default:
     description: |
-       Client timeout configuration in ms for haproxy, used in HA
-       configurations. If not provided, default value of 30000ms is used.
+      Client timeout configuration in ms for haproxy, used in HA
+      configurations. If not provided, default value of 30000ms is used.
   haproxy-queue-timeout:
     type: int
     default:
     description: |
-       Queue timeout configuration in ms for haproxy, used in HA
-       configurations. If not provided, default value of 5000ms is used.
+      Queue timeout configuration in ms for haproxy, used in HA
+      configurations. If not provided, default value of 5000ms is used.
   haproxy-connect-timeout:
     type: int
     default:
     description: |
-       Connect timeout configuration in ms for haproxy, used in HA
-       configurations. If not provided, default value of 5000ms is used.
-  harden:
-    default:
-    type: string
-    description: |
-      Apply system hardening. Supports a space-delimited list of modules
-      to run. Supported modules currently include os, ssh, apache and mysql.
+      Connect timeout configuration in ms for haproxy, used in HA
+      configurations. If not provided, default value of 5000ms is used.
   enforce-ssl:
     type: boolean
     default: False
@@ -308,16 +302,16 @@ options:
       If True, redirects plain http requests to https port 443. For this option
       to have an effect, SSL must be configured.
   database-user:
-    default: horizon
     type: string
-    description: Username for Horizon database access (if enabled)
+    default: horizon
+    description: Username for Horizon database access (if enabled).
   database:
+    type: string
     default: horizon
-    type: string
-    description: Database name for Horizon (if enabled)
+    description: Database name for Horizon (if enabled).
   customization-module:
-    default: ""
     type: string
+    default: ""
     description: |
-      Module that overriding layout for customization.
-      This is available from Liberty
+      This option provides a means to enable customisation modules to modify
+      existing dashboards and panels. This is available from Liberty onwards.
