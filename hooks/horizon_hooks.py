@@ -30,6 +30,7 @@ from charmhelpers.core.hookenv import (
     status_set,
     is_leader,
     local_unit,
+    WARNING,
 )
 from charmhelpers.fetch import (
     apt_update, apt_install,
@@ -232,6 +233,14 @@ def ha_relation_joined(relation_id=None):
 
             if iface is not None:
                 vip_key = 'res_horizon_{}_vip'.format(iface)
+                if vip_key in vip_group:
+                    if vip not in resource_params[vip_key]:
+                        vip_key = '{}_{}'.format(vip_key, vip_params)
+                    else:
+                        log("Resource '%s' (vip='%s') already exists in "
+                            "vip group - skipping" % (vip_key, vip), WARNING)
+                        continue
+
                 resources[vip_key] = res_vip
                 resource_params[vip_key] = (
                     'params {ip}="{vip}" cidr_netmask="{netmask}"'
