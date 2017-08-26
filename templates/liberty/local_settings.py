@@ -46,6 +46,11 @@ WEBROOT = '/'
 # settings to better secure the cookies from security exploits
 #CSRF_COOKIE_SECURE = True
 #SESSION_COOKIE_SECURE = True
+{% if ssl_configured %}
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+{% endif %}
+
 
 # Overrides for OpenStack API versions. Use this setting to force the
 # OpenStack dashboard to use a specific API version for a given service API.

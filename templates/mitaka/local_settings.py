@@ -45,6 +45,11 @@ WEBROOT = '/'
 # settings to better secure the cookies from security exploits
 #CSRF_COOKIE_SECURE = True
 #SESSION_COOKIE_SECURE = True
+{% if ssl_configured %}
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+{% endif %}
+
 
 # The absolute path to the directory where message files are collected.
 # The message file must have a .json file extension. When the user logins to

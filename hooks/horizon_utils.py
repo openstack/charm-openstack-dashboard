@@ -132,7 +132,8 @@ CONFIG_FILES = OrderedDict([
         'hook_contexts': [horizon_contexts.HorizonContext(),
                           horizon_contexts.IdentityServiceContext(),
                           context.SyslogContext(),
-                          horizon_contexts.LocalSettingsContext()],
+                          horizon_contexts.LocalSettingsContext(),
+                          horizon_contexts.ApacheSSLContext()],
         'services': ['apache2', 'memcached']
     }),
     (APACHE_CONF, {
@@ -264,6 +265,7 @@ def enable_ssl():
     subprocess.call(['a2ensite', 'default-ssl'])
     subprocess.call(['a2enmod', 'ssl'])
     subprocess.call(['a2enmod', 'rewrite'])
+    subprocess.call(['a2enmod', 'headers'])
 
 
 def determine_packages():

@@ -31,12 +31,14 @@
         SSLProtocol +TLSv1 +TLSv1.1 +TLSv1.2
         SSLCipherSuite HIGH:!RC4:!MD5:!aNULL:!eNULL:!EXP:!LOW:!MEDIUM
 {% if ssl_configured %}
-		SSLCertificateFile {{ ssl_cert }}
-		SSLCertificateKeyFile {{ ssl_key }}
+        SSLCertificateFile {{ ssl_cert }}
+        SSLCertificateKeyFile {{ ssl_key }}
 {% else %}
         SSLCertificateFile  /etc/ssl/certs/ssl-cert-snakeoil.pem
         SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
 {% endif %}
+        Header set X-XSS-Protection "1; mode=block"
+        Header set X-Content-Type-Options "nosniff"
         <FilesMatch "\.(cgi|shtml|phtml|php)$">
                 SSLOptions +StdEnvVars
         </FilesMatch>
