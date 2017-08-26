@@ -1,8 +1,9 @@
 <VirtualHost *:{{ http_port }}>
 
-        {% if ssl_addr -%}
-                RedirectPermanent / https://{{ ssl_addr }}:443/
-        {%- endif %}
+{% if enforce_ssl %}
+        RewriteEngine On
+        RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+{% endif %}
         ServerAdmin webmaster@localhost
 
         DocumentRoot /var/www

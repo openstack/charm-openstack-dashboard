@@ -31,9 +31,6 @@ from charmhelpers.contrib.openstack.context import (
     HAProxyContext,
     context_complete
 )
-from charmhelpers.contrib.openstack.ip import (
-    resolve_address,
-)
 from charmhelpers.contrib.openstack.utils import (
     git_default_repos,
     git_pip_venv_dir,
@@ -211,13 +208,14 @@ class ApacheContext(OSContextGenerator):
         ''' Grab cert and key from configuraton for SSL config '''
         ctxt = {
             'http_port': 70,
-            'https_port': 433
+            'https_port': 433,
+            'enforce_ssl': False
         }
 
         if config('enforce-ssl'):
             # NOTE(dosaboy): if ssl is not configured we shouldn't allow this
             if all(get_cert()):
-                ctxt['ssl_addr'] = resolve_address()
+                ctxt['enforce_ssl'] = True
             else:
                 log("Enforce ssl redirect requested but ssl not configured - "
                     "skipping redirect", level=WARNING)

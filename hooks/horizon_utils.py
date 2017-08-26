@@ -263,6 +263,7 @@ def enable_ssl():
     ''' Enable SSL support in local apache2 instance '''
     subprocess.call(['a2ensite', 'default-ssl'])
     subprocess.call(['a2enmod', 'ssl'])
+    subprocess.call(['a2enmod', 'rewrite'])
 
 
 def determine_packages():

@@ -80,7 +80,8 @@ class TestHorizohorizon_utils(CharmTestCase):
         horizon_utils.enable_ssl()
         _call.assert_has_calls([
             call(['a2ensite', 'default-ssl']),
-            call(['a2enmod', 'ssl'])
+            call(['a2enmod', 'ssl']),
+            call(['a2enmod', 'rewrite'])
         ])
 
     def test_restart_map(self):
