@@ -28,11 +28,13 @@ TO_PATCH = [
     'get_os_codename_install_source',
     'apt_update',
     'apt_upgrade',
+    'apt_install',
     'configure_installation_source',
     'log',
     'cmp_pkgrevno',
     'os_release',
     'os_application_version_set',
+    'reset_os_release',
 ]
 
 openstack_origin_git = \
@@ -110,10 +112,12 @@ class TestHorizohorizon_utils(CharmTestCase):
         ])
         self.assertEquals(horizon_utils.restart_map(), ex_map)
 
-    def test_do_openstack_upgrade(self):
+    @patch.object(horizon_utils, 'determine_packages')
+    def test_do_openstack_upgrade(self, determine_packages):
         self.config.return_value = 'cloud:precise-havana'
         self.get_os_codename_install_source.return_value = 'havana'
         configs = MagicMock()
+        determine_packages.return_value = ['testpkg']
         horizon_utils.do_openstack_upgrade(configs)
         configs.set_release.assert_called_with(openstack_release='havana')
         self.assertTrue(self.log.called)
@@ -124,6 +128,8 @@ class TestHorizohorizon_utils(CharmTestCase):
         ]
         self.apt_upgrade.assert_called_with(options=dpkg_opts,
                                             dist=True, fatal=True)
+        self.apt_install.assert_called_with(['testpkg'], fatal=True)
+        self.reset_os_release.assert_called()
         self.configure_installation_source.assert_called_with(
             'cloud:precise-havana'
         )
