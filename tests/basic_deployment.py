@@ -18,6 +18,7 @@ import amulet
 import os
 import urllib2
 import yaml
+import time
 
 from charmhelpers.contrib.openstack.amulet.deployment import (
     OpenStackAmuletDeployment
@@ -233,6 +234,29 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         if 'OpenStack Dashboard' not in html:
             msg = "Dashboard frontpage check failed"
             amulet.raise_status(amulet.FAIL, msg=msg)
+
+    def test_404_connection(self):
+        """Verify the apache status module gets disabled when
+        hardening apache."""
+
+        u.log.debug('Checking apache mod_status gets disabled.')
+        unit = self.openstack_dashboard_sentry
+        dashboard_relation = unit.relation('identity-service',
+                                           'keystone:identity-service')
+        dashboard_ip = dashboard_relation['private-address']
+
+        u.log.debug('Enabling hardening for apache...')
+        self.d.configure('openstack-dashboard', {'harden': 'apache'})
+        time.sleep(5)  # wait for hook to run
+        self.d.sentry.wait()  # wait for hook to finish
+
+        try:
+            urllib2.urlopen('http://%s/server-status' % (dashboard_ip))
+        except urllib2.HTTPError as e:
+            if e.code == 404:
+                return
+        msg = "Apache mod_status check failed."
+        amulet.raise_status(amulet.FAIL, msg=msg)
 
     def test_900_restart_on_config_change(self):
         """Verify that the specified services are restarted when the

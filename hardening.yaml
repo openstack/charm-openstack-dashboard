@@ -3,3 +3,6 @@
 ssh:
   server:
     use_pam: 'yes' # juju requires this
+apache:
+  hardening:
+    modules_to_disable: ['status']
