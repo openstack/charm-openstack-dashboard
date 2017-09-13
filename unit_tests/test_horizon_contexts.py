@@ -62,8 +62,8 @@ class TestHorizonContexts(CharmTestCase):
         self.pwgen.return_value = "secret"
 
     def test_Apachecontext(self):
-        self.assertEquals(horizon_contexts.ApacheContext()(),
-                          {'http_port': 70, 'https_port': 433})
+        self.assertEqual(horizon_contexts.ApacheContext()(),
+                         {'http_port': 70, 'https_port': 433})
 
     def test_Apachecontext_enforce_ssl(self):
         self.test_config.set('enforce-ssl', True)
@@ -78,10 +78,10 @@ class TestHorizonContexts(CharmTestCase):
         self.get_cert.return_value = ('cert', 'key')
         self.b64decode.side_effect = ['cert', 'key']
         with patch_open() as (_open, _file):
-            self.assertEquals(horizon_contexts.ApacheSSLContext()(),
-                              {'ssl_configured': True,
-                               'ssl_cert': '/etc/ssl/certs/dashboard.cert',
-                               'ssl_key': '/etc/ssl/private/dashboard.key'})
+            self.assertEqual(horizon_contexts.ApacheSSLContext()(),
+                             {'ssl_configured': True,
+                              'ssl_cert': '/etc/ssl/certs/dashboard.cert',
+                              'ssl_key': '/etc/ssl/private/dashboard.key'})
             _open.assert_has_calls([
                 call('/etc/ssl/certs/dashboard.cert', 'w'),
                 call('/etc/ssl/private/dashboard.key', 'w')
@@ -96,92 +96,92 @@ class TestHorizonContexts(CharmTestCase):
     @patch.object(horizon_contexts, 'get_ca_cert', lambda: None)
     def test_ApacheSSLContext_disabled(self):
         self.get_cert.return_value = (None, None)
-        self.assertEquals(horizon_contexts.ApacheSSLContext()(),
-                          {'ssl_configured': False})
+        self.assertEqual(horizon_contexts.ApacheSSLContext()(),
+                         {'ssl_configured': False})
 
     def test_HorizonContext_defaults(self):
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': True, 'debug': False,
-                           'customization_module': '',
-                           'default_role': 'Member', 'webroot': '/horizon',
-                           'ubuntu_theme': True,
-                           'default_theme': None,
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": False,
-                           "neutron_network_l3ha": False,
-                           "neutron_network_lb": False,
-                           "neutron_network_firewall": False,
-                           "neutron_network_vpn": False,
-                           "cinder_backup": False,
-                           "password_retrieve": False,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          }
+                         )
 
     def test_HorizonContext_debug(self):
         self.test_config.set('debug', 'yes')
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': True, 'debug': True,
-                           'customization_module': '',
-                           'default_role': 'Member', 'webroot': '/horizon',
-                           'ubuntu_theme': True,
-                           'default_theme': None,
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": False,
-                           "neutron_network_l3ha": False,
-                           "neutron_network_lb": False,
-                           "neutron_network_firewall": False,
-                           "neutron_network_vpn": False,
-                           "cinder_backup": False,
-                           "password_retrieve": False,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': True,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          }
+                         )
 
     def test_HorizonContext_ubuntu_theme(self):
         self.test_config.set('ubuntu-theme', 'False')
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': True, 'debug': False,
-                           'customization_module': '',
-                           'default_role': 'Member', 'webroot': '/horizon',
-                           'ubuntu_theme': False,
-                           'default_theme': None,
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": False,
-                           "neutron_network_l3ha": False,
-                           "neutron_network_lb": False,
-                           "neutron_network_firewall": False,
-                           "neutron_network_vpn": False,
-                           "cinder_backup": False,
-                           "password_retrieve": False,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': False,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          }
+                         )
 
     def test_HorizonContext_default_theme(self):
         self.test_config.set('ubuntu-theme', 'False')
         self.test_config.set('default-theme', 'material')
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': True, 'debug': False,
-                           'customization_module': '',
-                           'default_role': 'Member', 'webroot': '/horizon',
-                           'ubuntu_theme': False,
-                           'default_theme': 'material',
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": False,
-                           "neutron_network_l3ha": False,
-                           "neutron_network_lb": False,
-                           "neutron_network_firewall": False,
-                           "neutron_network_vpn": False,
-                           "cinder_backup": False,
-                           "password_retrieve": False,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': False,
+                          'default_theme': 'material',
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          }
+                         )
 
     def test_HorizonContext_default_theme_true(self):
         self.test_config.set('ubuntu-theme', 'true')
@@ -189,66 +189,66 @@ class TestHorizonContexts(CharmTestCase):
 
     def test_HorizonContext_compression(self):
         self.test_config.set('offline-compression', 'no')
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': False, 'debug': False,
-                           'customization_module': '',
-                           'default_role': 'Member', 'webroot': '/horizon',
-                           'ubuntu_theme': True,
-                           'default_theme': None,
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": False,
-                           "neutron_network_l3ha": False,
-                           "neutron_network_lb": False,
-                           "neutron_network_firewall": False,
-                           "neutron_network_vpn": False,
-                           "cinder_backup": False,
-                           "password_retrieve": False,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': False, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          }
+                         )
 
     def test_HorizonContext_role(self):
         self.test_config.set('default-role', 'foo')
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': True, 'debug': False,
-                           'customization_module': '',
-                           'default_role': 'foo', 'webroot': '/horizon',
-                           'ubuntu_theme': True,
-                           'default_theme': None,
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": False,
-                           "neutron_network_l3ha": False,
-                           "neutron_network_lb": False,
-                           "neutron_network_firewall": False,
-                           "neutron_network_vpn": False,
-                           "cinder_backup": False,
-                           "password_retrieve": False,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'foo', 'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          }
+                         )
 
     def test_HorizonContext_webroot(self):
         self.test_config.set('webroot', '/')
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': True, 'debug': False,
-                           'customization_module': '',
-                           'default_role': 'Member', 'webroot': '/',
-                           'ubuntu_theme': True,
-                           'default_theme': None,
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": False,
-                           "neutron_network_l3ha": False,
-                           "neutron_network_lb": False,
-                           "neutron_network_firewall": False,
-                           "neutron_network_vpn": False,
-                           "cinder_backup": False,
-                           "password_retrieve": False,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          }
+                         )
 
     def test_HorizonContext_panels(self):
         self.test_config.set('neutron-network-dvr', True)
@@ -257,79 +257,79 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('neutron-network-firewall', True)
         self.test_config.set('neutron-network-vpn', True)
         self.test_config.set('cinder-backup', True)
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': True, 'debug': False,
-                           'customization_module': '',
-                           'default_role': 'Member', 'webroot': '/horizon',
-                           'ubuntu_theme': True,
-                           'default_theme': None,
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": True,
-                           "neutron_network_l3ha": True,
-                           "neutron_network_lb": True,
-                           "neutron_network_firewall": True,
-                           "neutron_network_vpn": True,
-                           "cinder_backup": True,
-                           "password_retrieve": False,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": True,
+                          "neutron_network_l3ha": True,
+                          "neutron_network_lb": True,
+                          "neutron_network_firewall": True,
+                          "neutron_network_vpn": True,
+                          "cinder_backup": True,
+                          "password_retrieve": False,
+                          }
+                         )
 
     def test_HorizonContext_password_retrieve(self):
         self.test_config.set('password-retrieve', True)
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': True, 'debug': False,
-                           'customization_module': '',
-                           'default_role': 'Member', 'webroot': '/horizon',
-                           'ubuntu_theme': True,
-                           'default_theme': None,
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": False,
-                           "neutron_network_l3ha": False,
-                           "neutron_network_lb": False,
-                           "neutron_network_firewall": False,
-                           "neutron_network_vpn": False,
-                           "cinder_backup": False,
-                           "password_retrieve": True,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": True,
+                          }
+                         )
 
     def test_HorizonContext_customization_module(self):
         self.test_config.set('customization-module', 'customization.py')
-        self.assertEquals(horizon_contexts.HorizonContext()(),
-                          {'compress_offline': True, 'debug': False,
-                           'customization_module': 'customization.py',
-                           'default_role': 'Member', 'webroot': '/horizon',
-                           'ubuntu_theme': True,
-                           'default_theme': None,
-                           'virtualenv': None,
-                           'secret': 'secret',
-                           'support_profile': None,
-                           "neutron_network_dvr": False,
-                           "neutron_network_l3ha": False,
-                           "neutron_network_lb": False,
-                           "neutron_network_firewall": False,
-                           "neutron_network_vpn": False,
-                           "cinder_backup": False,
-                           "password_retrieve": False,
-                           }
-                          )
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': 'customization.py',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          }
+                         )
 
     def test_IdentityServiceContext_not_related(self):
         self.relation_ids.return_value = []
         self.context_complete.return_value = False
-        self.assertEquals(horizon_contexts.IdentityServiceContext()(),
-                          {})
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
+                         {})
 
     def test_IdentityServiceContext_no_units(self):
         self.relation_ids.return_value = ['foo']
         self.related_units.return_value = []
         self.context_complete.return_value = False
-        self.assertEquals(horizon_contexts.IdentityServiceContext()(),
-                          {})
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
+                         {})
 
     @patch("horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_no_data(self, mock_format_ipv6_addr):
@@ -337,8 +337,8 @@ class TestHorizonContexts(CharmTestCase):
         self.related_units.return_value = ['bar']
         self.relation_get.side_effect = self.test_relation.get
         self.context_complete.return_value = False
-        self.assertEquals(horizon_contexts.IdentityServiceContext()(),
-                          {})
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
+                         {})
 
     @patch("horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_data(self, mock_format_ipv6_addr):
@@ -348,9 +348,9 @@ class TestHorizonContexts(CharmTestCase):
         self.relation_get.side_effect = self.test_relation.get
         self.test_relation.set({'service_host': 'foo', 'service_port': 5000})
         self.context_complete.return_value = True
-        self.assertEquals(horizon_contexts.IdentityServiceContext()(),
-                          {'service_host': 'foo', 'service_port': 5000,
-                           'api_version': '2', 'service_protocol': 'http'})
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
+                         {'service_host': 'foo', 'service_port': 5000,
+                          'api_version': '2', 'service_protocol': 'http'})
 
     @patch("horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_single_region(self, mock_format_ipv6_addr):
@@ -361,9 +361,9 @@ class TestHorizonContexts(CharmTestCase):
         self.test_relation.set({'service_host': 'foo', 'service_port': 5000,
                                 'region': 'regionOne'})
         self.context_complete.return_value = True
-        self.assertEquals(horizon_contexts.IdentityServiceContext()(),
-                          {'service_host': 'foo', 'service_port': 5000,
-                           'api_version': '2', 'service_protocol': 'http'})
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
+                         {'service_host': 'foo', 'service_port': 5000,
+                          'api_version': '2', 'service_protocol': 'http'})
 
     @patch("horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_multi_region(self, mock_format_ipv6_addr):
@@ -395,7 +395,7 @@ class TestHorizonContexts(CharmTestCase):
             'api_version': '3',
             'admin_domain_id': 'admindomainid'})
         self.context_complete.return_value = True
-        self.assertEquals(horizon_contexts.IdentityServiceContext()(), {
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(), {
             'service_host': 'foo',
             'service_port': 5000,
             'api_version': '3',
@@ -414,7 +414,7 @@ class TestHorizonContexts(CharmTestCase):
             'region': 'regionOne',
             'api_version': '3'})
         self.context_complete.return_value = False
-        self.assertEquals(horizon_contexts.IdentityServiceContext()(), {})
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(), {})
 
     def test_IdentityServiceContext_endpoint_type(self):
         self.test_config.set('endpoint-type', 'internalURL')
@@ -437,11 +437,11 @@ class TestHorizonContexts(CharmTestCase):
         self.local_unit.return_value = 'openstack-dashboard/0'
         self.unit_get.return_value = "10.5.0.1"
         with patch_open() as (_open, _file):
-            self.assertEquals(horizon_contexts.HorizonHAProxyContext()(),
-                              {'units': {'openstack-dashboard-0': '10.5.0.1'},
-                               'service_ports': {'dash_insecure': [80, 70],
-                                                 'dash_secure': [443, 433]},
-                               'prefer_ipv6': False})
+            self.assertEqual(horizon_contexts.HorizonHAProxyContext()(),
+                             {'units': {'openstack-dashboard-0': '10.5.0.1'},
+                              'service_ports': {'dash_insecure': [80, 70],
+                                                'dash_secure': [443, 433]},
+                              'prefer_ipv6': False})
             _open.assert_called_with('/etc/default/haproxy', 'w')
             self.assertTrue(_file.write.called)
 
@@ -454,23 +454,23 @@ class TestHorizonContexts(CharmTestCase):
         self.local_unit.return_value = 'openstack-dashboard/0'
         self.unit_get.return_value = "10.5.0.1"
         with patch_open() as (_open, _file):
-            self.assertEquals(horizon_contexts.HorizonHAProxyContext()(),
-                              {'units': {'openstack-dashboard-0': '10.5.0.1',
-                                         'openstack-dashboard-1': '10.5.0.2',
-                                         'openstack-dashboard-2': '10.5.0.3'},
-                               'service_ports': {'dash_insecure': [80, 70],
-                                                 'dash_secure': [443, 433]},
-                               'prefer_ipv6': False})
+            self.assertEqual(horizon_contexts.HorizonHAProxyContext()(),
+                             {'units': {'openstack-dashboard-0': '10.5.0.1',
+                                        'openstack-dashboard-1': '10.5.0.2',
+                                        'openstack-dashboard-2': '10.5.0.3'},
+                              'service_ports': {'dash_insecure': [80, 70],
+                                                'dash_secure': [443, 433]},
+                              'prefer_ipv6': False})
             _open.assert_called_with('/etc/default/haproxy', 'w')
             self.assertTrue(_file.write.called)
 
     def test_RouterSettingContext(self):
         self.test_config.set('profile', 'cisco')
-        self.assertEquals(horizon_contexts.RouterSettingContext()(),
-                          {'disable_router': False, })
+        self.assertEqual(horizon_contexts.RouterSettingContext()(),
+                         {'disable_router': False, })
         self.test_config.set('profile', None)
-        self.assertEquals(horizon_contexts.RouterSettingContext()(),
-                          {'disable_router': True, })
+        self.assertEqual(horizon_contexts.RouterSettingContext()(),
+                         {'disable_router': True, })
 
     def test_LocalSettingsContext(self):
         self.relation_ids.return_value = ['plugin:0', 'plugin-too:0']
@@ -481,8 +481,8 @@ class TestHorizonContexts(CharmTestCase):
                                          {'priority': 60,
                                           'local-settings': 'BAR = False'}]
 
-        self.assertEquals(horizon_contexts.LocalSettingsContext()(),
-                          {'settings': ['# horizon-plugin-too/0\n'
-                                        'BAR = False',
-                                        '# horizon-plugin/0\n'
-                                        'FOO = True']})
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': ['# horizon-plugin-too/0\n'
+                                       'BAR = False',
+                                       '# horizon-plugin/0\n'
+                                       'FOO = True']})

@@ -196,7 +196,7 @@ class TestHorizonHooks(CharmTestCase):
             call('start', 'memcached'),
             call('start', 'haproxy'),
         ]
-        self.assertEquals(ex, _service.call_args_list)
+        self.assertEqual(ex, _service.call_args_list)
 
     def test_ha_joined_complete_config(self):
         conf = {
