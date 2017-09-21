@@ -193,8 +193,8 @@ OPENSTACK_KEYSTONE_DEFAULT_ROLE = "{{ default_role }}"
 {% if api_version == "3" -%}
 OPENSTACK_KEYSTONE_URL = "{{ service_protocol }}://%s:{{ service_port }}/v3" % OPENSTACK_HOST
 OPENSTACK_API_VERSIONS = { "identity": 3, }
-OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
-OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ admin_domain_id }}"
+OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = "{{ multi_domain }}"
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ default_domain or admin_domain_id }}"
 {% else -%}
 OPENSTACK_KEYSTONE_URL = "{{ service_protocol }}://%s:{{ service_port }}/v2.0" % OPENSTACK_HOST
 {% endif -%}

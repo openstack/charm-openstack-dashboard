@@ -79,6 +79,12 @@ options:
     description: |
       Default role for Horizon operations that will be created in
       Keystone upon introduction of an identity-service relation.
+  default-domain:
+    type: string
+    default:
+    description: |
+      Default domain when authenticating with Horizon. Disables the domain
+      field in the login page.
   dns-ha:
     type: boolean
     default: False
