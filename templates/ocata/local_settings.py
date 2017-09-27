@@ -554,11 +554,15 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
         },
-        {% if use_syslog %}
         'operation': {
             'level': 'INFO',
-            'class': 'logging.handlers.SysLogHandler',
+            'class': 'logging.StreamHandler',
             'formatter': 'operation',
+        },
+        {% if use_syslog %}
+        'syslog': {
+            'level': 'INFO',
+            'class': 'logging.handlers.SysLogHandler',
         },
         {% endif %}
     },
