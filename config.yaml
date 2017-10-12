@@ -337,3 +337,8 @@ options:
     description: |
       This option provides a means to enable customisation modules to modify
       existing dashboards and panels. This is available from Liberty onwards.
+  allow-password-autocompletion:
+    type: boolean
+    default: False
+    description: |
+      Setting this to True will allow password form autocompletion by browser.

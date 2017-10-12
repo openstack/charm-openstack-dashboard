@@ -136,7 +136,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": False,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -159,7 +160,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": False,
                           "default_domain": "example_domain",
-                          "multi_domain": False
+                          "multi_domain": False,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -182,7 +184,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": False,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -205,7 +208,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": False,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -229,7 +233,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": False,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -256,7 +261,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": False,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -279,7 +285,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": False,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -302,7 +309,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": False,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -330,7 +338,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": True,
                           "password_retrieve": False,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -353,7 +362,8 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": True,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
                           }
                          )
 
@@ -376,7 +386,32 @@ class TestHorizonContexts(CharmTestCase):
                           "cinder_backup": False,
                           "password_retrieve": False,
                           "default_domain": None,
-                          "multi_domain": True
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
+                          }
+                         )
+
+    def test_HorizonContext_password_autocompletion(self):
+        self.test_config.set('allow-password-autocompletion', True)
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          "default_domain": None,
+                          "multi_domain": True,
+                          "allow_password_autocompletion": True,
                           }
                          )
 

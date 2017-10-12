@@ -116,6 +116,9 @@ SESSION_COOKIE_SECURE = True
 # Turn off browser autocompletion for forms including the login form and
 # the database creation workflow if so desired.
 #HORIZON_CONFIG["password_autocomplete"] = "off"
+{% if allow_password_autocompletion %}
+HORIZON_CONFIG["password_autocomplete"] = "on"
+{% endif %}
 
 # Setting this to True will disable the reveal button for password fields,
 # including on the login form.
