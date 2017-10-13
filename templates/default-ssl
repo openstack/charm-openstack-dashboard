@@ -33,6 +33,9 @@
 {% if ssl_configured %}
         SSLCertificateFile {{ ssl_cert }}
         SSLCertificateKeyFile {{ ssl_key }}
+{% if enforce_ssl %}
+        Header set Strict-Transport-Security "max-age={{ hsts_max_age_seconds }}"
+{% endif %}
 {% else %}
         SSLCertificateFile  /etc/ssl/certs/ssl-cert-snakeoil.pem
         SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
