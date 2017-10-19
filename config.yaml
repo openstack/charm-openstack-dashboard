@@ -350,3 +350,19 @@ options:
       workflow for image and instance snapshot sources when launching an
       instance. This option has an effect only to Ocata or newer
       releases.
+  image-formats:
+    type: string
+    default: ""
+    description: |
+      The image-formats setting can be used to alter the default list of
+      advertised image formats.  Many installations cannot use all the formats
+      that Glance recognizes, restricting the list here prevents unwanted
+      formats from being listed in Horizon which can lead to confusion.
+      .
+      This setting takes a space separated list, for example: iso qcow2 raw
+      .
+      Supported formats are: aki, ami, ari, docker, iso, ova, qcow2, raw, vdi,
+      vhd, vmdk.
+      .
+      If not provided, leave the option unconfigured which enables all of the
+      above.

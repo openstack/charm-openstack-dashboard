@@ -204,6 +204,7 @@ class HorizonContext(OSContextGenerator):
             'default_domain': config('default-domain'),
             'multi_domain': False if config('default-domain') else True,
             "default_create_volume": config("default-create-volume"),
+            'image_formats': config('image-formats'),
         }
 
         return ctxt
