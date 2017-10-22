@@ -307,6 +307,22 @@ options:
     description: |
       If True, redirects plain http requests to https port 443. For this option
       to have an effect, SSL must be configured.
+  hsts-max-age-seconds:
+    type: int
+    default: 0
+    description: |
+      "max-age" parameter for HSTS(HTTP Strict Transport Security)
+      header. Use with caution since once you set this option, browsers
+      will remember it so they can only use HTTPS (HTTP connection won't
+      be allowed) until max-age expires.
+      .
+      An example value is one year (31536000). However, a shorter
+      max-age such as 24 hours (86400) is recommended during initial
+      rollout in case of any mistakes. For more details on HSTS, refer to:
+      https://developer.mozilla.org/docs/Web/Security/HTTP_strict_transport_security
+      .
+      For this option to have an effect, SSL must be configured and
+      enforce-ssl option must be true.
   database-user:
     type: string
     default: horizon

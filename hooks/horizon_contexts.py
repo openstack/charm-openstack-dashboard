@@ -212,7 +212,8 @@ class ApacheContext(OSContextGenerator):
         ctxt = {
             'http_port': 70,
             'https_port': 433,
-            'enforce_ssl': False
+            'enforce_ssl': False,
+            'hsts_max_age_seconds': config('hsts-max-age-seconds')
         }
 
         if config('enforce-ssl'):
