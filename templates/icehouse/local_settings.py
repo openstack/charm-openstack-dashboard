@@ -508,6 +508,8 @@ except ImportError:
     pass
 {% endif %}
 
+WEBROOT = '{{ webroot }}'
+
 # Default Ubuntu apache configuration uses /horizon as the application root.
 # Configure auth redirects here accordingly.
 {% if webroot == "/" %}
