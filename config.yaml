@@ -342,3 +342,11 @@ options:
     default: False
     description: |
       Setting this to True will allow password form autocompletion by browser.
+  default-create-volume:
+    type: boolean
+    default: True
+    description: |
+      The default value for the option of creating a new volume in the
+      workflow for image and instance snapshot sources when launching an
+      instance. This option has an effect only to Ocata or newer
+      releases.

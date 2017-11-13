@@ -202,7 +202,8 @@ class HorizonContext(OSContextGenerator):
             'virtualenv': git_pip_venv_dir(projects_yaml)
             if config('openstack-origin-git') else None,
             'default_domain': config('default-domain'),
-            'multi_domain': False if config('default-domain') else True
+            'multi_domain': False if config('default-domain') else True,
+            "default_create_volume": config("default-create-volume"),
         }
 
         return ctxt

@@ -138,6 +138,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -162,6 +163,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": "example_domain",
                           "multi_domain": False,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -186,6 +188,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -210,6 +213,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -235,6 +239,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -263,6 +268,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -287,6 +293,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -311,6 +318,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -340,6 +348,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -364,6 +373,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -388,6 +398,7 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": False,
+                          "default_create_volume": True,
                           }
                          )
 
@@ -412,6 +423,32 @@ class TestHorizonContexts(CharmTestCase):
                           "default_domain": None,
                           "multi_domain": True,
                           "allow_password_autocompletion": True,
+                          "default_create_volume": True,
+                          }
+                         )
+
+    def test_HorizonContext_default_create_volume(self):
+        self.test_config.set('default-create-volume', False)
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True, 'debug': False,
+                          'customization_module': '',
+                          'default_role': 'Member', 'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'virtualenv': None,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          "default_domain": None,
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
+                          "default_create_volume": False,
                           }
                          )
 

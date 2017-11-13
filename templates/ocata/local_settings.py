@@ -288,12 +288,16 @@ OPENSTACK_ENABLE_PASSWORD_RETRIEVE = True
 # properties found in the Launch Instance modal.
 #LAUNCH_INSTANCE_DEFAULTS = {
 #    'config_drive': False,
-#    'enable_scheduler_hints': True
+#    'enable_scheduler_hints': True,
 #    'disable_image': False,
 #    'disable_instance_snapshot': False,
 #    'disable_volume': False,
 #    'disable_volume_snapshot': False,
+#    'create_volume': True,
 #}
+LAUNCH_INSTANCE_DEFAULTS = {
+    'create_volume': {{ default_create_volume }}
+}
 
 # The Xen Hypervisor has the ability to set the mount point for volumes
 # attached to instances (other Hypervisors currently do not). Setting
