@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Amulet tests on a basic openstack-dashboard deployment on zesty-ocata."""
+"""Amulet tests on a basic openstack-dashboard deployment on xenial-queens."""
 
 from basic_deployment import OpenstackDashboardBasicDeployment
 
 if __name__ == '__main__':
-    deployment = OpenstackDashboardBasicDeployment(series='zesty')
+    deployment = OpenstackDashboardBasicDeployment(series='xenial',
+                                                   openstack='cloud:xenial-queens',
+                                                   source='cloud:xenial-updates/queens')
     deployment.run_tests()
