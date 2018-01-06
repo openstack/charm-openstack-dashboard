@@ -397,22 +397,24 @@ OPENSTACK_HEAT_STACK = {
 # The OPENSTACK_IMAGE_BACKEND settings can be used to customize features
 # in the OpenStack Dashboard related to the Image service, such as the list
 # of supported image formats.
-#OPENSTACK_IMAGE_BACKEND = {
-#    'image_formats': [
-#        ('', _('Select format')),
-#        ('aki', _('AKI - Amazon Kernel Image')),
-#        ('ami', _('AMI - Amazon Machine Image')),
-#        ('ari', _('ARI - Amazon Ramdisk Image')),
-#        ('docker', _('Docker')),
-#        ('iso', _('ISO - Optical Disk Image')),
-#        ('ova', _('OVA - Open Virtual Appliance')),
-#        ('qcow2', _('QCOW2 - QEMU Emulator')),
-#        ('raw', _('Raw')),
-#        ('vdi', _('VDI - Virtual Disk Image')),
-#        ('vhd', _('VHD - Virtual Hard Disk')),
-#        ('vmdk', _('VMDK - Virtual Machine Disk')),
-#    ],
-#}
+{% if image_formats -%}
+OPENSTACK_IMAGE_BACKEND = {
+    'image_formats': [
+        ('', _('Select format')),
+        {% if 'aki' in image_formats -%}('aki', _('AKI - Amazon Kernel Image')),{% endif %}
+        {% if 'ami' in image_formats -%}('ami', _('AMI - Amazon Machine Image')),{% endif %}
+        {% if 'ari' in image_formats -%}('ari', _('ARI - Amazon Ramdisk Image')),{% endif %}
+        {% if 'docker' in image_formats -%}('docker', _('Docker')),{% endif %}
+        {% if 'iso' in image_formats -%}('iso', _('ISO - Optical Disk Image')),{% endif %}
+        {% if 'ova' in image_formats -%}('ova', _('OVA - Open Virtual Appliance')),{% endif %}
+        {% if 'qcow2' in image_formats -%}('qcow2', _('QCOW2 - QEMU Emulator')),{% endif %}
+        {% if 'raw' in image_formats -%}('raw', _('Raw')),{% endif %}
+        {% if 'vdi' in image_formats -%}('vdi', _('VDI - Virtual Disk Image')),{% endif %}
+        {% if 'vhd' in image_formats -%}('vhd', _('VHD - Virtual Hard Disk')),{% endif %}
+        {% if 'vmdk' in image_formats -%}('vmdk', _('VMDK - Virtual Machine Disk')),{% endif %}
+    ],
+}
+{% endif -%}
 
 # The IMAGE_CUSTOM_PROPERTY_TITLES settings is used to customize the titles for
 # image custom property attributes that appear on image detail pages.
