@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from mock import MagicMock, patch, call
-import os
 from collections import OrderedDict
 import charmhelpers.contrib.openstack.templating as templating
 templating.OSConfigRenderer = MagicMock()
@@ -37,26 +36,15 @@ TO_PATCH = [
     'reset_os_release',
 ]
 
-openstack_origin_git = \
-    """repositories:
-         - {name: requirements,
-            repository: 'git://git.openstack.org/openstack/requirements',
-            branch: stable/juno}
-         - {name: horizon,
-            repository: 'git://git.openstack.org/openstack/horizon',
-            branch: stable/juno}"""
 
-
-class TestHorizohorizon_utils(CharmTestCase):
+class TestHorizonUtils(CharmTestCase):
 
     def setUp(self):
-        super(TestHorizohorizon_utils, self).setUp(horizon_utils, TO_PATCH)
+        super(TestHorizonUtils, self).setUp(horizon_utils, TO_PATCH)
 
     @patch.object(horizon_utils, 'get_os_codename_install_source')
-    @patch.object(horizon_utils, 'git_install_requested')
-    def test_determine_packages(self, _git_install_requested,
+    def test_determine_packages(self,
                                 _get_os_codename_install_source):
-        _git_install_requested.return_value = False
         _get_os_codename_install_source.return_value = 'icehouse'
         self.assertEqual(horizon_utils.determine_packages(), [
             'haproxy',
@@ -68,10 +56,7 @@ class TestHorizohorizon_utils(CharmTestCase):
             'memcached'])
 
     @patch.object(horizon_utils, 'get_os_codename_install_source')
-    @patch.object(horizon_utils, 'git_install_requested')
-    def test_determine_packages_mitaka(self, _git_install_requested,
-                                       _get_os_codename_install_source):
-        _git_install_requested.return_value = False
+    def test_determine_packages_mitaka(self, _get_os_codename_install_source):
         _get_os_codename_install_source.return_value = 'mitaka'
         self.assertTrue('python-pymysql' in horizon_utils.determine_packages())
 
@@ -199,162 +184,6 @@ class TestHorizohorizon_utils(CharmTestCase):
             calls.append(
                 call(conf, horizon_utils.CONFIG_FILES[conf]['hook_contexts']))
         configs.register.assert_has_calls(calls)
-
-    @patch.object(horizon_utils, 'git_install_requested')
-    @patch.object(horizon_utils, 'git_clone_and_install')
-    @patch.object(horizon_utils, 'git_post_install')
-    @patch.object(horizon_utils, 'git_pre_install')
-    def test_git_install(self, git_pre, git_post, git_clone_and_install,
-                         git_requested):
-        projects_yaml = openstack_origin_git
-        git_requested.return_value = True
-        horizon_utils.git_install(projects_yaml)
-        self.assertTrue(git_pre.called)
-        git_clone_and_install.assert_called_with(openstack_origin_git,
-                                                 core_project='horizon')
-        self.assertTrue(git_post.called)
-
-    @patch.object(horizon_utils, 'mkdir')
-    @patch.object(horizon_utils, 'add_user_to_group')
-    @patch.object(horizon_utils, 'add_group')
-    @patch.object(horizon_utils, 'adduser')
-    @patch('subprocess.check_call')
-    def test_git_pre_install(self, check_call, adduser, add_group,
-                             add_user_to_group, mkdir):
-        horizon_utils.git_pre_install()
-        adduser.assert_called_with('horizon', shell='/bin/bash',
-                                   system_user=True)
-        check_call.assert_called_with(['usermod', '--home',
-                                       '/usr/share/openstack-dashboard/',
-                                       'horizon'])
-        add_group.assert_called_with('horizon', system_group=True)
-        add_user_to_group.assert_called_with('horizon', 'horizon')
-        them_dir = '/usr/share/openstack-dashboard-ubuntu-theme'
-        expected = [
-            call('/etc/openstack-dashboard', owner='root',
-                 group='root', perms=0755, force=False),
-            call('/usr/share/openstack-dashboard', owner='root',
-                 group='root', perms=0755, force=False),
-            call('/usr/share/openstack-dashboard/bin/less', owner='root',
-                 group='root', perms=0755, force=False),
-            call(os.path.join(them_dir, 'static/ubuntu/css'),
-                 owner='root', group='root', perms=0755, force=False),
-            call(os.path.join(them_dir, 'static/ubuntu/img'),
-                 owner='root', group='root', perms=0755, force=False),
-            call(os.path.join(them_dir, 'templates'),
-                 owner='root', group='root', perms=0755, force=False),
-            call('/var/lib/openstack-dashboard', owner='horizon',
-                 group='horizon', perms=0700, force=False),
-        ]
-        self.assertEqual(mkdir.call_args_list, expected)
-
-    @patch.object(horizon_utils, 'git_src_dir')
-    @patch.object(horizon_utils, 'service_restart')
-    @patch('shutil.copyfile')
-    @patch('shutil.copytree')
-    @patch('os.path.join')
-    @patch('os.path.exists')
-    @patch('os.symlink')
-    @patch('os.chmod')
-    @patch('os.chown')
-    @patch('os.lchown')
-    @patch('os.walk')
-    @patch('subprocess.check_call')
-    @patch('pwd.getpwnam')
-    @patch('grp.getgrnam')
-    def test_git_post_install(self, grnam, pwnam, check_call, walk, lchown,
-                              chown, chmod, symlink, exists, join, copytree,
-                              copyfile, service_restart, git_src_dir):
-        class IDs(object):
-            pw_uid = 999
-            gr_gid = 999
-        pwnam.return_value = IDs
-        grnam.return_value = IDs
-        projects_yaml = openstack_origin_git
-        join.return_value = 'joined-string'
-        walk.return_value = yield '/root', ['dir'], ['file']
-        exists.return_value = False
-        horizon_utils.git_post_install(projects_yaml)
-        expected = [
-            call('joined-string',
-                 '/usr/share/openstack-dashboard/manage.py'),
-            call('joined-string',
-                 '/usr/share/openstack-dashboard/settings.py'),
-            call('joined-string',
-                 '/etc/openstack-dashboard/local_settings.py'),
-            call('joined-string',
-                 '/etc/apache2/conf-available/openstack-dashboard.conf'),
-            call('joined-string',
-                 '/etc/openstack-dashboard/ubuntu_theme.py'),
-        ]
-        copyfile.assert_has_calls(expected, any_order=True)
-        expected = [
-            call('joined-string',
-                 '/usr/share/openstack-dashboard/openstack_dashboard'),
-            call('joined-string', 'joined-string'),
-            call('joined-string', 'joined-string'),
-            call('joined-string', 'joined-string'),
-        ]
-        copytree.assert_has_calls(expected)
-        expected = [
-            call('/usr/share/openstack-dashboard/static'),
-            call('joined-string'),
-            call('joined-string'),
-            call('joined-string'),
-            call('joined-string'),
-        ]
-        exists.assert_has_calls(expected, any_order=True)
-        dist_pkgs_dir = '/usr/local/lib/python2.7/dist-packages'
-        expected = [
-            call('/usr/share/openstack-dashboard/openstack_dashboard/static',
-                 '/usr/share/openstack-dashboard/static'),
-            call('/etc/openstack-dashboard/ubuntu_theme.py', 'joined-string'),
-            call('/usr/share/openstack-dashboard-ubuntu-theme/static/ubuntu',
-                 'joined-string'),
-            call('/etc/openstack-dashboard/local_settings.py',
-                 'joined-string'),
-            call(os.path.join(dist_pkgs_dir, 'horizon/static/horizon/'),
-                 'joined-string'),
-        ]
-        symlink.assert_has_calls(expected, any_order=True)
-        expected = [
-            call('/var/lib/openstack-dashboard', 0o750),
-            call('/share/openstack-dashboard/manage.py', 0o755),
-        ]
-        chmod.assert_has_calls(expected)
-        expected = [
-            call(['/usr/share/openstack-dashboard/manage.py',
-                  'collectstatic', '--noinput']),
-            call(['/usr/share/openstack-dashboard/manage.py',
-                 'compress', '--force']),
-            call(['a2enconf', 'openstack-dashboard']),
-        ]
-        check_call.assert_has_calls(expected)
-        expected = [
-            call('horizon'),
-        ]
-        pwnam.assert_has_calls(expected)
-        grnam.assert_has_calls(expected)
-        expected = [
-            call('/etc/openstack-dashboard', 999, 999),
-            call('/usr/share/openstack-dashboard/openstack_dashboard/static',
-                 999, 999),
-            call('/var/lib/openstack-dashboard', 999, 999),
-        ]
-        chown.assert_has_calls(expected)
-        expected = [
-            call('/share/openstack-dashboard/openstack_dashboard/static'),
-        ]
-        walk.assert_has_calls(expected)
-        expected = [
-            call('/root/dir', 999, 999),
-            call('/root/file', 999, 999),
-        ]
-        lchown.assert_has_calls(expected)
-        expected = [
-            call('apache2'),
-        ]
-        self.assertEqual(service_restart.call_args_list, expected)
 
     def test_assess_status(self):
         with patch.object(horizon_utils, 'assess_status_func') as asf:

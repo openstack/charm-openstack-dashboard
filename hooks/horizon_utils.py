@@ -13,12 +13,9 @@
 # limitations under the License.
 
 # vim: set ts=4:et
-import grp
 import horizon_contexts
 import os
-import pwd
 import subprocess
-import shutil
 import time
 from collections import OrderedDict
 
@@ -28,13 +25,7 @@ import charmhelpers.contrib.openstack.templating as templating
 from charmhelpers.contrib.openstack.utils import (
     configure_installation_source,
     get_os_codename_install_source,
-    git_install_requested,
-    git_clone_and_install,
-    git_default_repos,
     os_release,
-    git_src_dir,
-    git_pip_venv_dir,
-    git_yaml_value,
     pause_unit,
     resume_unit,
     make_assess_status_func,
@@ -43,21 +34,13 @@ from charmhelpers.contrib.openstack.utils import (
     CompareOpenStackReleases,
     reset_os_release,
 )
-from charmhelpers.contrib.python.packages import (
-    pip_install,
-)
 from charmhelpers.core.hookenv import (
     config,
     log
 )
 from charmhelpers.core.host import (
-    adduser,
-    add_group,
-    add_user_to_group,
     cmp_pkgrevno,
     lsb_release,
-    mkdir,
-    service_restart,
     path_hash,
     service,
     CompareHostReleases,
@@ -81,32 +64,9 @@ BASE_PACKAGES = [
 
 VERSION_PACKAGE = 'openstack-dashboard'
 
-BASE_GIT_PACKAGES = [
-    'apache2',
-    'libapache2-mod-wsgi',
-    'libffi-dev',
-    'libpcre3-dev',
-    'libssl-dev',
-    'libxml2-dev',
-    'libxslt1-dev',
-    'libyaml-dev',
-    'python-dev',
-    'python-lesscpy',
-    'python-pip',
-    'python-setuptools',
-    'zlib1g-dev',
-]
-
 REQUIRED_INTERFACES = {
     'identity': ['identity-service'],
 }
-# ubuntu packages that should not be installed when deploying from git
-GIT_PACKAGE_BLACKLIST = [
-    'openstack-dashboard',
-    'openstack-dashboard-ubuntu-theme',
-    'python-keystoneclient',
-    'python-novaclient',
-]
 
 APACHE_CONF_DIR = "/etc/apache2"
 LOCAL_SETTINGS = "/etc/openstack-dashboard/local_settings.py"
@@ -271,14 +231,6 @@ def enable_ssl():
 def determine_packages():
     """Determine packages to install"""
     packages = BASE_PACKAGES
-
-    if git_install_requested():
-        packages.extend(BASE_GIT_PACKAGES)
-        # don't include packages that will be installed from git
-        packages = list(set(packages))
-        for p in GIT_PACKAGE_BLACKLIST:
-            packages.remove(p)
-
     release = get_os_codename_install_source(config('openstack-origin'))
     # Really should be handled as a dep in the openstack-dashboard package
     if CompareOpenStackReleases(release) >= 'mitaka':
@@ -330,146 +282,6 @@ def setup_ipv6():
                    'main')
         apt_update()
         apt_install('haproxy/trusty-backports', fatal=True)
-
-
-def git_install(projects_yaml):
-    """Perform setup, and install git repos specified in yaml parameter."""
-    if git_install_requested():
-        git_pre_install()
-        projects_yaml = git_default_repos(projects_yaml)
-        git_clone_and_install(projects_yaml, core_project='horizon')
-        git_post_install(projects_yaml)
-
-
-def git_pre_install():
-    """Perform horizon pre-install setup."""
-    dirs = [
-        '/etc/openstack-dashboard',
-        '/usr/share/openstack-dashboard',
-        '/usr/share/openstack-dashboard/bin/less',
-        '/usr/share/openstack-dashboard-ubuntu-theme/static/ubuntu/css',
-        '/usr/share/openstack-dashboard-ubuntu-theme/static/ubuntu/img',
-        '/usr/share/openstack-dashboard-ubuntu-theme/templates',
-        '/var/lib/openstack-dashboard',
-    ]
-
-    adduser('horizon', shell='/bin/bash', system_user=True)
-    subprocess.check_call(['usermod', '--home',
-                          '/usr/share/openstack-dashboard/', 'horizon'])
-    add_group('horizon', system_group=True)
-    add_user_to_group('horizon', 'horizon')
-
-    for d in dirs:
-        if d is '/var/lib/openstack-dashboard':
-            mkdir(d, owner='horizon', group='horizon', perms=0700, force=False)
-        else:
-            mkdir(d, owner='root', group='root', perms=0755, force=False)
-
-
-def git_post_install(projects_yaml):
-    """Perform horizon post-install setup."""
-    projects_yaml = git_default_repos(projects_yaml)
-
-    src_dir = git_src_dir(projects_yaml, 'horizon')
-    copy_files = {
-        'manage': {
-            'src': os.path.join(src_dir, 'manage.py'),
-            'dest': '/usr/share/openstack-dashboard/manage.py',
-        },
-        'settings': {
-            'src': os.path.join(src_dir, 'openstack_dashboard/settings.py'),
-            'dest': '/usr/share/openstack-dashboard/settings.py',
-        },
-        'local_settings_example': {
-            'src': os.path.join(src_dir, 'openstack_dashboard/local',
-                                'local_settings.py.example'),
-            'dest': '/etc/openstack-dashboard/local_settings.py',
-        },
-    }
-
-    for name, files in copy_files.iteritems():
-        if os.path.exists(files['dest']):
-            os.remove(files['dest'])
-        shutil.copyfile(files['src'], files['dest'])
-
-    copy_trees = {
-        'openstack_dashboard': {
-            'src': os.path.join(src_dir, 'openstack_dashboard'),
-            'dest': '/usr/share/openstack-dashboard/openstack_dashboard',
-        },
-    }
-
-    for name, dirs in copy_trees.iteritems():
-        if os.path.exists(dirs['dest']):
-            shutil.rmtree(dirs['dest'])
-        shutil.copytree(dirs['src'], dirs['dest'])
-
-    share_dir = '/usr/share/openstack-dashboard/openstack_dashboard'
-    symlinks = [
-        {'src': '/usr/share/openstack-dashboard/openstack_dashboard/static',
-         'link': '/usr/share/openstack-dashboard/static'},
-        {'src': '/usr/bin/lessc',
-         'link': '/usr/share/openstack-dashboard/bin/less/lessc'},
-        {'src': '/etc/openstack-dashboard/local_settings.py',
-         'link': os.path.join(share_dir, 'local/local_settings.py')},
-        {'src': os.path.join(git_pip_venv_dir(projects_yaml),
-         'local/lib/python2.7/site-packages/horizon/static/horizon/'),
-         'link': os.path.join(share_dir, 'static/horizon')},
-    ]
-
-    for s in symlinks:
-        if os.path.lexists(s['link']):
-            os.remove(s['link'])
-        os.symlink(s['src'], s['link'])
-
-    os.chmod('/var/lib/openstack-dashboard', 0o750)
-    os.chmod('/usr/share/openstack-dashboard/manage.py', 0o755),
-
-    http_proxy = git_yaml_value(projects_yaml, 'http_proxy')
-    if http_proxy:
-        pip_install('python-memcached', proxy=http_proxy,
-                    venv=git_pip_venv_dir(projects_yaml))
-    else:
-        pip_install('python-memcached',
-                    venv=git_pip_venv_dir(projects_yaml))
-    python = os.path.join(git_pip_venv_dir(projects_yaml), 'bin/python')
-    subprocess.check_call([python, '/usr/share/openstack-dashboard/manage.py',
-                           'collectstatic', '--noinput'])
-    subprocess.check_call([python, '/usr/share/openstack-dashboard/manage.py',
-                           'compress', '--force'])
-
-    uid = pwd.getpwnam('horizon').pw_uid
-    gid = grp.getgrnam('horizon').gr_gid
-    os.chown('/etc/openstack-dashboard', uid, gid)
-    os.chown('/usr/share/openstack-dashboard/openstack_dashboard/static',
-             uid, gid)
-    os.chown('/var/lib/openstack-dashboard', uid, gid)
-
-    static_dir = '/usr/share/openstack-dashboard/openstack_dashboard/static'
-    for root, dirs, files in os.walk(static_dir):
-        for d in dirs:
-            os.lchown(os.path.join(root, d), uid, gid)
-        for f in files:
-            os.lchown(os.path.join(root, f), uid, gid)
-
-    if not is_unit_paused_set():
-        service_restart('apache2')
-
-
-def git_post_install_late(projects_yaml):
-    """Perform horizon post-install setup."""
-    projects_yaml = git_default_repos(projects_yaml)
-
-    subprocess.check_call(['a2enconf', 'openstack-dashboard'])
-
-    if not is_unit_paused_set():
-        service_restart('apache2')
-
-    python = os.path.join(git_pip_venv_dir(projects_yaml), 'bin/python')
-    subprocess.check_call([python, '/usr/share/openstack-dashboard/manage.py',
-                           'collectstatic', '--noinput'])
-    subprocess.check_call([python, '/usr/share/openstack-dashboard/manage.py',
-                           'compress', '--force'])
 
 
 # [thedac] Work around apache restart Bug#1552822

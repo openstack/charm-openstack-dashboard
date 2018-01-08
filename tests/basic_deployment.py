@@ -15,9 +15,7 @@
 # limitations under the License.
 
 import amulet
-import os
 import urllib2
-import yaml
 import time
 
 from charmhelpers.contrib.openstack.amulet.deployment import (
@@ -37,14 +35,13 @@ u = OpenStackAmuletUtils(DEBUG)
 class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
     """Amulet tests on a basic openstack-dashboard deployment."""
 
-    def __init__(self, series, openstack=None, source=None, git=False,
+    def __init__(self, series, openstack=None, source=None,
                  stable=False):
         """Deploy the entire test environment."""
         super(OpenstackDashboardBasicDeployment, self).__init__(series,
                                                                 openstack,
                                                                 source,
                                                                 stable)
-        self.git = git
         self._add_services()
         self._add_relations()
         self._configure_services()
@@ -86,34 +83,6 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
     def _configure_services(self):
         """Configure all of the services."""
         horizon_config = {}
-        if self.git:
-            amulet_http_proxy = os.environ.get('AMULET_HTTP_PROXY')
-
-            reqs_repo = 'git://github.com/openstack/requirements'
-            horizon_repo = 'git://github.com/openstack/horizon'
-            if self._get_openstack_release() == self.trusty_icehouse:
-                reqs_repo = 'git://github.com/coreycb/requirements'
-                horizon_repo = 'git://github.com/coreycb/horizon'
-
-            branch = 'stable/' + self._get_openstack_release_string()
-
-            openstack_origin_git = {
-                'repositories': [
-                    {'name': 'requirements',
-                     'repository': reqs_repo,
-                     'branch': branch},
-                    {'name': 'horizon',
-                     'repository': horizon_repo,
-                     'branch': branch},
-                ],
-                'directory': '/mnt/openstack-git',
-                'http_proxy': amulet_http_proxy,
-                'https_proxy': amulet_http_proxy,
-            }
-
-            horizon_config['openstack-origin-git'] = \
-                yaml.dump(openstack_origin_git)
-
         keystone_config = {
             'admin-password': 'openstack',
             'admin-token': 'ubuntutesting',

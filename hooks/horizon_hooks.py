@@ -40,10 +40,7 @@ from charmhelpers.core.host import (
     lsb_release,
 )
 from charmhelpers.contrib.openstack.utils import (
-    config_value_changed,
     configure_installation_source,
-    git_install_requested,
-    git_pip_venv_dir,
     openstack_upgrade_available,
     os_release,
     save_script_rc,
@@ -61,8 +58,6 @@ from horizon_utils import (
     LOCAL_SETTINGS, HAPROXY_CONF,
     enable_ssl,
     do_openstack_upgrade,
-    git_install,
-    git_post_install_late,
     setup_ipv6,
     INSTALL_DIR,
     restart_on_change,
@@ -105,9 +100,6 @@ def install():
         status_set('maintenance', 'Installing packages')
         apt_install(packages, fatal=True)
 
-    status_set('maintenance', 'Git install')
-    git_install(config('openstack-origin-git'))
-
 
 @hooks.hook('upgrade-charm')
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
@@ -139,11 +131,7 @@ def config_changed():
         keystone_joined(relid)
     enable_ssl()
 
-    if git_install_requested():
-        if config_value_changed('openstack-origin-git'):
-            status_set('maintenance', 'Running Git install')
-            git_install(config('openstack-origin-git'))
-    elif not config('action-managed-upgrade'):
+    if not config('action-managed-upgrade'):
         if openstack_upgrade_available('openstack-dashboard'):
             status_set('maintenance', 'Upgrading to new OpenStack release')
             do_openstack_upgrade(configs=CONFIGS)
@@ -163,9 +151,6 @@ def config_changed():
     CONFIGS.write_all()
     open_port(80)
     open_port(443)
-
-    if git_install_requested():
-        git_post_install_late(config('openstack-origin-git'))
 
 
 @hooks.hook('identity-service-relation-joined')
@@ -299,10 +284,7 @@ def update_nrpe_config():
 
 @hooks.hook('dashboard-plugin-relation-joined')
 def plugin_relation_joined(rel_id=None):
-    if git_install_requested():
-        bin_path = git_pip_venv_dir(config('openstack-origin-git'))
-    else:
-        bin_path = '/usr/bin'
+    bin_path = '/usr/bin'
     relation_set(release=os_release("openstack-dashboard"),
                  relation_id=rel_id,
                  bin_path=bin_path,

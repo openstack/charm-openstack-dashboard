@@ -31,10 +31,6 @@ from charmhelpers.contrib.openstack.context import (
     HAProxyContext,
     context_complete
 )
-from charmhelpers.contrib.openstack.utils import (
-    git_default_repos,
-    git_pip_venv_dir,
-)
 from charmhelpers.contrib.hahelpers.apache import (
     get_ca_cert,
     get_cert,
@@ -177,7 +173,6 @@ class IdentityServiceContext(OSContextGenerator):
 class HorizonContext(OSContextGenerator):
     def __call__(self):
         ''' Provide all configuration for Horizon '''
-        projects_yaml = git_default_repos(config('openstack-origin-git'))
         ctxt = {
             'compress_offline':
                 bool_from_string(config('offline-compression')),
@@ -199,8 +194,6 @@ class HorizonContext(OSContextGenerator):
             "allow_password_autocompletion":
             config("allow-password-autocompletion"),
             "password_retrieve": config("password-retrieve"),
-            'virtualenv': git_pip_venv_dir(projects_yaml)
-            if config('openstack-origin-git') else None,
             'default_domain': config('default-domain'),
             'multi_domain': False if config('default-domain') else True,
             "default_create_volume": config("default-create-volume"),

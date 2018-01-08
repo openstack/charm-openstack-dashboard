@@ -6,3 +6,5 @@ tags
 *.sw[nop]
 *.pyc
 .unit-state.db
+.settings
+.stestr
