@@ -30,7 +30,7 @@ TO_PATCH = [
     'b64decode',
     'context_complete',
     'local_unit',
-    'unit_get',
+    'get_relation_ip',
     'pwgen',
 ]
 
@@ -597,7 +597,7 @@ class TestHorizonContexts(CharmTestCase):
     def test_HorizonHAProxyContext_no_cluster(self):
         self.relation_ids.return_value = []
         self.local_unit.return_value = 'openstack-dashboard/0'
-        self.unit_get.return_value = "10.5.0.1"
+        self.get_relation_ip.return_value = "10.5.0.1"
         with patch_open() as (_open, _file):
             self.assertEqual(horizon_contexts.HorizonHAProxyContext()(),
                              {'units': {'openstack-dashboard-0': '10.5.0.1'},
@@ -606,6 +606,7 @@ class TestHorizonContexts(CharmTestCase):
                               'prefer_ipv6': False})
             _open.assert_called_with('/etc/default/haproxy', 'w')
             self.assertTrue(_file.write.called)
+            self.get_relation_ip.assert_called_with('cluster')
 
     def test_HorizonHAProxyContext_clustered(self):
         self.relation_ids.return_value = ['cluster:0']
@@ -614,7 +615,7 @@ class TestHorizonContexts(CharmTestCase):
         ]
         self.relation_get.side_effect = ['10.5.0.2', '10.5.0.3']
         self.local_unit.return_value = 'openstack-dashboard/0'
-        self.unit_get.return_value = "10.5.0.1"
+        self.get_relation_ip.return_value = "10.5.0.1"
         with patch_open() as (_open, _file):
             self.assertEqual(horizon_contexts.HorizonHAProxyContext()(),
                              {'units': {'openstack-dashboard-0': '10.5.0.1',
@@ -625,6 +626,7 @@ class TestHorizonContexts(CharmTestCase):
                               'prefer_ipv6': False})
             _open.assert_called_with('/etc/default/haproxy', 'w')
             self.assertTrue(_file.write.called)
+            self.get_relation_ip.assert_called_with('cluster')
 
     def test_RouterSettingContext(self):
         self.test_config.set('profile', 'cisco')

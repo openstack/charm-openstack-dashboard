@@ -20,7 +20,6 @@ from charmhelpers.core.hookenv import (
     related_units,
     relation_get,
     local_unit,
-    unit_get,
     log,
     WARNING,
     ERROR,
@@ -28,7 +27,6 @@ from charmhelpers.core.hookenv import (
 from charmhelpers.core.strutils import bool_from_string
 from charmhelpers.contrib.openstack.context import (
     OSContextGenerator,
-    HAProxyContext,
     context_complete
 )
 from charmhelpers.contrib.hahelpers.apache import (
@@ -39,6 +37,7 @@ from charmhelpers.contrib.hahelpers.apache import (
 from charmhelpers.contrib.network.ip import (
     get_ipv6_addr,
     format_ipv6_addr,
+    get_relation_ip,
 )
 
 from charmhelpers.core.host import pwgen
@@ -53,7 +52,7 @@ VALID_ENDPOINT_TYPES = {
 }
 
 
-class HorizonHAProxyContext(HAProxyContext):
+class HorizonHAProxyContext(OSContextGenerator):
     def __call__(self):
         '''
         Horizon specific HAProxy context; haproxy is used all the time
@@ -65,7 +64,7 @@ class HorizonHAProxyContext(HAProxyContext):
         if config('prefer-ipv6'):
             cluster_hosts[l_unit] = get_ipv6_addr(exc_list=[config('vip')])[0]
         else:
-            cluster_hosts[l_unit] = unit_get('private-address')
+            cluster_hosts[l_unit] = get_relation_ip('cluster')
 
         for rid in relation_ids('cluster'):
             for unit in related_units(rid):

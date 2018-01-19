@@ -27,6 +27,7 @@ from charmhelpers.core.hookenv import (
     network_get_primary_address,
     unit_get,
     WARNING,
+    NoNetworkBinding,
 )
 
 from charmhelpers.core.host import (
@@ -577,6 +578,9 @@ def get_relation_ip(interface, cidr_network=None):
         address = network_get_primary_address(interface)
     except NotImplementedError:
         # If network-get is not available
+        address = get_host_ip(unit_get('private-address'))
+    except NoNetworkBinding:
+        log("No network binding for {}".format(interface), WARNING)
         address = get_host_ip(unit_get('private-address'))
 
     if config('prefer-ipv6'):

@@ -131,7 +131,8 @@ CONFIG_FILES = OrderedDict([
     (HAPROXY_CONF, {
         'hook_contexts': [
             horizon_contexts.HorizonHAProxyContext(),
-            context.HAProxyContext(singlenode_mode=True),
+            context.HAProxyContext(singlenode_mode=True,
+                                   address_types=[]),
         ],
         'services': ['haproxy'],
     }),
