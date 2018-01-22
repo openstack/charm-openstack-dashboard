@@ -10,7 +10,6 @@ tags:
 series:
   - xenial
   - artful
-  - zesty
   - trusty
 provides:
   nrpe-external-master:
