@@ -112,6 +112,9 @@ options:
     type: string
     default:
     description: |
+      [DEPRECATED] Use os-public-hostname to specify a hostname for
+      openstack-dashboard.
+      .
       The hostname or address of the internal endpoints created for
       openstack-dashboard.
       .
@@ -124,6 +127,9 @@ options:
     type: string
     default:
     description: |
+      [DEPRECATED] Use os-public-hostname to specify a hostname for
+      openstack-dashboard.
+      .
       The hostname or address of the admin endpoints created for
       openstack-dashboard.
       .
