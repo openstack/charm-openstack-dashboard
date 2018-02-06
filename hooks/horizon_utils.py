@@ -238,6 +238,9 @@ def determine_packages():
         packages.append('python-pymysql')
     if CompareOpenStackReleases(release) >= 'ocata':
         packages.append('python-neutron-lbaas-dashboard')
+    if CompareOpenStackReleases(release) >= 'queens':
+        packages.append('python-designate-dashboard')
+        packages.append('python-heat-dashboard')
     return list(set(packages))
 
 
