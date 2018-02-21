@@ -1637,18 +1637,84 @@ class InternalEndpointContext(OSContextGenerator):
     endpoints by default so this allows admins to optionally use internal
     endpoints.
     """
-    def __init__(self, ost_rel_check_pkg_name):
-        self.ost_rel_check_pkg_name = ost_rel_check_pkg_name
+    def __call__(self):
+        return {'use_internal_endpoints': config('use-internal-endpoints')}
+
+
+class VolumeAPIContext(InternalEndpointContext):
+    """Volume API context.
+
+    This context provides information regarding the volume endpoint to use
+    when communicating between services. It determines which version of the
+    API is appropriate for use.
+
+    This value will be determined in the resulting context dictionary
+    returned from calling the VolumeAPIContext object. Information provided
+    by this context is as follows:
+
+        volume_api_version: the volume api version to use, currently
+            'v2' or 'v3'
+        volume_catalog_info: the information to use for a cinder client
+            configuration that consumes API endpoints from the keystone
+            catalog. This is defined as the type:name:endpoint_type string.
+    """
+    # FIXME(wolsen) This implementation is based on the provider being able
+    # to specify the package version to check but does not guarantee that the
+    # volume service api version selected is available. In practice, it is
+    # quite likely the volume service *is* providing the v3 volume service.
+    # This should be resolved when the service-discovery spec is implemented.
+    def __init__(self, pkg):
+        """
+        Creates a new VolumeAPIContext for use in determining which version
+        of the Volume API should be used for communication. A package codename
+        should be supplied for determining the currently installed OpenStack
+        version.
+
+        :param pkg: the package codename to use in order to determine the
+            component version (e.g. nova-common). See
+            charmhelpers.contrib.openstack.utils.PACKAGE_CODENAMES for more.
+        """
+        super(VolumeAPIContext, self).__init__()
+        self._ctxt = None
+        if not pkg:
+            raise ValueError('package name must be provided in order to '
+                             'determine current OpenStack version.')
+        self.pkg = pkg
+
+    @property
+    def ctxt(self):
+        if self._ctxt is not None:
+            return self._ctxt
+        self._ctxt = self._determine_ctxt()
+        return self._ctxt
+
+    def _determine_ctxt(self):
+        """Determines the Volume API endpoint information.
+
+        Determines the appropriate version of the API that should be used
+        as well as the catalog_info string that would be supplied. Returns
+        a dict containing the volume_api_version and the volume_catalog_info.
+        """
+        rel = os_release(self.pkg, base='icehouse')
+        version = '2'
+        if CompareOpenStackReleases(rel) >= 'pike':
+            version = '3'
+
+        service_type = 'volumev{version}'.format(version=version)
+        service_name = 'cinderv{version}'.format(version=version)
+        endpoint_type = 'publicURL'
+        if config('use-internal-endpoints'):
+            endpoint_type = 'internalURL'
+        catalog_info = '{type}:{name}:{endpoint}'.format(
+            type=service_type, name=service_name, endpoint=endpoint_type)
+
+        return {
+            'volume_api_version': version,
+            'volume_catalog_info': catalog_info,
+        }
 
     def __call__(self):
-        ctxt = {'use_internal_endpoints': config('use-internal-endpoints')}
-        rel = os_release(self.ost_rel_check_pkg_name, base='icehouse')
-        if CompareOpenStackReleases(rel) >= 'pike':
-            ctxt['volume_api_version'] = '3'
-        else:
-            ctxt['volume_api_version'] = '2'
-
-        return ctxt
+        return self.ctxt
 
 
 class AppArmorContext(OSContextGenerator):

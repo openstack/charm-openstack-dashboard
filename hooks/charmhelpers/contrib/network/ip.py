@@ -110,7 +110,12 @@ def get_address_in_network(network, fallback=None, fatal=False):
         _validate_cidr(network)
         network = netaddr.IPNetwork(network)
         for iface in netifaces.interfaces():
-            addresses = netifaces.ifaddresses(iface)
+            try:
+                addresses = netifaces.ifaddresses(iface)
+            except ValueError:
+                # If an instance was deleted between
+                # netifaces.interfaces() run and now, its interfaces are gone
+                continue
             if network.version == 4 and netifaces.AF_INET in addresses:
                 for addr in addresses[netifaces.AF_INET]:
                     cidr = netaddr.IPNetwork("%s/%s" % (addr['addr'],
