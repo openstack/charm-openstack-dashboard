@@ -8,3 +8,4 @@ tags
 .unit-state.db
 .settings
 .stestr
+func-results.json
