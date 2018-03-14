@@ -127,6 +127,23 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
                         msg = "Mismatch %s != %s" % (expected[key], value)
                         amulet.raise_status(amulet.FAIL, msg=msg)
 
+    def test_050_local_settings_permissions_regression_check_lp1755027(self):
+        """Assert the intended file permissions on openstack-dashboard's
+           configuration file. Regression coverage for
+           https://bugs.launchpad.net/bugs/1755027."""
+
+        file_path = '/etc/openstack-dashboard/local_settings.py'
+        expected_perms = '640'
+        unit_sentry = self.openstack_dashboard_sentry
+
+        # NOTE(beisner): This could be a new test helper, but it needs
+        # to be a clean backport to stable with high prio, so maybe later.
+        u.log.debug('Checking {} permissions...'.format(file_path))
+        cmd = 'stat -c %a {}'.format(file_path)
+        output, _ = u.run_cmd_unit(unit_sentry, cmd)
+        assert output == expected_perms, \
+            '{} perms not as expected'.format(file_path)
+
     def test_100_services(self):
         """Verify the expected services are running on the corresponding
            service units."""
