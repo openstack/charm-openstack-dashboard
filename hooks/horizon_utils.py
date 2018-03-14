@@ -98,12 +98,14 @@ CONFIG_FILES = OrderedDict([
     }),
     (APACHE_CONF, {
         'hook_contexts': [horizon_contexts.HorizonContext(),
-                          context.SyslogContext()],
+                          context.SyslogContext(),
+                          context.WSGIWorkerConfigContext()],
         'services': ['apache2', 'memcached'],
     }),
     (APACHE_24_CONF, {
         'hook_contexts': [horizon_contexts.HorizonContext(),
-                          context.SyslogContext()],
+                          context.SyslogContext(),
+                          context.WSGIWorkerConfigContext()],
         'services': ['apache2', 'memcached'],
     }),
     (APACHE_SSL, {
