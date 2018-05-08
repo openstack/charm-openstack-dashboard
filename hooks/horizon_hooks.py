@@ -31,6 +31,7 @@ from charmhelpers.core.hookenv import (
     is_leader,
     local_unit,
     WARNING,
+    network_get,
 )
 from charmhelpers.fetch import (
     apt_update, apt_install,
@@ -151,6 +152,8 @@ def config_changed():
     CONFIGS.write_all()
     open_port(80)
     open_port(443)
+
+    websso_trusted_dashboard_changed()
 
 
 @hooks.hook('identity-service-relation-joined')
@@ -340,6 +343,47 @@ def db_changed():
             return
     else:
         log('Not running neutron database migration, not leader')
+
+
+@hooks.hook('websso-fid-service-provider-relation-joined',
+            'websso-fid-service-provider-relation-changed',
+            'websso-fid-service-provider-relation-departed')
+@restart_on_change(restart_map(), stopstart=True, sleep=3)
+def websso_sp_changed():
+    CONFIGS.write_all()
+
+
+@hooks.hook('websso-trusted-dashboard-relation-joined',
+            'websso-trusted-dashboard-relation-changed')
+def websso_trusted_dashboard_changed():
+    """
+    Provide L7 endpoint details for the dashboard and also
+    handle any config changes that may affect those.
+    """
+    relations = relation_ids('websso-trusted-dashboard')
+    if not relations:
+        return
+
+    # TODO: check for vault relation in order to determine url scheme
+    tls_configured = config('ssl-key') or config('enforce-ssl')
+    scheme = 'https://' if tls_configured else 'http://'
+
+    if config('dns-ha') or config('os-public-hostname'):
+        hostname = config('os-public-hostname')
+    elif config('vip'):
+        hostname = config('vip')
+    else:
+        # use an ingress-address of a given unit as a fallback
+        netinfo = network_get('websso-trusted-dashboard')
+        hostname = netinfo['ingress-addresses'][0]
+
+    # provide trusted dashboard URL details
+    for rid in relations:
+        relation_set(relation_id=rid, relation_settings={
+            "scheme": scheme,
+            "hostname": hostname,
+            "path": "/auth/websso/"
+        })
 
 
 def main():

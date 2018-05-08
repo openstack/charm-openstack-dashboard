@@ -93,7 +93,8 @@ CONFIG_FILES = OrderedDict([
                           horizon_contexts.IdentityServiceContext(),
                           context.SyslogContext(),
                           horizon_contexts.LocalSettingsContext(),
-                          horizon_contexts.ApacheSSLContext()],
+                          horizon_contexts.ApacheSSLContext(),
+                          horizon_contexts.WebSSOFIDServiceProviderContext()],
         'services': ['apache2', 'memcached']
     }),
     (APACHE_CONF, {

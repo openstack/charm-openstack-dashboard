@@ -23,6 +23,8 @@ provides:
   dashboard-plugin:
     interface: dashboard-plugin
     scope: container
+  websso-trusted-dashboard:
+    interface: websso-trusted-dashboard
 requires:
   identity-service:
     interface: keystone
@@ -31,6 +33,8 @@ requires:
     scope: container
   shared-db:
     interface: mysql-shared
+  websso-fid-service-provider:
+    interface: websso-fid-service-provider
 peers:
   cluster:
     interface: openstack-dashboard-ha
