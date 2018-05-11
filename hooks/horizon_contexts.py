@@ -44,6 +44,7 @@ from charmhelpers.core.host import pwgen
 
 from base64 import b64decode
 import os
+import json
 
 VALID_ENDPOINT_TYPES = {
     'PUBLICURL': 'publicURL',
@@ -281,4 +282,31 @@ class LocalSettingsContext(OSContextGenerator):
                 for u, rd in sorted(relations,
                                     key=lambda r: r[1]['priority'])]
         }
+        return ctxt
+
+
+class WebSSOFIDServiceProviderContext(OSContextGenerator):
+    interfaces = ['websso-fid-service-provider']
+
+    def __call__(self):
+        websso_keys = ['protocol-name', 'idp-name', 'user-facing-name']
+
+        relations = []
+        for rid in relation_ids("websso-fid-service-provider"):
+            try:
+                # the first unit will do - the assumption is that all
+                # of them should advertise the same data. This needs
+                # refactoring if juju gets per-application relation data
+                # support
+                unit = related_units(rid)[0]
+            except IndexError:
+                pass
+            else:
+                rdata = relation_get(unit=unit, rid=rid)
+                if set(rdata).issuperset(set(websso_keys)):
+                    relations.append({k: json.loads(rdata[k])
+                                      for k in websso_keys})
+        # populate the context with data from one or more
+        # service providers
+        ctxt = {'websso_data': relations} if relations else {}
         return ctxt

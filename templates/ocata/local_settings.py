@@ -991,3 +991,19 @@ ALLOWED_PRIVATE_SUBNET_CIDR = {'ipv4': [], 'ipv6': []}
 #   'phone_num': _('Phone Number'),
 #}
 {{ settings|join('\n\n') }}
+
+{% if websso_data %}
+WEBSSO_ENABLED = True
+WEBSSO_CHOICES = (
+{% for provider_data in websso_data -%}
+    ("{{ '{}_{}'.format(provider_data['idp-name'], provider_data['protocol-name']) }}", "{{ provider_data['user-facing-name'] }}"),
+{% endfor -%}
+    ("credentials", _("Keystone Credentials"))
+)
+
+WEBSSO_IDP_MAPPING = {
+{% for provider_data in websso_data -%}
+    "{{ '{}_{}'.format(provider_data['idp-name'], provider_data['protocol-name']) }}": ("{{ provider_data['idp-name'] }}", "{{ provider_data['protocol-name'] }}"),
+{% endfor -%}
+}
+{% endif %}

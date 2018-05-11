@@ -650,3 +650,76 @@ class TestHorizonContexts(CharmTestCase):
                                        'BAR = False',
                                        '# horizon-plugin/0\n'
                                        'FOO = True']})
+
+    def test_WebSSOFIDServiceProviderContext(self):
+        def relation_ids_side_effect(rname):
+            return {
+                'websso-fid-service-provider': [
+                    'websso-fid-service-provider:0',
+                    'websso-fid-service-provider:1',
+                ]
+            }[rname]
+        self.relation_ids.side_effect = relation_ids_side_effect
+
+        def related_units_side_effect(rid):
+            return {
+                'websso-fid-service-provider:0': [
+                    'keystone-saml-mellon-red/0',
+                    'keystone-saml-mellon-red/1',
+                ],
+                'websso-fid-service-provider:1': [
+                    'keystone-saml-mellon-green/0',
+                    'keystone-saml-mellon-green/1',
+                ],
+            }[rid]
+        self.related_units.side_effect = related_units_side_effect
+
+        def relation_get_side_effect(unit, rid):
+            return {
+                'websso-fid-service-provider:0': {
+                    'keystone-saml-mellon-red/0': {
+                        'ingress-address': '10.0.0.10',
+                        'protocol-name': '"saml2"',
+                        'idp-name': '"red"',
+                        'user-facing-name': '"Red IDP"',
+                    },
+                    'keystone-saml-mellon-red/1': {
+                        'ingress-address': '10.0.0.11',
+                        'protocol-name': '"saml2"',
+                        'idp-name': '"red"',
+                        'user-facing-name': '"Red IDP"',
+                    },
+                },
+                'websso-fid-service-provider:1': {
+                    'keystone-saml-mellon-green/0': {
+                        'ingress-address': '10.0.0.12',
+                        'protocol-name': '"mapped"',
+                        'idp-name': '"green"',
+                        'user-facing-name': '"Green IDP"',
+                    },
+                    'keystone-saml-mellon-green/1': {
+                        'ingress-address': '10.0.0.13',
+                        'protocol-name': '"mapped"',
+                        'idp-name': '"green"',
+                        'user-facing-name': '"Green IDP"',
+                    },
+                },
+            }[rid][unit]
+        self.relation_get.side_effect = relation_get_side_effect
+
+        self.assertEqual(
+            horizon_contexts.WebSSOFIDServiceProviderContext()(),
+            {
+                'websso_data': [
+                    {
+                        'protocol-name': 'saml2',
+                        'idp-name': 'red',
+                        'user-facing-name': "Red IDP",
+                    },
+                    {
+                        'protocol-name': 'mapped',
+                        'idp-name': 'green',
+                        'user-facing-name': "Green IDP",
+                    },
+                ]
+            })
