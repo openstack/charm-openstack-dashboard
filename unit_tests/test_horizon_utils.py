@@ -229,3 +229,19 @@ class TestHorizonUtils(CharmTestCase):
             asf.assert_called_once_with('some-config')
             # ports=None whilst port checks are disabled.
             f.assert_called_once_with('assessor', services='s1', ports=None)
+
+    @patch('subprocess.check_call')
+    def test_db_migration(self, mock_subprocess):
+        self.cmp_pkgrevno.return_value = -1
+        horizon_utils.db_migration()
+        mock_subprocess.assert_called_with(
+            ['/usr/share/openstack-dashboard/manage.py',
+             'syncdb', '--noinput'])
+
+    @patch('subprocess.check_call')
+    def test_db_migration_bionic_and_beyond(self, mock_subprocess):
+        self.cmp_pkgrevno.return_value = 0
+        horizon_utils.db_migration()
+        mock_subprocess.assert_called_with(
+            ['/usr/share/openstack-dashboard/manage.py',
+             'migrate', '--noinput'])
