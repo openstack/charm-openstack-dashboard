@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import amulet
+import requests
 import urllib2
 import time
 
@@ -79,6 +80,7 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         relations = {
             'openstack-dashboard:identity-service':
             'keystone:identity-service',
+            'openstack-dashboard:shared-db': 'percona-cluster:shared-db',
             'keystone:shared-db': 'percona-cluster:shared-db',
         }
         super(OpenstackDashboardBasicDeployment, self)._add_relations(
@@ -86,7 +88,9 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
 
     def _configure_services(self):
         """Configure all of the services."""
-        horizon_config = {}
+        horizon_config = {
+            'debug': 'yes',
+        }
         keystone_config = {
             'admin-password': 'openstack',
             'admin-token': 'ubuntutesting',
@@ -234,6 +238,62 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         if 'OpenStack Dashboard' not in html:
             msg = "Dashboard frontpage check failed"
             amulet.raise_status(amulet.FAIL, msg=msg)
+
+    def test_401_authenticate(self):
+        """Validate that authentication succeeds when client logs in through
+        the OpenStack Dashboard"""
+
+        u.log.debug('Checking authentication through dashboard...')
+        unit = self.openstack_dashboard_sentry
+        dashboard_relation = unit.relation('identity-service',
+                                           'keystone:identity-service')
+        dashboard_ip = dashboard_relation['private-address']
+        url = 'http://{}/horizon/auth/login/'.format(dashboard_ip)
+
+        api_version = None
+        if self._get_openstack_release() < self.xenial_queens:
+            api_version = 2
+
+        region = u.get_keystone_endpoint(
+            self.keystone_sentry.info['public-address'], api_version)
+
+        # start session, get csrftoken
+        client = requests.session()
+        client.get(url)
+        response = client.get(url)
+
+        if 'csrftoken' in client.cookies:
+            csrftoken = client.cookies['csrftoken']
+
+        # build and send post request
+        auth = {
+            'domain': 'admin_domain',
+            'username': 'admin',
+            'password': 'openstack',
+            'csrfmiddlewaretoken': csrftoken,
+            'next': '/horizon/',
+            'region': region,
+        }
+        if api_version == 2:
+            del auth['domain']
+
+        u.log.debug('POST data: "{}"'.format(auth))
+        response = client.post(url, data=auth, headers={'Referer': url})
+
+        if self._get_openstack_release() == self.trusty_icehouse:
+            # icehouse horizon does not operate properly without the compute
+            # service present in the keystone catalog.  However, checking for
+            # presence of the following text is sufficient to determine whether
+            # authentication succeeded or not
+            expect = 'ServiceCatalogException at /admin/'
+        else:
+            expect = 'Projects - OpenStack Dashboard'
+
+        if expect not in response.text:
+            msg = 'FAILURE code={} text="{}"'.format(response, response.text)
+            amulet.raise_status(amulet.FAIL, msg=msg)
+
+        u.log.debug('OK')
 
     def test_404_connection(self):
         """Verify the apache status module gets disabled when

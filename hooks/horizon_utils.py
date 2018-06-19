@@ -407,5 +407,10 @@ def _pause_resume_helper(f, configs):
 
 
 def db_migration():
-    cmd = ['/usr/share/openstack-dashboard/manage.py', 'syncdb', '--noinput']
-    subprocess.call(cmd)
+    if cmp_pkgrevno('python-django', '1.9') >= 0:
+        # syncdb was removed in django 1.9
+        subcommand = 'migrate'
+    else:
+        subcommand = 'syncdb'
+    cmd = ['/usr/share/openstack-dashboard/manage.py', subcommand, '--noinput']
+    subprocess.check_call(cmd)
