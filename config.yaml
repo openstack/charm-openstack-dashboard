@@ -175,6 +175,13 @@ options:
       .
       NOTE: This setting is supported >= OpenStack Liberty and
       this setting is mutually exclusive to ubuntu-theme.
+  custom-theme:
+    type: boolean
+    default: False
+    description: |
+      Use a custom theme supplied as a resource.
+      NOTE: This setting is supported >= OpenStack Mitaka and
+      this setting is mutually exclustive to ubuntu-theme and default-theme.
   secret:
     type: string
     default:

@@ -93,3 +93,22 @@ to also deploy the dashboard with load balancing proxy such as HAProxy:
 
 This option potentially provides better scale-out than using the charm in
 conjunction with the hacluster charm.
+
+
+Custom Theme
+============
+This charm supports providing a custom theme as documented in the [themes
+configuration]. In order to enable this capability the configuration options
+'ubuntu-theme' and 'default-theme' must both be turned off and the option
+'custom-theme' turned on.
+
+Once the option is enabled a custom theme can be provided via a juju resource.
+The resource should be a .tgz file with the contents of your custom theme. If
+the file 'local_settings.py' is included it will be sourced.
+
+    juju attach-resource openstack-dashboard theme=theme.tgz 
+
+Repeating the attach-resource will update the theme and turning off the
+custom-theme option will return to the default.
+
+[themes]: https://docs.openstack.org/horizon/latest/configuration/themes.html
