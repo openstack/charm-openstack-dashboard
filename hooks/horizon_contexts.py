@@ -198,6 +198,8 @@ class HorizonContext(OSContextGenerator):
             'multi_domain': False if config('default-domain') else True,
             "default_create_volume": config("default-create-volume"),
             'image_formats': config('image-formats'),
+            'api_result_limit': config('api-result-limit')
+            if config('api-result-limit') > 0 else 1000,
         }
 
         return ctxt

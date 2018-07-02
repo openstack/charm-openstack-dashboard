@@ -357,3 +357,10 @@ options:
       twice the number of CPU cores a service unit has. When deployed in
       a LXD container, this default value will be capped to 4 workers
       unless this configuration option is set.
+  api-result-limit:
+    type:  int
+    default:
+    description: |
+      The maximum number of objects (e.g. Swift objects or Glance images) to
+      display on a single page before providing a paging element (a “more” link)
+      to paginate results.
