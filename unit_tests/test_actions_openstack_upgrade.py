@@ -36,6 +36,8 @@ from test_utils import (
 )
 
 TO_PATCH = [
+    'CONFIGS',
+    'do_action_openstack_upgrade',
     'do_openstack_upgrade',
     'config_changed',
 ]
@@ -47,28 +49,25 @@ class TestHorizonUpgradeActions(CharmTestCase):
         super(TestHorizonUpgradeActions, self).setUp(openstack_upgrade,
                                                      TO_PATCH)
 
-    @patch('charmhelpers.contrib.openstack.utils.config')
-    @patch('charmhelpers.contrib.openstack.utils.action_set')
-    @patch('charmhelpers.contrib.openstack.utils.openstack_upgrade_available')
-    def test_openstack_upgrade_true(self, upgrade_avail,
-                                    action_set, config):
-        upgrade_avail.return_value = True
-        config.return_value = True
+    def test_openstack_upgrade_true(self):
+
+        self.do_action_openstack_upgrade.return_value = True
+        openstack_upgrade.openstack_upgrade()
+
+        self.do_action_openstack_upgrade.assert_called_once_with(
+            'openstack-dashboard',
+            self.do_openstack_upgrade,
+            self.CONFIGS)
+        self.config_changed.assert_called_once_with()
+
+    def test_openstack_upgrade_false(self):
+        self.do_action_openstack_upgrade.return_value = False
 
         openstack_upgrade.openstack_upgrade()
 
-        self.assertTrue(self.do_openstack_upgrade.called)
-        self.assertTrue(self.config_changed.called)
-
-    @patch('charmhelpers.contrib.openstack.utils.config')
-    @patch('charmhelpers.contrib.openstack.utils.action_set')
-    @patch('charmhelpers.contrib.openstack.utils.openstack_upgrade_available')
-    def test_openstack_upgrade_false(self, upgrade_avail,
-                                     action_set, config):
-        upgrade_avail.return_value = True
-        config.return_value = False
-
-        openstack_upgrade.openstack_upgrade()
-
+        self.do_action_openstack_upgrade.assert_called_once_with(
+            'openstack-dashboard',
+            self.do_openstack_upgrade,
+            self.CONFIGS)
         self.assertFalse(self.do_openstack_upgrade.called)
         self.assertFalse(self.config_changed.called)

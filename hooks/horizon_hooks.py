@@ -39,6 +39,7 @@ from charmhelpers.fetch import (
 )
 from charmhelpers.core.host import (
     lsb_release,
+    service_reload,
 )
 from charmhelpers.contrib.openstack.utils import (
     configure_installation_source,
@@ -71,6 +72,10 @@ from charmhelpers.contrib.network.ip import (
     get_netmask_for_address,
     is_ipv6,
     get_relation_ip,
+)
+from charmhelpers.contrib.openstack.cert_utils import (
+    get_certificate_request,
+    process_certificates,
 )
 from charmhelpers.contrib.hahelpers.apache import install_ca_cert
 from charmhelpers.contrib.hahelpers.cluster import get_hacluster_config
@@ -155,6 +160,9 @@ def config_changed():
     check_custom_theme()
     open_port(80)
     open_port(443)
+    for relid in relation_ids('certificates'):
+        for unit in related_units(relid):
+            certs_changed(relation_id=relid, unit=unit)
 
     websso_trusted_dashboard_changed()
 
@@ -395,6 +403,22 @@ def main():
     except UnregisteredHookError as e:
         log('Unknown hook {} - skipping.'.format(e))
     assess_status(CONFIGS)
+
+
+@hooks.hook('certificates-relation-joined')
+def certs_joined(relation_id=None):
+    relation_set(
+        relation_id=relation_id,
+        relation_settings=get_certificate_request())
+
+
+@hooks.hook('certificates-relation-changed')
+def certs_changed(relation_id=None, unit=None):
+    process_certificates('horizon', relation_id, unit,
+                         custom_hostname_link='dashboard')
+    CONFIGS.write_all()
+    service_reload('apache2')
+    enable_ssl()
 
 
 if __name__ == '__main__':

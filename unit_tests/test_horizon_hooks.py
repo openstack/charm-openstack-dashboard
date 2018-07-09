@@ -273,6 +273,7 @@ class TestHorizonHooks(CharmTestCase):
                 'identity-service': [
                     'identity/0',
                 ],
+                'certificates': [],
             }[rname]
         self.relation_ids.side_effect = relation_ids_side_effect
 
@@ -287,7 +288,6 @@ class TestHorizonHooks(CharmTestCase):
                 'webroot': '/horizon',
             }[key]
         self.config.side_effect = config_side_effect
-
         self.openstack_upgrade_available.return_value = False
         self._call_hook('config-changed')
         _joined.assert_called_with('identity/0')

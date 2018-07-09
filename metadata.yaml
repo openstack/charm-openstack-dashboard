@@ -35,6 +35,8 @@ requires:
     interface: mysql-shared
   websso-fid-service-provider:
     interface: websso-fid-service-provider
+  certificates:
+    interface: tls-certificates
 peers:
   cluster:
     interface: openstack-dashboard-ha
