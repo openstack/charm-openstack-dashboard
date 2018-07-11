@@ -12,7 +12,7 @@ extra-bindings:
 series:
   - xenial
   - bionic
-  - artful
+  - cosmic
   - trusty
 provides:
   nrpe-external-master:
