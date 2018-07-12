@@ -64,6 +64,7 @@ from horizon_utils import (
     restart_on_change,
     assess_status,
     db_migration,
+    check_custom_theme,
 )
 from charmhelpers.contrib.network.ip import (
     get_iface_for_address,
@@ -110,6 +111,7 @@ def upgrade_charm():
     apt_install(filter_installed_packages(determine_packages()), fatal=True)
     update_nrpe_config()
     CONFIGS.write_all()
+    check_custom_theme()
 
 
 @hooks.hook('config-changed')
@@ -150,6 +152,7 @@ def config_changed():
     save_script_rc(**env_vars)
     update_nrpe_config()
     CONFIGS.write_all()
+    check_custom_theme()
     open_port(80)
     open_port(443)
 

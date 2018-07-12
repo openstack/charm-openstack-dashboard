@@ -182,6 +182,7 @@ class HorizonContext(OSContextGenerator):
             "webroot": config('webroot') or '/',
             "ubuntu_theme": bool_from_string(config('ubuntu-theme')),
             "default_theme": config('default-theme'),
+            "custom_theme": config('custom-theme'),
             "secret": config('secret') or pwgen(),
             'support_profile': config('profile')
             if config('profile') in ['cisco'] else None,
@@ -210,7 +211,8 @@ class ApacheContext(OSContextGenerator):
             'http_port': 70,
             'https_port': 433,
             'enforce_ssl': False,
-            'hsts_max_age_seconds': config('hsts-max-age-seconds')
+            'hsts_max_age_seconds': config('hsts-max-age-seconds'),
+            "custom_theme": config('custom-theme'),
         }
 
         if config('enforce-ssl'):

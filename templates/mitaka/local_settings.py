@@ -861,6 +861,13 @@ if '{{ default_theme }}' not in [el[0] for el in AVAILABLE_THEMES]:
        'themes/{{ default_theme }}'),
   ]
 DEFAULT_THEME = '{{ default_theme }}'
+{% elif custom_theme %}
+AVAILABLE_THEMES = []
+try:
+  from custom_theme import *
+except ImportError:
+  pass
+AVAILABLE_THEMES += [ ('custom', 'custom', 'themes/custom') ]
 {% endif %}
 
 WEBROOT = '{{ webroot }}'

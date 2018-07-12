@@ -38,3 +38,8 @@ requires:
 peers:
   cluster:
     interface: openstack-dashboard-ha
+resources:
+  theme:
+    type: file
+    filename: theme.tgz
+    description: "Custom dashboard theme"

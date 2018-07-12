@@ -230,7 +230,7 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         #                add retry logic to unwedge the gate.  This issue
         #                should be revisited and root caused properly when time
         #                allows.
-        @retry_on_exception(1)
+        @retry_on_exception(2, base_delay=2)
         def do_request():
             response = urllib2.urlopen('http://%s/horizon' % (dashboard_ip))
             return response.read()

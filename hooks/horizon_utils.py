@@ -17,6 +17,7 @@ import horizon_contexts
 import os
 import subprocess
 import time
+import tarfile
 from collections import OrderedDict
 
 import charmhelpers.contrib.openstack.context as context
@@ -36,7 +37,8 @@ from charmhelpers.contrib.openstack.utils import (
 )
 from charmhelpers.core.hookenv import (
     config,
-    log
+    log,
+    resource_get,
 )
 from charmhelpers.core.host import (
     cmp_pkgrevno,
@@ -86,6 +88,9 @@ ROUTER_SETTING = ('/usr/share/openstack-dashboard/openstack_dashboard/enabled/'
 KEYSTONEV3_POLICY = ('/usr/share/openstack-dashboard/openstack_dashboard/conf/'
                      'keystonev3_policy.json')
 TEMPLATES = 'templates'
+CUSTOM_THEME_DIR = ("/usr/share/openstack-dashboard/openstack_dashboard/"
+                    "themes/custom")
+LOCAL_DIR = '/usr/share/openstack-dashboard/openstack_dashboard/local/'
 
 CONFIG_FILES = OrderedDict([
     (LOCAL_SETTINGS, {
@@ -414,3 +419,27 @@ def db_migration():
         subcommand = 'syncdb'
     cmd = ['/usr/share/openstack-dashboard/manage.py', subcommand, '--noinput']
     subprocess.check_call(cmd)
+
+
+def check_custom_theme():
+    if not config('custom-theme'):
+        log('No custom theme configured, exiting')
+        return
+    try:
+        os.mkdir(CUSTOM_THEME_DIR)
+    except OSError as e:
+        if e.errno is 17:
+            pass  # already exists
+    theme_file = resource_get('theme')
+    log('Retreived resource: {}'.format(theme_file))
+    if theme_file:
+        with tarfile.open(theme_file, 'r:gz') as in_file:
+            in_file.extractall(CUSTOM_THEME_DIR)
+    custom_settings = '{}/local_settings.py'.format(CUSTOM_THEME_DIR)
+    if os.path.isfile(custom_settings):
+        try:
+            os.symlink(custom_settings, LOCAL_DIR + 'custom_theme.py')
+        except OSError as e:
+            if e.errno is 17:
+                pass  # already exists
+    log('Custom theme updated'.format(theme_file))
