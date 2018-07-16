@@ -456,7 +456,7 @@ SECONDARY_ENDPOINT_TYPE = "{{ secondary_endpoint }}"
 # The number of objects (Swift containers/objects or images) to display
 # on a single page before providing a paging element (a "more" link)
 # to paginate results.
-API_RESULT_LIMIT = 1000
+API_RESULT_LIMIT = {{ api_result_limit }}
 API_RESULT_PAGE_SIZE = 20
 
 # The size of chunk in bytes for downloading objects from Swift

@@ -144,6 +144,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -170,6 +171,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -196,6 +198,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -222,6 +225,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -249,6 +253,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -279,6 +284,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -305,6 +311,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -331,6 +338,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -362,6 +370,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -388,6 +397,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -414,6 +424,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -441,6 +452,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": True,
                           "default_create_volume": True,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -468,6 +480,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": False,
                           "image_formats": '',
+                          "api_result_limit": 1000,
                           }
                          )
 
@@ -495,6 +508,7 @@ class TestHorizonContexts(CharmTestCase):
                           "allow_password_autocompletion": False,
                           "default_create_volume": True,
                           "image_formats": 'iso qcow2 raw',
+                          "api_result_limit": 1000,
                           }
                          )
 
