@@ -95,11 +95,13 @@ class TestHorizonContexts(CharmTestCase):
                            'hsts_max_age_seconds': 15768000,
                            'custom_theme': False})
 
-    @patch.object(horizon_contexts, 'get_ca_cert', lambda: None)
+    @patch.object(horizon_contexts, 'get_ca_cert', lambda: 'ca_cert')
+    @patch.object(horizon_contexts, 'install_ca_cert')
     @patch('os.chmod')
-    def test_ApacheSSLContext_enabled(self, _chmod):
+    def test_ApacheSSLContext_enabled(self, _chmod, _install_ca_cert):
+        self.relation_ids.return_value = []
         self.get_cert.return_value = ('cert', 'key')
-        self.b64decode.side_effect = ['cert', 'key']
+        self.b64decode.side_effect = ['ca', 'cert', 'key']
         with patch_open() as (_open, _file):
             self.assertEqual(horizon_contexts.ApacheSSLContext()(),
                              {'ssl_configured': True,
@@ -115,12 +117,26 @@ class TestHorizonContexts(CharmTestCase):
             ])
         # Security check on key permissions
         _chmod.assert_called_with('/etc/ssl/private/dashboard.key', 0o600)
+        _install_ca_cert.assert_called_once()
 
     @patch.object(horizon_contexts, 'get_ca_cert', lambda: None)
     def test_ApacheSSLContext_disabled(self):
+        self.relation_ids.return_value = []
         self.get_cert.return_value = (None, None)
         self.assertEqual(horizon_contexts.ApacheSSLContext()(),
                          {'ssl_configured': False})
+
+    @patch.object(horizon_contexts.os.path, 'exists')
+    def test_ApacheSSLContext_vault(self, _exists):
+        _exists.return_value = True
+        self.relation_ids.return_value = ['certificates:60']
+        self.related_units.return_value = ['vault/0']
+        self.assertEqual(
+            horizon_contexts.ApacheSSLContext()(),
+            {
+                'ssl_configured': True,
+                'ssl_cert': '/etc/apache2/ssl/horizon/cert_dashboard',
+                'ssl_key': '/etc/apache2/ssl/horizon/key_dashboard'})
 
     def test_HorizonContext_defaults(self):
         self.assertEqual(horizon_contexts.HorizonContext()(),

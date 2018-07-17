@@ -52,6 +52,9 @@ VALID_ENDPOINT_TYPES = {
     'ADMINURL': 'adminURL',
 }
 
+SSL_CERT_FILE = '/etc/apache2/ssl/horizon/cert_dashboard'
+SSL_KEY_FILE = '/etc/apache2/ssl/horizon/key_dashboard'
+
 
 class HorizonHAProxyContext(OSContextGenerator):
     def __call__(self):
@@ -231,27 +234,37 @@ class ApacheContext(OSContextGenerator):
 class ApacheSSLContext(OSContextGenerator):
     def __call__(self):
         ''' Grab cert and key from configuration for SSL config '''
-        ca_cert = get_ca_cert()
-        if ca_cert:
+        ctxt = {'ssl_configured': False}
+        use_local_ca = True
+        for rid in relation_ids('certificates'):
+            if related_units(rid):
+                use_local_ca = False
+
+        if use_local_ca:
+            ca_cert = get_ca_cert()
+            if not ca_cert:
+                return ctxt
             install_ca_cert(b64decode(ca_cert))
 
-        ssl_cert, ssl_key = get_cert()
-        if all([ssl_cert, ssl_key]):
-            with open('/etc/ssl/certs/dashboard.cert', 'w') as cert_out:
-                cert_out.write(b64decode(ssl_cert))
-            with open('/etc/ssl/private/dashboard.key', 'w') as key_out:
-                key_out.write(b64decode(ssl_key))
-            os.chmod('/etc/ssl/private/dashboard.key', 0600)
-            ctxt = {
-                'ssl_configured': True,
-                'ssl_cert': '/etc/ssl/certs/dashboard.cert',
-                'ssl_key': '/etc/ssl/private/dashboard.key',
-            }
+            ssl_cert, ssl_key = get_cert()
+            if all([ssl_cert, ssl_key]):
+                with open('/etc/ssl/certs/dashboard.cert', 'w') as cert_out:
+                    cert_out.write(b64decode(ssl_cert))
+                with open('/etc/ssl/private/dashboard.key', 'w') as key_out:
+                    key_out.write(b64decode(ssl_key))
+                os.chmod('/etc/ssl/private/dashboard.key', 0600)
+                ctxt = {
+                    'ssl_configured': True,
+                    'ssl_cert': '/etc/ssl/certs/dashboard.cert',
+                    'ssl_key': '/etc/ssl/private/dashboard.key',
+                }
         else:
-            # Use snakeoil ones by default
-            ctxt = {
-                'ssl_configured': False,
-            }
+            if os.path.exists(SSL_CERT_FILE) and os.path.exists(SSL_KEY_FILE):
+                ctxt = {
+                    'ssl_configured': True,
+                    'ssl_cert': SSL_CERT_FILE,
+                    'ssl_key': SSL_KEY_FILE,
+                }
         return ctxt
 
 
