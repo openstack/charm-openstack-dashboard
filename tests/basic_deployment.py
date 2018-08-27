@@ -66,7 +66,8 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         local, and the rest of the service are from lp branches that are
         compatible with the local charm (e.g. stable or next).
         """
-        this_service = {'name': 'openstack-dashboard'}
+        this_service = {'name': 'openstack-dashboard',
+                        'constraints': {'mem': '3072M'}}
         other_services = [
             {'name': 'keystone'},
             {'name': 'percona-cluster', 'constraints': {'mem': '3072M'}},
@@ -90,16 +91,19 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         """Configure all of the services."""
         horizon_config = {
             'debug': 'yes',
+            'haproxy-server-timeout': 90000,
+            'haproxy-client-timeout': 90000,
+            'haproxy-queue-timeout': 9000,
+            'haproxy-connect-timeout': 9000,
         }
         keystone_config = {
             'admin-password': 'openstack',
             'admin-token': 'ubuntutesting',
         }
         pxc_config = {
-            'dataset-size': '25%',
-            'max-connections': 1000,
             'root-password': 'ChangeMe123',
             'sst-password': 'ChangeMe123',
+            'tuning-level': 'unsafe',
         }
         configs = {
             'openstack-dashboard': horizon_config,
@@ -230,7 +234,7 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         #                add retry logic to unwedge the gate.  This issue
         #                should be revisited and root caused properly when time
         #                allows.
-        @retry_on_exception(2, base_delay=2)
+        @retry_on_exception(3, base_delay=30)
         def do_request():
             response = urllib2.urlopen('http://%s/horizon' % (dashboard_ip))
             return response.read()
@@ -238,6 +242,9 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         if 'OpenStack Dashboard' not in html:
             msg = "Dashboard frontpage check failed"
             amulet.raise_status(amulet.FAIL, msg=msg)
+
+    class FailedAuth(Exception):
+        pass
 
     def test_401_authenticate(self):
         """Validate that authentication succeeds when client logs in through
@@ -257,41 +264,62 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         region = u.get_keystone_endpoint(
             self.keystone_sentry.info['public-address'], api_version)
 
-        # start session, get csrftoken
-        client = requests.session()
-        client.get(url)
-        response = client.get(url)
-
-        if 'csrftoken' in client.cookies:
-            csrftoken = client.cookies['csrftoken']
-
-        # build and send post request
-        auth = {
-            'domain': 'admin_domain',
-            'username': 'admin',
-            'password': 'openstack',
-            'csrfmiddlewaretoken': csrftoken,
-            'next': '/horizon/',
-            'region': region,
-        }
-        if api_version == 2:
-            del auth['domain']
-
-        u.log.debug('POST data: "{}"'.format(auth))
-        response = client.post(url, data=auth, headers={'Referer': url})
-
         if self._get_openstack_release() == self.trusty_icehouse:
             # icehouse horizon does not operate properly without the compute
             # service present in the keystone catalog.  However, checking for
             # presence of the following text is sufficient to determine whether
             # authentication succeeded or not
             expect = 'ServiceCatalogException at /admin/'
+        elif self._get_openstack_release() >= self.xenial_queens:
+            expect = 'API Access - OpenStack Dashboard'
         else:
             expect = 'Projects - OpenStack Dashboard'
 
-        if expect not in response.text:
-            msg = 'FAILURE code={} text="{}"'.format(response, response.text)
-            amulet.raise_status(amulet.FAIL, msg=msg)
+        # NOTE(thedac) Similar to the connection test above we get occasional
+        # intermittent authentication fails. Wrap in a retry loop.
+        @retry_on_exception(3, base_delay=30)
+        def _do_auth_check(expect):
+            # start session, get csrftoken
+            client = requests.session()
+            client.get(url)
+
+            if 'csrftoken' in client.cookies:
+                csrftoken = client.cookies['csrftoken']
+            else:
+                raise Exception("Missing csrftoken")
+
+            # build and send post request
+            auth = {
+                'domain': 'admin_domain',
+                'username': 'admin',
+                'password': 'openstack',
+                'csrfmiddlewaretoken': csrftoken,
+                'next': '/horizon/',
+                'region': region,
+            }
+
+            # In the redirect /horizon/project/ is unauthorized.
+            # Redirect to /horizon/project/api_access/
+            if self._get_openstack_release() >= self.xenial_queens:
+                auth['next'] = '/horizon/project/api_access'
+
+            if api_version == 2:
+                del auth['domain']
+
+            u.log.debug('POST data: "{}"'.format(auth))
+            response = client.post(url, data=auth, headers={'Referer': url})
+
+            if expect not in response.text:
+                msg = 'FAILURE code={} text="{}"'.format(response,
+                                                         response.text)
+                # NOTE(thedac) amulet.raise_status exits on exception.
+                # Raise a custom exception.
+                raise self.FailedAuth(msg)
+
+        try:
+            _do_auth_check(expect)
+        except self.FailedAuth as e:
+            amulet.raise_status(amulet.FAIL, e.message)
 
         u.log.debug('OK')
 

@@ -244,7 +244,8 @@ def determine_packages():
     # Really should be handled as a dep in the openstack-dashboard package
     if CompareOpenStackReleases(release) >= 'mitaka':
         packages.append('python-pymysql')
-    if CompareOpenStackReleases(release) >= 'ocata':
+    if (CompareOpenStackReleases(release) >= 'ocata' and
+            CompareOpenStackReleases(release) < 'rocky'):
         packages.append('python-neutron-lbaas-dashboard')
     if CompareOpenStackReleases(release) >= 'queens':
         packages.append('python-designate-dashboard')
