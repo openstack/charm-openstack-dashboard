@@ -41,7 +41,7 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
     """Amulet tests on a basic openstack-dashboard deployment."""
 
     def __init__(self, series, openstack=None, source=None,
-                 stable=False):
+                 stable=True):
         """Deploy the entire test environment."""
         super(OpenstackDashboardBasicDeployment, self).__init__(series,
                                                                 openstack,
