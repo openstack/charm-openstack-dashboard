@@ -369,5 +369,5 @@ options:
     default:
     description: |
       The maximum number of objects (e.g. Swift objects or Glance images) to
-      display on a single page before providing a paging element (a “more” link)
+      display on a single page before providing a paging element (a "more" link)
       to paginate results.
