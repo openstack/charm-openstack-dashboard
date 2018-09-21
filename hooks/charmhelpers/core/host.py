@@ -34,7 +34,7 @@ import six
 
 from contextlib import contextmanager
 from collections import OrderedDict
-from .hookenv import log, DEBUG, local_unit
+from .hookenv import log, INFO, DEBUG, local_unit, charm_name
 from .fstab import Fstab
 from charmhelpers.osplatform import get_platform
 
@@ -1040,3 +1040,27 @@ def modulo_distribution(modulo=3, wait=30, non_zero_wait=False):
         return modulo * wait
     else:
         return calculated_wait_time
+
+
+def install_ca_cert(ca_cert, name=None):
+    """
+    Install the given cert as a trusted CA.
+
+    The ``name`` is the stem of the filename where the cert is written, and if
+    not provided, it will default to ``juju-{charm_name}``.
+
+    If the cert is empty or None, or is unchanged, nothing is done.
+    """
+    if not ca_cert:
+        return
+    if not isinstance(ca_cert, bytes):
+        ca_cert = ca_cert.encode('utf8')
+    if not name:
+        name = 'juju-{}'.format(charm_name())
+    cert_file = '/usr/local/share/ca-certificates/{}.crt'.format(name)
+    new_hash = hashlib.md5(ca_cert).hexdigest()
+    if file_hash(cert_file) == new_hash:
+        return
+    log("Installing new CA cert at: {}".format(cert_file), level=INFO)
+    write_file(cert_file, ca_cert)
+    subprocess.check_call(['update-ca-certificates', '--fresh'])

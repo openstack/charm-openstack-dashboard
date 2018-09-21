@@ -48,6 +48,8 @@ from charmhelpers.contrib.openstack.utils import (
     save_script_rc,
     sync_db_with_multi_ipv6_addresses,
     CompareOpenStackReleases,
+    series_upgrade_prepare,
+    series_upgrade_complete,
 )
 from charmhelpers.contrib.openstack.ha.utils import (
     update_dns_ha_resource_params,
@@ -66,6 +68,8 @@ from horizon_utils import (
     assess_status,
     db_migration,
     check_custom_theme,
+    pause_unit_helper,
+    resume_unit_helper,
 )
 from charmhelpers.contrib.network.ip import (
     get_iface_for_address,
@@ -419,6 +423,20 @@ def certs_changed(relation_id=None, unit=None):
     CONFIGS.write_all()
     service_reload('apache2')
     enable_ssl()
+
+
+@hooks.hook('pre-series-upgrade')
+def pre_series_upgrade():
+    log("Running prepare series upgrade hook", "INFO")
+    series_upgrade_prepare(
+        pause_unit_helper, CONFIGS)
+
+
+@hooks.hook('post-series-upgrade')
+def post_series_upgrade():
+    log("Running complete series upgrade hook", "INFO")
+    series_upgrade_complete(
+        resume_unit_helper, CONFIGS)
 
 
 if __name__ == '__main__':
