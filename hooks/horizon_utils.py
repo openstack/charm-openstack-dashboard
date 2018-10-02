@@ -15,6 +15,7 @@
 # vim: set ts=4:et
 
 from collections import OrderedDict
+from copy import deepcopy
 import os
 import subprocess
 import time
@@ -51,7 +52,10 @@ from charmhelpers.fetch import (
     apt_upgrade,
     apt_update,
     add_source,
-    apt_install
+    apt_install,
+    apt_purge,
+    apt_autoremove,
+    filter_missing_packages,
 )
 
 import hooks.horizon_contexts as horizon_contexts
@@ -64,6 +68,18 @@ BASE_PACKAGES = [
     'python-keystoneclient',
     'python-memcache',
     'python-novaclient',
+]
+
+PY3_PACKAGES = [
+    'python3-django-horizon',
+    'python3-designate-dashboard',
+    'python3-heat-dashboard',
+    'python3-neutron-lbaas-dashboard',
+    'python3-keystoneclient',
+    'python3-novaclient',
+    'python3-memcache',
+    'python3-pymysql',
+    'libapache2-mod-wsgi-py3',
 ]
 
 VERSION_PACKAGE = 'openstack-dashboard'
@@ -241,18 +257,42 @@ def enable_ssl():
 
 def determine_packages():
     """Determine packages to install"""
-    packages = BASE_PACKAGES
-    release = get_os_codename_install_source(config('openstack-origin'))
+    packages = deepcopy(BASE_PACKAGES)
+    release = CompareOpenStackReleases(os_release('openstack-dashboard'))
     # Really should be handled as a dep in the openstack-dashboard package
-    if CompareOpenStackReleases(release) >= 'mitaka':
+    if release >= 'mitaka':
         packages.append('python-pymysql')
-    if (CompareOpenStackReleases(release) >= 'ocata' and
-            CompareOpenStackReleases(release) < 'rocky'):
+    if release >= 'ocata' and release < 'rocky':
         packages.append('python-neutron-lbaas-dashboard')
-    if CompareOpenStackReleases(release) >= 'queens':
+    if release >= 'queens':
         packages.append('python-designate-dashboard')
         packages.append('python-heat-dashboard')
+    if release >= 'rocky':
+        packages = [p for p in packages if not p.startswith('python-')]
+        packages.extend(PY3_PACKAGES)
     return list(set(packages))
+
+
+def determine_purge_packages():
+    """
+    Determine list of packages that where previously installed which are no
+    longer needed.
+
+    :returns: list of package names
+    """
+    release = CompareOpenStackReleases(os_release('openstack-dashboard'))
+    if release >= 'rocky':
+        pkgs = [p for p in BASE_PACKAGES if p.startswith('python-')]
+        pkgs.extend([
+            'python-django-horizon',
+            'python-django-openstack-auth',
+            'python-pymysql',
+            'python-neutron-lbaas-dashboard',
+            'python-designate-dashboard',
+            'python-heat-dashboard',
+        ])
+        return pkgs
+    return []
 
 
 def do_openstack_upgrade(configs):
@@ -277,6 +317,11 @@ def do_openstack_upgrade(configs):
     apt_upgrade(options=dpkg_opts, fatal=True, dist=True)
     reset_os_release()
     apt_install(determine_packages(), fatal=True)
+
+    installed_pkgs = filter_missing_packages(determine_purge_packages())
+    if installed_pkgs:
+        apt_purge(installed_pkgs, fatal=True)
+        apt_autoremove(purge=True, fatal=True)
 
     # set CONFIGS to load templates from new release
     configs.set_release(openstack_release=new_os_rel)
@@ -415,12 +460,20 @@ def _pause_resume_helper(f, configs):
 
 
 def db_migration():
-    if cmp_pkgrevno('python-django', '1.9') >= 0:
+    release = CompareOpenStackReleases(os_release('openstack-dashboard'))
+    if release >= 'rocky':
+        python = 'python3'
+        python_django = 'python3-django'
+    else:
+        python = 'python2'
+        python_django = 'python-django'
+    if cmp_pkgrevno(python_django, '1.9') >= 0:
         # syncdb was removed in django 1.9
         subcommand = 'migrate'
     else:
         subcommand = 'syncdb'
-    cmd = ['/usr/share/openstack-dashboard/manage.py', subcommand, '--noinput']
+    cmd = [python, '/usr/share/openstack-dashboard/manage.py', subcommand,
+           '--noinput']
     subprocess.check_call(cmd)
 
 

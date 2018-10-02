@@ -41,10 +41,8 @@ class TestHorizonUtils(CharmTestCase):
     def setUp(self):
         super(TestHorizonUtils, self).setUp(horizon_utils, TO_PATCH)
 
-    @patch.object(horizon_utils, 'get_os_codename_install_source')
-    def test_determine_packages(self,
-                                _get_os_codename_install_source):
-        _get_os_codename_install_source.return_value = 'icehouse'
+    def test_determine_packages(self):
+        horizon_utils.os_release.return_value = 'icehouse'
         self.assertEqual(
             sorted(horizon_utils.determine_packages()),
             sorted([
@@ -56,10 +54,47 @@ class TestHorizonUtils(CharmTestCase):
                 'openstack-dashboard',
                 'memcached']))
 
-    @patch.object(horizon_utils, 'get_os_codename_install_source')
-    def test_determine_packages_mitaka(self, _get_os_codename_install_source):
-        _get_os_codename_install_source.return_value = 'mitaka'
+    def test_determine_packages_mitaka(self):
+        horizon_utils.os_release.return_value = 'mitaka'
         self.assertTrue('python-pymysql' in horizon_utils.determine_packages())
+
+    def test_determine_packages_queens(self):
+        horizon_utils.os_release.return_value = 'queens'
+        self.assertEqual(
+            sorted(horizon_utils.determine_packages()),
+            sorted(horizon_utils.BASE_PACKAGES +
+                   ['python-pymysql',
+                    'python-neutron-lbaas-dashboard',
+                    'python-designate-dashboard',
+                    'python-heat-dashboard']))
+
+    def test_determine_packages_rocky(self):
+        horizon_utils.os_release.return_value = 'rocky'
+        self.assertEqual(
+            sorted(horizon_utils.determine_packages()),
+            sorted([p for p in horizon_utils.BASE_PACKAGES
+                    if not p.startswith('python-')] +
+                   horizon_utils.PY3_PACKAGES)
+        )
+
+    def test_determine_purge_packages(self):
+        'Ensure no packages are identified for purge prior to rocky'
+        horizon_utils.os_release.return_value = 'queens'
+        self.assertEqual(horizon_utils.determine_purge_packages(), [])
+
+    def test_determine_purge_packages_rocky(self):
+        'Ensure python packages are identified for purge at rocky'
+        horizon_utils.os_release.return_value = 'rocky'
+        self.assertEqual(
+            horizon_utils.determine_purge_packages(),
+            [p for p in horizon_utils.BASE_PACKAGES
+             if p.startswith('python-')] +
+            ['python-django-horizon',
+             'python-django-openstack-auth',
+             'python-pymysql',
+             'python-neutron-lbaas-dashboard',
+             'python-designate-dashboard',
+             'python-heat-dashboard'])
 
     @patch('subprocess.call')
     def test_enable_ssl(self, _call):
@@ -104,6 +139,7 @@ class TestHorizonUtils(CharmTestCase):
     def test_do_openstack_upgrade(self, determine_packages):
         self.config.return_value = 'cloud:precise-havana'
         self.get_os_codename_install_source.return_value = 'havana'
+        horizon_utils.os_release.return_value = 'icehouse'
         configs = MagicMock()
         determine_packages.return_value = ['testpkg']
         horizon_utils.do_openstack_upgrade(configs)
@@ -234,15 +270,26 @@ class TestHorizonUtils(CharmTestCase):
     @patch('subprocess.check_call')
     def test_db_migration(self, mock_subprocess):
         self.cmp_pkgrevno.return_value = -1
+        horizon_utils.os_release.return_value = 'mitaka'
         horizon_utils.db_migration()
         mock_subprocess.assert_called_with(
-            ['/usr/share/openstack-dashboard/manage.py',
+            ['python2', '/usr/share/openstack-dashboard/manage.py',
              'syncdb', '--noinput'])
 
     @patch('subprocess.check_call')
-    def test_db_migration_bionic_and_beyond(self, mock_subprocess):
+    def test_db_migration_bionic_and_beyond_queens(self, mock_subprocess):
         self.cmp_pkgrevno.return_value = 0
+        horizon_utils.os_release.return_value = 'queens'
         horizon_utils.db_migration()
         mock_subprocess.assert_called_with(
-            ['/usr/share/openstack-dashboard/manage.py',
+            ['python2', '/usr/share/openstack-dashboard/manage.py',
+             'migrate', '--noinput'])
+
+    @patch('subprocess.check_call')
+    def test_db_migration_bionic_and_beyond_rocky(self, mock_subprocess):
+        self.cmp_pkgrevno.return_value = 0
+        horizon_utils.os_release.return_value = 'rocky'
+        horizon_utils.db_migration()
+        mock_subprocess.assert_called_with(
+            ['python3', '/usr/share/openstack-dashboard/manage.py',
              'migrate', '--noinput'])
