@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mock import MagicMock, patch, call
-import horizon_contexts
 from contextlib import contextmanager
+import io
+from mock import MagicMock, patch, call
 
-from test_utils import (
-    CharmTestCase
-)
+import hooks.horizon_contexts as horizon_contexts
+
+from unit_tests.test_utils import CharmTestCase
 
 TO_PATCH = [
     'config',
@@ -42,14 +42,14 @@ def patch_open():
 
     Yields the mock for "open" and "file", respectively.'''
     mock_open = MagicMock(spec=open)
-    mock_file = MagicMock(spec=file)
+    mock_file = MagicMock(spec=io.FileIO)
 
     @contextmanager
     def stub_open(*args, **kwargs):
         mock_open(*args, **kwargs)
         yield mock_file
 
-    with patch('__builtin__.open', stub_open):
+    with patch('builtins.open', stub_open):
         yield mock_open, mock_file
 
 
@@ -140,9 +140,11 @@ class TestHorizonContexts(CharmTestCase):
 
     def test_HorizonContext_defaults(self):
         self.assertEqual(horizon_contexts.HorizonContext()(),
-                         {'compress_offline': True, 'debug': False,
+                         {'compress_offline': True,
+                          'debug': False,
                           'customization_module': '',
-                          'default_role': 'Member', 'webroot': '/horizon',
+                          'default_role': 'Member',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -541,7 +543,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.IdentityServiceContext()(),
                          {})
 
-    @patch("horizon_contexts.format_ipv6_addr")
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_no_data(self, mock_format_ipv6_addr):
         self.relation_ids.return_value = ['foo']
         self.related_units.return_value = ['bar']
@@ -550,7 +552,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.IdentityServiceContext()(),
                          {})
 
-    @patch("horizon_contexts.format_ipv6_addr")
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_data(self, mock_format_ipv6_addr):
         mock_format_ipv6_addr.return_value = "foo"
         self.relation_ids.return_value = ['foo']
@@ -562,7 +564,7 @@ class TestHorizonContexts(CharmTestCase):
                          {'service_host': 'foo', 'service_port': 5000,
                           'api_version': '2', 'service_protocol': 'http'})
 
-    @patch("horizon_contexts.format_ipv6_addr")
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_single_region(self, mock_format_ipv6_addr):
         mock_format_ipv6_addr.return_value = "foo"
         self.relation_ids.return_value = ['foo']
@@ -575,7 +577,7 @@ class TestHorizonContexts(CharmTestCase):
                          {'service_host': 'foo', 'service_port': 5000,
                           'api_version': '2', 'service_protocol': 'http'})
 
-    @patch("horizon_contexts.format_ipv6_addr")
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_multi_region(self, mock_format_ipv6_addr):
         mock_format_ipv6_addr.return_value = "foo"
         self.relation_ids.return_value = ['foo']
@@ -592,7 +594,7 @@ class TestHorizonContexts(CharmTestCase):
                                       {'endpoint': 'http://foo:5000/v2.0',
                                        'title': 'regionTwo'}]})
 
-    @patch("horizon_contexts.format_ipv6_addr")
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_api3(self, mock_format_ipv6_addr):
         mock_format_ipv6_addr.return_value = "foo"
         self.relation_ids.return_value = ['foo']
@@ -612,7 +614,7 @@ class TestHorizonContexts(CharmTestCase):
             'admin_domain_id': 'admindomainid',
             'service_protocol': 'http'})
 
-    @patch("horizon_contexts.format_ipv6_addr")
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_api3_missing(self, mock_format_ipv6_addr):
         mock_format_ipv6_addr.return_value = "foo"
         self.relation_ids.return_value = ['foo']

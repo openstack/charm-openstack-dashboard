@@ -15,11 +15,11 @@
 import mock
 from mock import patch
 
-from test_utils import CharmTestCase
+from unit_tests.test_utils import CharmTestCase
 
-with patch('horizon_utils.register_configs') as configs:
+with patch('hooks.horizon_utils.register_configs') as configs:
     configs.return_value = 'test-config'
-    import actions
+    import actions.actions as actions
 
 
 class PauseTestCase(CharmTestCase):

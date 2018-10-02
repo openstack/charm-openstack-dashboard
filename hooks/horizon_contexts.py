@@ -14,6 +14,10 @@
 
 # vim: set ts=4:et
 
+from base64 import b64decode
+import os
+import json
+
 from charmhelpers.core.hookenv import (
     config,
     relation_ids,
@@ -41,10 +45,6 @@ from charmhelpers.contrib.network.ip import (
 )
 
 from charmhelpers.core.host import pwgen
-
-from base64 import b64decode
-import os
-import json
 
 VALID_ENDPOINT_TYPES = {
     'PUBLICURL': 'publicURL',
@@ -154,7 +154,8 @@ class IdentityServiceContext(OSContextGenerator):
         if len(regions) > 1:
             avail_regions = map(lambda r: {'endpoint': r[0], 'title': r[1]},
                                 regions)
-            ctxt['regions'] = sorted(avail_regions)
+            ctxt['regions'] = sorted(avail_regions,
+                                     key=lambda k: k['endpoint'])
 
         # Allow the endpoint types to be specified via a config parameter.
         # The config parameter accepts either:
@@ -202,8 +203,7 @@ class HorizonContext(OSContextGenerator):
             'multi_domain': False if config('default-domain') else True,
             "default_create_volume": config("default-create-volume"),
             'image_formats': config('image-formats'),
-            'api_result_limit': config('api-result-limit')
-            if config('api-result-limit') > 0 else 1000,
+            'api_result_limit': config('api-result-limit') or 1000
         }
 
         return ctxt
@@ -252,7 +252,7 @@ class ApacheSSLContext(OSContextGenerator):
                     cert_out.write(b64decode(ssl_cert))
                 with open('/etc/ssl/private/dashboard.key', 'w') as key_out:
                     key_out.write(b64decode(ssl_key))
-                os.chmod('/etc/ssl/private/dashboard.key', 0600)
+                os.chmod('/etc/ssl/private/dashboard.key', 0o600)
                 ctxt = {
                     'ssl_configured': True,
                     'ssl_cert': '/etc/ssl/certs/dashboard.cert',

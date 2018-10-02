@@ -368,7 +368,7 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
         self.d.configure(juju_service, set_alternate)
 
         sleep_time = 30
-        for s, conf_file in services.iteritems():
+        for s, conf_file in services.items():
             u.log.debug("Checking that service restarted: {}".format(s))
             if not u.validate_service_config_changed(sentry, mtime, s,
                                                      conf_file,

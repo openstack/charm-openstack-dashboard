@@ -15,13 +15,13 @@
 import sys
 
 from mock import MagicMock, patch, call
-from test_utils import CharmTestCase
+from unit_tests.test_utils import CharmTestCase
 
 # python-apt is not installed as part of test-requirements but is imported by
 # some charmhelpers modules so create a fake import.
 sys.modules['apt'] = MagicMock()
 
-import horizon_utils as utils
+import hooks.horizon_utils as utils
 _register_configs = utils.register_configs
 utils.register_configs = MagicMock()
 
@@ -29,7 +29,7 @@ with patch('charmhelpers.contrib.hardening.harden.harden') as mock_dec:
     mock_dec.side_effect = (lambda *dargs, **dkwargs: lambda f:
                             lambda *args, **kwargs: f(*args, **kwargs))
 
-    import horizon_hooks as hooks
+    import hooks.horizon_hooks as hooks
 
 RESTART_MAP = utils.restart_map()
 utils.register_configs = _register_configs
@@ -132,13 +132,15 @@ class TestHorizonHooks(CharmTestCase):
             )
         self.assertTrue(self.apt_install.called)
 
-    @patch('horizon_hooks.check_custom_theme')
+    @patch('time.sleep')
+    @patch('hooks.horizon_hooks.check_custom_theme')
     @patch.object(hooks, 'determine_packages')
     @patch.object(utils, 'path_hash')
     @patch.object(utils, 'service')
     def test_upgrade_charm_hook(self, _service, _hash,
                                 _determine_packages,
-                                _custom_theme):
+                                _custom_theme,
+                                _sleep):
         _determine_packages.return_value = []
         side_effects = []
         [side_effects.append(None) for f in RESTART_MAP.keys()]
@@ -158,6 +160,9 @@ class TestHorizonHooks(CharmTestCase):
         ]
         self.assertEqual(ex, _service.call_args_list)
         self.assertTrue(_custom_theme.called)
+        # we mock out time.sleep, as otherwise the called code in
+        # restart_on_change actually sleeps for 9 seconds,
+        _sleep.assert_called()
 
     def test_ha_joined_complete_config(self):
         conf = {
@@ -261,8 +266,8 @@ class TestHorizonHooks(CharmTestCase):
         self.assertTrue(self.update_dns_ha_resource_params.called)
         self.relation_set.assert_called_with(**args)
 
-    @patch('horizon_hooks.check_custom_theme')
-    @patch('horizon_hooks.keystone_joined')
+    @patch('hooks.horizon_hooks.check_custom_theme')
+    @patch('hooks.horizon_hooks.keystone_joined')
     def test_config_changed_no_upgrade(self, _joined, _custom_theme):
         def relation_ids_side_effect(rname):
             return {
@@ -301,7 +306,7 @@ class TestHorizonHooks(CharmTestCase):
         self.open_port.assert_has_calls([call(80), call(443)])
         self.assertTrue(_custom_theme.called)
 
-    @patch('horizon_hooks.check_custom_theme')
+    @patch('hooks.horizon_hooks.check_custom_theme')
     def test_config_changed_do_upgrade(self, _custom_theme):
         self.relation_ids.return_value = []
         self.test_config.set('openstack-origin', 'cloud:precise-grizzly')

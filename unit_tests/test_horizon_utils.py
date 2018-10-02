@@ -16,11 +16,10 @@ from mock import MagicMock, patch, call
 from collections import OrderedDict
 import charmhelpers.contrib.openstack.templating as templating
 templating.OSConfigRenderer = MagicMock()
-import horizon_utils as horizon_utils
 
-from test_utils import (
-    CharmTestCase
-)
+import hooks.horizon_utils as horizon_utils
+
+from unit_tests.test_utils import CharmTestCase
 
 TO_PATCH = [
     'config',
@@ -46,14 +45,16 @@ class TestHorizonUtils(CharmTestCase):
     def test_determine_packages(self,
                                 _get_os_codename_install_source):
         _get_os_codename_install_source.return_value = 'icehouse'
-        self.assertEqual(horizon_utils.determine_packages(), [
-            'haproxy',
-            'python-novaclient',
-            'python-keystoneclient',
-            'openstack-dashboard-ubuntu-theme',
-            'python-memcache',
-            'openstack-dashboard',
-            'memcached'])
+        self.assertEqual(
+            sorted(horizon_utils.determine_packages()),
+            sorted([
+                'haproxy',
+                'python-novaclient',
+                'python-keystoneclient',
+                'openstack-dashboard-ubuntu-theme',
+                'python-memcache',
+                'openstack-dashboard',
+                'memcached']))
 
     @patch.object(horizon_utils, 'get_os_codename_install_source')
     def test_determine_packages_mitaka(self, _get_os_codename_install_source):

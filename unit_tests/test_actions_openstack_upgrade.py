@@ -28,12 +28,10 @@ mock_apt.apt_pkg = MagicMock()
 with patch('charmhelpers.contrib.hardening.harden.harden') as mock_dec:
     mock_dec.side_effect = (lambda *dargs, **dkwargs: lambda f:
                             lambda *args, **kwargs: f(*args, **kwargs))
-    with patch('horizon_utils.register_configs') as register_configs:
-        import openstack_upgrade
+    with patch('hooks.horizon_utils.register_configs') as register_configs:
+        import actions.openstack_upgrade as openstack_upgrade
 
-from test_utils import (
-    CharmTestCase
-)
+from unit_tests.test_utils import CharmTestCase
 
 TO_PATCH = [
     'CONFIGS',

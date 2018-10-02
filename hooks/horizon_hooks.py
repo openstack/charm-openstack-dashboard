@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #
 # Copyright 2016 Canonical Ltd
 #
@@ -16,7 +16,22 @@
 
 # vim: set ts=4:et
 
+from base64 import b64decode
+import os
 import sys
+
+
+_path = os.path.dirname(os.path.realpath(__file__))
+_root = os.path.abspath(os.path.join(_path, '..'))
+
+
+def _add_path(path):
+    if path not in sys.path:
+        sys.path.insert(1, path)
+
+
+_add_path(_root)
+
 from charmhelpers.core.hookenv import (
     Hooks, UnregisteredHookError,
     log,
@@ -54,7 +69,23 @@ from charmhelpers.contrib.openstack.utils import (
 from charmhelpers.contrib.openstack.ha.utils import (
     update_dns_ha_resource_params,
 )
-from horizon_utils import (
+from charmhelpers.contrib.network.ip import (
+    get_iface_for_address,
+    get_netmask_for_address,
+    is_ipv6,
+    get_relation_ip,
+)
+from charmhelpers.contrib.openstack.cert_utils import (
+    get_certificate_request,
+    process_certificates,
+)
+from charmhelpers.contrib.hahelpers.apache import install_ca_cert
+from charmhelpers.contrib.hahelpers.cluster import get_hacluster_config
+from charmhelpers.payload.execd import execd_preinstall
+from charmhelpers.contrib.charmsupport import nrpe
+from charmhelpers.contrib.hardening.harden import harden
+
+from hooks.horizon_utils import (
     determine_packages,
     register_configs,
     restart_map,
@@ -71,22 +102,6 @@ from horizon_utils import (
     pause_unit_helper,
     resume_unit_helper,
 )
-from charmhelpers.contrib.network.ip import (
-    get_iface_for_address,
-    get_netmask_for_address,
-    is_ipv6,
-    get_relation_ip,
-)
-from charmhelpers.contrib.openstack.cert_utils import (
-    get_certificate_request,
-    process_certificates,
-)
-from charmhelpers.contrib.hahelpers.apache import install_ca_cert
-from charmhelpers.contrib.hahelpers.cluster import get_hacluster_config
-from charmhelpers.payload.execd import execd_preinstall
-from charmhelpers.contrib.charmsupport import nrpe
-from charmhelpers.contrib.hardening.harden import harden
-from base64 import b64decode
 
 hooks = Hooks()
 CONFIGS = register_configs()

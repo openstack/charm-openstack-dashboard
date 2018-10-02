@@ -13,12 +13,12 @@
 # limitations under the License.
 
 # vim: set ts=4:et
-import horizon_contexts
+
+from collections import OrderedDict
 import os
 import subprocess
 import time
 import tarfile
-from collections import OrderedDict
 
 import charmhelpers.contrib.openstack.context as context
 import charmhelpers.contrib.openstack.templating as templating
@@ -53,6 +53,8 @@ from charmhelpers.fetch import (
     add_source,
     apt_install
 )
+
+import hooks.horizon_contexts as horizon_contexts
 
 BASE_PACKAGES = [
     'haproxy',
@@ -212,7 +214,7 @@ def restart_map():
                     that should be restarted when file changes.
     '''
     _map = []
-    for f, ctxt in CONFIG_FILES.iteritems():
+    for f, ctxt in CONFIG_FILES.items():
         svcs = []
         for svc in ctxt['services']:
             svcs.append(svc)
