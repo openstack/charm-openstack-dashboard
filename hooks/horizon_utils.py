@@ -75,6 +75,7 @@ PY3_PACKAGES = [
     'python3-designate-dashboard',
     'python3-heat-dashboard',
     'python3-neutron-lbaas-dashboard',
+    'python3-neutron-fwaas-dashboard',
     'python3-keystoneclient',
     'python3-novaclient',
     'python3-memcache',
