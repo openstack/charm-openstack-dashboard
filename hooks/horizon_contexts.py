@@ -248,9 +248,9 @@ class ApacheSSLContext(OSContextGenerator):
 
             ssl_cert, ssl_key = get_cert()
             if all([ssl_cert, ssl_key]):
-                with open('/etc/ssl/certs/dashboard.cert', 'w') as cert_out:
+                with open('/etc/ssl/certs/dashboard.cert', 'wb') as cert_out:
                     cert_out.write(b64decode(ssl_cert))
-                with open('/etc/ssl/private/dashboard.key', 'w') as key_out:
+                with open('/etc/ssl/private/dashboard.key', 'wb') as key_out:
                     key_out.write(b64decode(ssl_key))
                 os.chmod('/etc/ssl/private/dashboard.key', 0o600)
                 ctxt = {

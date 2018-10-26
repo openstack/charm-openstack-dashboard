@@ -108,8 +108,8 @@ class TestHorizonContexts(CharmTestCase):
                               'ssl_cert': '/etc/ssl/certs/dashboard.cert',
                               'ssl_key': '/etc/ssl/private/dashboard.key'})
             _open.assert_has_calls([
-                call('/etc/ssl/certs/dashboard.cert', 'w'),
-                call('/etc/ssl/private/dashboard.key', 'w')
+                call('/etc/ssl/certs/dashboard.cert', 'wb'),
+                call('/etc/ssl/private/dashboard.key', 'wb')
             ])
             _file.write.assert_has_calls([
                 call('cert'),
