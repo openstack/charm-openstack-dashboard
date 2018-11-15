@@ -64,6 +64,9 @@ TO_PATCH = [
     'lsb_release',
     'status_set',
     'update_dns_ha_resource_params',
+    'services',
+    'service_restart',
+    'remove_old_packages',
 ]
 
 
@@ -141,6 +144,7 @@ class TestHorizonHooks(CharmTestCase):
                                 _determine_packages,
                                 _custom_theme,
                                 _sleep):
+        self.remove_old_packages.return_value = False
         _determine_packages.return_value = []
         side_effects = []
         [side_effects.append(None) for f in RESTART_MAP.keys()]
@@ -163,6 +167,27 @@ class TestHorizonHooks(CharmTestCase):
         # we mock out time.sleep, as otherwise the called code in
         # restart_on_change actually sleeps for 9 seconds,
         _sleep.assert_called()
+
+    @patch('time.sleep')
+    @patch('hooks.horizon_hooks.check_custom_theme')
+    @patch.object(hooks, 'determine_packages')
+    @patch.object(utils, 'path_hash')
+    @patch.object(utils, 'service')
+    def test_upgrade_charm_hook_purge(self, _service, _hash,
+                                      _determine_packages,
+                                      _custom_theme,
+                                      _sleep):
+        self.remove_old_packages.return_value = True
+        self.services.return_value = ['apache2']
+        _determine_packages.return_value = []
+        side_effects = []
+        [side_effects.append(None) for f in RESTART_MAP.keys()]
+        [side_effects.append('bar') for f in RESTART_MAP.keys()]
+        _hash.side_effect = side_effects
+        self.filter_installed_packages.return_value = ['foo']
+        self._call_hook('upgrade-charm')
+        self.remove_old_packages.assert_called_once_with()
+        self.service_restart.assert_called_once_with('apache2')
 
     def test_ha_joined_complete_config(self):
         conf = {

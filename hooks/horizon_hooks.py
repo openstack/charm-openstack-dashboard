@@ -55,6 +55,7 @@ from charmhelpers.fetch import (
 from charmhelpers.core.host import (
     lsb_release,
     service_reload,
+    service_restart,
 )
 from charmhelpers.contrib.openstack.utils import (
     configure_installation_source,
@@ -101,6 +102,7 @@ from hooks.horizon_utils import (
     check_custom_theme,
     pause_unit_helper,
     resume_unit_helper,
+    remove_old_packages,
 )
 
 hooks = Hooks()
@@ -133,8 +135,13 @@ def install():
 def upgrade_charm():
     execd_preinstall()
     apt_install(filter_installed_packages(determine_packages()), fatal=True)
+    packages_removed = remove_old_packages()
     update_nrpe_config()
     CONFIGS.write_all()
+    if packages_removed:
+        log("Package purge detected, restarting services", "INFO")
+        for s in services():
+            service_restart(s)
     check_custom_theme()
 
 
