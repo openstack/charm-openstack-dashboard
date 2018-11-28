@@ -196,24 +196,13 @@ def register_configs():
     for conf in confs:
         configs.register(conf, CONFIG_FILES[conf]['hook_contexts'])
 
-    if os.path.isdir(APACHE_CONF_DIR) and cmp_pkgrevno('apache2', '2.4') >= 0:
-        for conf in [APACHE_CONF, APACHE_SSL, APACHE_DEFAULT]:
-            if os.path.isfile(conf):
-                log('Removing old config %s' % (conf))
-                os.remove(conf)
-        configs.register(APACHE_24_DEFAULT,
-                         CONFIG_FILES[APACHE_24_DEFAULT]['hook_contexts'])
-        configs.register(APACHE_24_CONF,
-                         CONFIG_FILES[APACHE_24_CONF]['hook_contexts'])
-        configs.register(APACHE_24_SSL,
-                         CONFIG_FILES[APACHE_24_SSL]['hook_contexts'])
-    else:
-        configs.register(APACHE_DEFAULT,
-                         CONFIG_FILES[APACHE_DEFAULT]['hook_contexts'])
-        configs.register(APACHE_CONF,
-                         CONFIG_FILES[APACHE_CONF]['hook_contexts'])
-        configs.register(APACHE_SSL,
-                         CONFIG_FILES[APACHE_SSL]['hook_contexts'])
+    # From Trusty on use Apache 2.4
+    configs.register(APACHE_24_DEFAULT,
+                     CONFIG_FILES[APACHE_24_DEFAULT]['hook_contexts'])
+    configs.register(APACHE_24_CONF,
+                     CONFIG_FILES[APACHE_24_CONF]['hook_contexts'])
+    configs.register(APACHE_24_SSL,
+                     CONFIG_FILES[APACHE_24_SSL]['hook_contexts'])
 
     if os.path.exists(os.path.dirname(ROUTER_SETTING)):
         configs.register(ROUTER_SETTING,
