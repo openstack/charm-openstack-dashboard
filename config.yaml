@@ -108,36 +108,6 @@ options:
       the following public endpoint for the swift-proxy:
       .
       https://horizon.example.com/horizon
-  os-internal-hostname:
-    type: string
-    default:
-    description: |
-      [DEPRECATED] Use os-public-hostname to specify a hostname for
-      openstack-dashboard.
-      .
-      The hostname or address of the internal endpoints created for
-      openstack-dashboard.
-      .
-      This value will be used for internal endpoints. For example, an
-      os-internal-hostname set to 'horizon.internal.example.com' with will
-      create the following internal endpoint for the swift-proxy:
-      .
-      https://horizon.internal.example.com/horizon
-  os-admin-hostname:
-    type: string
-    default:
-    description: |
-      [DEPRECATED] Use os-public-hostname to specify a hostname for
-      openstack-dashboard.
-      .
-      The hostname or address of the admin endpoints created for
-      openstack-dashboard.
-      .
-      This value will be used for admin endpoints. For example, an
-      os-admin-hostname set to 'horizon.admin.example.com' with will create
-      the following admin endpoint for the swift-proxy:
-      .
-      https://horizon.admin.example.com/horizon
   ssl_cert:
     type: string
     default:
