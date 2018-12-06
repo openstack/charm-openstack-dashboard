@@ -34,8 +34,6 @@ with patch('charmhelpers.contrib.hardening.harden.harden') as mock_dec:
 RESTART_MAP = utils.restart_map()
 utils.register_configs = _register_configs
 
-from charmhelpers.contrib.hahelpers.cluster import HAIncompleteConfig
-
 TO_PATCH = [
     'config',
     'relation_set',
@@ -46,7 +44,6 @@ TO_PATCH = [
     'filter_installed_packages',
     'open_port',
     'CONFIGS',
-    'get_hacluster_config',
     'relation_ids',
     'enable_ssl',
     'openstack_upgrade_available',
@@ -58,15 +55,13 @@ TO_PATCH = [
     'execd_preinstall',
     'b64decode',
     'os_release',
-    'get_iface_for_address',
-    'get_netmask_for_address',
     'update_nrpe_config',
     'lsb_release',
     'status_set',
-    'update_dns_ha_resource_params',
     'services',
     'service_restart',
     'remove_old_packages',
+    'generate_ha_relation_data',
 ]
 
 
@@ -189,107 +184,12 @@ class TestHorizonHooks(CharmTestCase):
         self.remove_old_packages.assert_called_once_with()
         self.service_restart.assert_called_once_with('apache2')
 
-    def test_ha_joined_complete_config(self):
-        conf = {
-            'ha-bindiface': 'eth100',
-            'ha-mcastport': '37373',
-            'vip': '192.168.25.163',
-            'vip_iface': 'eth101',
-            'vip_cidr': '19'
-        }
-        self.get_iface_for_address.return_value = 'eth101'
-        self.get_netmask_for_address.return_value = '19'
-        self.get_hacluster_config.return_value = conf
+    def test_ha_joined(self):
+        self.generate_ha_relation_data.return_value = {'rel_data': 'data'}
         self._call_hook('ha-relation-joined')
-        ex_args = {
-            'relation_id': None,
-            'corosync_mcastport': '37373',
-            'init_services': {
-                'res_horizon_haproxy': 'haproxy'},
-            'resource_params': {
-                'res_horizon_eth101_vip':
-                'params ip="192.168.25.163" cidr_netmask="19"'
-                ' nic="eth101"',
-                'res_horizon_haproxy': 'op monitor interval="5s"'},
-            'corosync_bindiface': 'eth100',
-            'clones': {
-                'cl_horizon_haproxy': 'res_horizon_haproxy'},
-            'resources': {
-                'res_horizon_eth101_vip': 'ocf:heartbeat:IPaddr2',
-                'res_horizon_haproxy': 'lsb:haproxy'}
-        }
-        self.relation_set.assert_called_with(**ex_args)
-
-    def test_ha_joined_no_bound_ip(self):
-        conf = {
-            'ha-bindiface': 'eth100',
-            'ha-mcastport': '37373',
-            'vip': '192.168.25.163',
-        }
-        self.test_config.set('vip_iface', 'eth120')
-        self.test_config.set('vip_cidr', '21')
-        self.get_iface_for_address.return_value = None
-        self.get_netmask_for_address.return_value = None
-        self.get_hacluster_config.return_value = conf
-        self._call_hook('ha-relation-joined')
-        ex_args = {
-            'relation_id': None,
-            'corosync_mcastport': '37373',
-            'init_services': {
-                'res_horizon_haproxy': 'haproxy'},
-            'resource_params': {
-                'res_horizon_eth120_vip':
-                'params ip="192.168.25.163" cidr_netmask="21"'
-                ' nic="eth120"',
-                'res_horizon_haproxy': 'op monitor interval="5s"'},
-            'corosync_bindiface': 'eth100',
-            'clones': {
-                'cl_horizon_haproxy': 'res_horizon_haproxy'},
-            'resources': {
-                'res_horizon_eth120_vip': 'ocf:heartbeat:IPaddr2',
-                'res_horizon_haproxy': 'lsb:haproxy'}
-        }
-        self.relation_set.assert_called_with(**ex_args)
-
-    def test_ha_joined_incomplete_config(self):
-        self.get_hacluster_config.side_effect = HAIncompleteConfig(1, 'bang')
-        self.assertRaises(HAIncompleteConfig, self._call_hook,
-                          'ha-relation-joined')
-
-    def test_ha_joined_dns_ha(self):
-        def _fake_update(resources, resource_params, relation_id=None):
-            resources.update({'res_horizon_public_hostname': 'ocf:maas:dns'})
-            resource_params.update({'res_horizon_public_hostname':
-                                    'params fqdn="keystone.maas" '
-                                    'ip_address="10.0.0.1"'})
-
-        self.test_config.set('dns-ha', True)
-        self.get_hacluster_config.return_value = {
-            'vip': None,
-            'ha-bindiface': 'em0',
-            'ha-mcastport': '8080',
-            'os-admin-hostname': None,
-            'os-internal-hostname': None,
-            'os-public-hostname': 'keystone.maas',
-        }
-        args = {
-            'relation_id': None,
-            'corosync_bindiface': 'em0',
-            'corosync_mcastport': '8080',
-            'init_services': {'res_horizon_haproxy': 'haproxy'},
-            'resources': {'res_horizon_public_hostname': 'ocf:maas:dns',
-                          'res_horizon_haproxy': 'lsb:haproxy'},
-            'resource_params': {
-                'res_horizon_public_hostname': 'params fqdn="keystone.maas" '
-                                               'ip_address="10.0.0.1"',
-                'res_horizon_haproxy': 'op monitor interval="5s"'},
-            'clones': {'cl_horizon_haproxy': 'res_horizon_haproxy'}
-        }
-        self.update_dns_ha_resource_params.side_effect = _fake_update
-
-        hooks.ha_relation_joined()
-        self.assertTrue(self.update_dns_ha_resource_params.called)
-        self.relation_set.assert_called_with(**args)
+        self.relation_set.assert_called_once_with(
+            rel_data='data',
+            relation_id=None)
 
     @patch('hooks.horizon_hooks.check_custom_theme')
     @patch('hooks.horizon_hooks.keystone_joined')
@@ -304,6 +204,7 @@ class TestHorizonHooks(CharmTestCase):
                     'identity/0',
                 ],
                 'certificates': [],
+                'ha': [],
             }[rname]
         self.relation_ids.side_effect = relation_ids_side_effect
 
