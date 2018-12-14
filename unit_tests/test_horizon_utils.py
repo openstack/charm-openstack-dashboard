@@ -66,7 +66,8 @@ class TestHorizonUtils(CharmTestCase):
                    ['python-pymysql',
                     'python-neutron-lbaas-dashboard',
                     'python-designate-dashboard',
-                    'python-heat-dashboard']))
+                    'python-heat-dashboard',
+                    'python-neutron-fwaas-dashboard']))
 
     def test_determine_packages_rocky(self):
         horizon_utils.os_release.return_value = 'rocky'

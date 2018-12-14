@@ -257,6 +257,7 @@ def determine_packages():
     if release >= 'queens':
         packages.append('python-designate-dashboard')
         packages.append('python-heat-dashboard')
+        packages.append('python-neutron-fwaas-dashboard')
     if release >= 'rocky':
         packages = [p for p in packages if not p.startswith('python-')]
         packages.extend(PY3_PACKAGES)
