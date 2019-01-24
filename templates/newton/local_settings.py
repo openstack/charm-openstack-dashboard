@@ -906,7 +906,10 @@ try:
   from custom_theme import *
 except ImportError:
   pass
-AVAILABLE_THEMES += [ ('custom', 'custom', 'themes/custom') ]
+AVAILABLE_THEMES += [
+  ('default', 'Default', 'themes/default'),
+  ('custom', 'custom', 'themes/custom')
+]
 {% endif %}
 
 WEBROOT = '{{ webroot }}'
