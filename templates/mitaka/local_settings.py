@@ -318,7 +318,7 @@ OPENSTACK_NEUTRON_NETWORK = {
     'enable_lb': {{ neutron_network_lb }},
     'enable_firewall': {{ neutron_network_firewall }},
     'enable_vpn': {{ neutron_network_vpn }},
-    'enable_fip_topology_check': True,
+    'enable_fip_topology_check': {{ enable_fip_topology_check }},
 
     # Neutron can be configured with a default Subnet Pool to be used for IPv4
     # subnet-allocation. Specify the label you wish to display in the Address

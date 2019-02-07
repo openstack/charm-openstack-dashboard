@@ -371,3 +371,11 @@ options:
       The maximum number of objects (e.g. Swift objects or Glance images) to
       display on a single page before providing a paging element (a "more" link)
       to paginate results.
+  enable-fip-topology-check:
+    type: boolean
+    default: true
+    description:
+      By default Horizon checks that a project has a router attached to an
+      external network before allowing FIPs to be attached to a VM. Some use
+      cases will not meet this constraint, e.g. if the router is owned by a
+      different project. Setting this to False removes this check from Horizon.

@@ -328,7 +328,7 @@ OPENSTACK_NEUTRON_NETWORK = {
     'enable_lb': {{ neutron_network_lb }},
     'enable_firewall': {{ neutron_network_firewall }},
     'enable_vpn': {{ neutron_network_vpn }},
-    'enable_fip_topology_check': True,
+    'enable_fip_topology_check': {{ enable_fip_topology_check }},
 
     # Default dns servers you would like to use when a subnet is
     # created.  This is only a default, users can still choose a different
