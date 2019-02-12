@@ -10,7 +10,7 @@ include:
     - contrib.hahelpers
     - contrib.storage
     - contrib.network.ip
-    - contrib.python.packages
+    - contrib.python
     - payload
     - contrib.charmsupport
     - contrib.hardening|inc=*
