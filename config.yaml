@@ -49,6 +49,13 @@ options:
     description: |
       Directory where application will be accessible, relative to
       http://$hostname/.
+  session-timeout:
+    type: int
+    default: 3600
+    description:
+      A method to supersede the token timeout with a shorter dashboard session
+      timeout in seconds. For example, if your token expires in 60 minutes, a
+      value of 1800 will log users out after 30 minutes.
   default-role:
     type: string
     default: "Member"

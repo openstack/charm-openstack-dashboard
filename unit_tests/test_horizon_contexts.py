@@ -164,6 +164,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -192,6 +193,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -220,6 +222,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -248,6 +251,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -277,6 +281,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -309,6 +314,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -337,6 +343,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -365,6 +372,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -398,6 +406,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -426,6 +435,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -454,6 +464,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -483,6 +494,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -512,6 +524,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -541,6 +554,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": 'iso qcow2 raw',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
                           }
                          )
 
@@ -570,6 +584,7 @@ class TestHorizonContexts(CharmTestCase):
                           "image_formats": '',
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": False,
+                          "session_timeout": 3600,
                           }
                          )
 

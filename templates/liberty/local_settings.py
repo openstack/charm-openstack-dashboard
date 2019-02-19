@@ -51,6 +51,9 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 {% endif %}
 
+# A method to supersede the token timeout with a shorter dashboard session
+# timeout in seconds.
+SESSION_TIMEOUT = {{ session_timeout }}
 
 # Overrides for OpenStack API versions. Use this setting to force the
 # OpenStack dashboard to use a specific API version for a given service API.
