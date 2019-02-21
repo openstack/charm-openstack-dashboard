@@ -165,6 +165,12 @@ options:
     description: |
       Secret for Horizon to use when securing internal data; set this when
       using multiple dashboard units.
+  dropdown-max-items:
+    type: int
+    default: 30
+    description: |
+      Max dropdown items to show in dropdown controls.
+      NOTE: This setting is supported >= OpenStack Liberty.
   profile:
     type: string
     default:
