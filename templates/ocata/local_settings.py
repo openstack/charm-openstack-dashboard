@@ -50,6 +50,9 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 {% endif %}
 
+# A method to supersede the token timeout with a shorter dashboard session
+# timeout in seconds.
+SESSION_TIMEOUT = {{ session_timeout }}
 
 # The absolute path to the directory where message files are collected.
 # The message file must have a .json file extension. When the user logins to

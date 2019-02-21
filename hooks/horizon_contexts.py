@@ -205,6 +205,7 @@ class HorizonContext(OSContextGenerator):
             'image_formats': config('image-formats'),
             'api_result_limit': config('api-result-limit') or 1000,
             'enable_fip_topology_check': config('enable-fip-topology-check'),
+            'session_timeout': config('session-timeout')
         }
 
         return ctxt
