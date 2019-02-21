@@ -376,8 +376,28 @@ def certs_joined(relation_id=None):
 
 @hooks.hook('certificates-relation-changed')
 def certs_changed(relation_id=None, unit=None):
-    process_certificates('horizon', relation_id, unit,
-                         custom_hostname_link='dashboard')
+    if config('os-public-hostname'):
+        # NOTE(fnordahl): Kludge to fix LP: #1816621
+        # Long term fix is to use the common ApacheSSLContext from
+        # charm-helpers and adapt the Apache config along the lines of
+        # ``charmhelpers/contrib/openstack/templates/openstack_https_frontend``
+        process_certificates('horizon', relation_id, unit)
+        ssl_dir = '/etc/apache2/ssl/horizon'
+        cert = os.path.join(
+            ssl_dir,
+            '{}_{}'.format('cert', config('os-public-hostname')))
+        key = os.path.join(
+            ssl_dir,
+            '{}_{}'.format('key', config('os-public-hostname')))
+        cert_link = os.path.join(ssl_dir, 'cert_dashboard')
+        key_link = os.path.join(ssl_dir, 'key_dashboard')
+        for source, dest in [(cert, cert_link), (key, key_link)]:
+            if os.path.exists(dest):
+                os.remove(dest)
+            os.symlink(source, dest)
+    else:
+        process_certificates('horizon', relation_id, unit,
+                             custom_hostname_link='dashboard')
     CONFIGS.write_all()
     service_reload('apache2')
     enable_ssl()
