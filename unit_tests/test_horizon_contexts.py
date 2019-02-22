@@ -165,6 +165,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -194,6 +195,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -223,6 +225,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -252,6 +255,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -282,6 +286,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -315,6 +320,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -344,6 +350,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -373,6 +380,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -407,6 +415,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -436,6 +445,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -465,6 +475,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -495,6 +506,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -525,6 +537,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -555,6 +568,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": True,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
@@ -585,6 +599,7 @@ class TestHorizonContexts(CharmTestCase):
                           "api_result_limit": 1000,
                           "enable_fip_topology_check": False,
                           "session_timeout": 3600,
+                          "dropdown_max_items": 30,
                           }
                          )
 
