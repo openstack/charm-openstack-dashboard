@@ -429,34 +429,3 @@ class TestHorizonHooks(CharmTestCase):
                      "path": "/auth/websso/",
                  }),
         ])
-
-    @patch.object(hooks.os, 'symlink')
-    @patch.object(hooks.os, 'remove')
-    @patch.object(hooks.os.path, 'exists')
-    @patch.object(hooks, 'service_reload')
-    @patch.object(hooks, 'process_certificates')
-    def test_certs_changed(self, _process_certificates, _service_reload,
-                           _exists, _remove, _symlink):
-        self._call_hook('certificates-relation-changed')
-        _process_certificates.assert_called_with(
-            'horizon', None, None, custom_hostname_link='dashboard')
-        self.assertFalse(_symlink.called)
-        self.CONFIGS.write_all.assert_called_with()
-        _service_reload.assert_called_with('apache2')
-        self.enable_ssl.assert_called_with()
-        _process_certificates.reset_mock()
-        self.config.side_effect = None
-        self.config.return_value = 'somehostname'
-        _exists.return_value = True
-        self._call_hook('certificates-relation-changed')
-        _process_certificates.assert_called_with('horizon', None, None)
-        _remove.assert_has_calls([
-            call('/etc/apache2/ssl/horizon/cert_dashboard'),
-            call('/etc/apache2/ssl/horizon/key_dashboard'),
-        ])
-        _symlink.assert_has_calls([
-            call('/etc/apache2/ssl/horizon/cert_somehostname',
-                 '/etc/apache2/ssl/horizon/cert_dashboard'),
-            call('/etc/apache2/ssl/horizon/key_somehostname',
-                 '/etc/apache2/ssl/horizon/key_dashboard'),
-        ])
