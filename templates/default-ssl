@@ -1,57 +1,63 @@
-<IfModule mod_ssl.c>
-    <VirtualHost _default_:{{ https_port }}>
-        ServerAdmin webmaster@localhost
+{% if endpoints -%}
+# Accept connections from non-SNI clients
+SSLStrictSNIVHostCheck off
+{% for ext_port in ext_ports -%}
+NameVirtualHost *:{{ 443 }}
+{% endfor -%}
+{% for address, endpoint, ext, int in endpoints -%}
+<VirtualHost {{ address }}:{{ ext }}>
+    ServerName {{ endpoint }}
 
-        DocumentRoot /var/www
-        <Directory />
-                Options FollowSymLinks
-                AllowOverride None
-        </Directory>
-        <Directory /var/www/>
-                Options Indexes FollowSymLinks MultiViews
-                AllowOverride None
-                Order allow,deny
-                allow from all
-        </Directory>
+    ServerAdmin webmaster@localhost
 
-        ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
-        <Directory "/usr/lib/cgi-bin">
-                AllowOverride None
-                Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
-                Order allow,deny
-                Allow from all
-        </Directory>
+    DocumentRoot /var/www
+    <Directory />
+            Options FollowSymLinks
+            AllowOverride None
+    </Directory>
+    <Directory /var/www/>
+            Options Indexes FollowSymLinks MultiViews
+            AllowOverride None
+            Order allow,deny
+            allow from all
+    </Directory>
 
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-        LogLevel warn
+    ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+    <Directory "/usr/lib/cgi-bin">
+            AllowOverride None
+            Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+            Order allow,deny
+            Allow from all
+    </Directory>
 
-        CustomLog ${APACHE_LOG_DIR}/ssl_access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    LogLevel warn
 
-        SSLEngine on
-        SSLProtocol +TLSv1 +TLSv1.1 +TLSv1.2
-        SSLCipherSuite HIGH:!RC4:!MD5:!aNULL:!eNULL:!EXP:!LOW:!MEDIUM
-{% if ssl_configured %}
-        SSLCertificateFile {{ ssl_cert }}
-        SSLCertificateKeyFile {{ ssl_key }}
+    CustomLog ${APACHE_LOG_DIR}/ssl_access.log combined
+
+    SSLEngine on
+    SSLProtocol +TLSv1 +TLSv1.1 +TLSv1.2
+    SSLCipherSuite HIGH:!RC4:!MD5:!aNULL:!eNULL:!EXP:!LOW:!MEDIUM
+    SSLCertificateFile /etc/apache2/ssl/{{ namespace }}/cert_{{ endpoint }}
+    # See LP 1484489 - this is to support <= 2.4.7 and >= 2.4.8
+    SSLCertificateChainFile /etc/apache2/ssl/{{ namespace }}/cert_{{ endpoint }}
+    SSLCertificateKeyFile /etc/apache2/ssl/{{ namespace }}/key_{{ endpoint }}
 {% if enforce_ssl %}
-        Header set Strict-Transport-Security "max-age={{ hsts_max_age_seconds }}"
+    Header set Strict-Transport-Security "max-age={{ hsts_max_age_seconds }}"
 {% endif %}
-{% else %}
-        SSLCertificateFile  /etc/ssl/certs/ssl-cert-snakeoil.pem
-        SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
-{% endif %}
-        Header set X-XSS-Protection "1; mode=block"
-        Header set X-Content-Type-Options "nosniff"
-        <FilesMatch "\.(cgi|shtml|phtml|php)$">
-                SSLOptions +StdEnvVars
-        </FilesMatch>
-        <Directory /usr/lib/cgi-bin>
-                SSLOptions +StdEnvVars
-        </Directory>
-        BrowserMatch "MSIE [2-6]" \
-                nokeepalive ssl-unclean-shutdown \
-                downgrade-1.0 force-response-1.0
-        BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+    <FilesMatch "\.(cgi|shtml|phtml|php)$">
+            SSLOptions +StdEnvVars
+    </FilesMatch>
+    <Directory /usr/lib/cgi-bin>
+            SSLOptions +StdEnvVars
+    </Directory>
+    BrowserMatch "MSIE [2-6]" \
+            nokeepalive ssl-unclean-shutdown \
+            downgrade-1.0 force-response-1.0
+    BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
 
-    </VirtualHost>
-</IfModule>
+</VirtualHost>
+{% endfor -%}
+{% endif -%}

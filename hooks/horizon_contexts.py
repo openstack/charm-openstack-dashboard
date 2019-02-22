@@ -14,8 +14,6 @@
 
 # vim: set ts=4:et
 
-from base64 import b64decode
-import os
 import json
 
 from charmhelpers.core.hookenv import (
@@ -29,14 +27,13 @@ from charmhelpers.core.hookenv import (
     ERROR,
 )
 from charmhelpers.core.strutils import bool_from_string
+from charmhelpers.contrib.openstack import context
 from charmhelpers.contrib.openstack.context import (
     OSContextGenerator,
     context_complete
 )
 from charmhelpers.contrib.hahelpers.apache import (
-    get_ca_cert,
     get_cert,
-    install_ca_cert,
 )
 from charmhelpers.contrib.network.ip import (
     get_ipv6_addr,
@@ -233,41 +230,14 @@ class ApacheContext(OSContextGenerator):
         return ctxt
 
 
-class ApacheSSLContext(OSContextGenerator):
+class ApacheSSLContext(context.ApacheSSLContext):
+
+    interfaces = ['https']
+    external_ports = [443]
+    service_namespace = 'horizon'
+
     def __call__(self):
-        ''' Grab cert and key from configuration for SSL config '''
-        ctxt = {'ssl_configured': False}
-        use_local_ca = True
-        for rid in relation_ids('certificates'):
-            if related_units(rid):
-                use_local_ca = False
-
-        if use_local_ca:
-            ca_cert = get_ca_cert()
-            if not ca_cert:
-                return ctxt
-            install_ca_cert(b64decode(ca_cert))
-
-            ssl_cert, ssl_key = get_cert()
-            if all([ssl_cert, ssl_key]):
-                with open('/etc/ssl/certs/dashboard.cert', 'wb') as cert_out:
-                    cert_out.write(b64decode(ssl_cert))
-                with open('/etc/ssl/private/dashboard.key', 'wb') as key_out:
-                    key_out.write(b64decode(ssl_key))
-                os.chmod('/etc/ssl/private/dashboard.key', 0o600)
-                ctxt = {
-                    'ssl_configured': True,
-                    'ssl_cert': '/etc/ssl/certs/dashboard.cert',
-                    'ssl_key': '/etc/ssl/private/dashboard.key',
-                }
-        else:
-            if os.path.exists(SSL_CERT_FILE) and os.path.exists(SSL_KEY_FILE):
-                ctxt = {
-                    'ssl_configured': True,
-                    'ssl_cert': SSL_CERT_FILE,
-                    'ssl_key': SSL_KEY_FILE,
-                }
-        return ctxt
+        return super(ApacheSSLContext, self).__call__()
 
 
 class RouterSettingContext(OSContextGenerator):
