@@ -62,6 +62,7 @@ TO_PATCH = [
     'service_restart',
     'remove_old_packages',
     'generate_ha_relation_data',
+    'resolve_address',
 ]
 
 
@@ -297,37 +298,117 @@ class TestHorizonHooks(CharmTestCase):
         self._call_hook('websso-fid-service-provider-relation-changed')
         self.CONFIGS.write_all.assert_called_with()
 
-    def test_websso_trusted_dashboard_changed(self):
+    def test_websso_trusted_dashboard_changed_no_tls(self):
         def relation_ids_side_effect(rname):
             return {
                 'websso-trusted-dashboard': [
                     'websso-trusted-dashboard:0',
                     'websso-trusted-dashboard:1',
-                ]
+                ],
+                'certificates': [],
             }[rname]
         self.relation_ids.side_effect = relation_ids_side_effect
+        hostname = 'dashboard.intranet.test'
 
         def config_side_effect(key):
             return {
-                'ssl-key': 'somekey',
-                'enforce-ssl': True,
-                'dns-ha': True,
-                'os-public-hostname': 'dashboard.intranet.test',
+                'ssl-key': None,
+                'enforce-ssl': None,
+                'dns-ha': None,
+                'os-public-hostname': hostname,
+                'webroot': '/horizon',
             }[key]
         self.config.side_effect = config_side_effect
+        self.resolve_address.return_value = hostname
+        self._call_hook('websso-trusted-dashboard-relation-changed')
+        self.relation_set.assert_has_calls([
+            call(relation_id='websso-trusted-dashboard:0',
+                 relation_settings={
+                     "scheme": "http://",
+                     "hostname": "dashboard.intranet.test",
+                     "path": "/horizon/auth/websso/",
+                 }),
+            call(relation_id='websso-trusted-dashboard:1',
+                 relation_settings={
+                     "scheme": "http://",
+                     "hostname": "dashboard.intranet.test",
+                     "path": "/horizon/auth/websso/",
+                 }),
+        ])
+
+    def test_websso_trusted_dashboard_changed_tls_certificates_relation(self):
+        def relation_ids_side_effect(rname):
+            return {
+                'websso-trusted-dashboard': [
+                    'websso-trusted-dashboard:0',
+                    'websso-trusted-dashboard:1',
+                ],
+                'certificates': ['certificates:9'],
+            }[rname]
+        self.relation_ids.side_effect = relation_ids_side_effect
+        hostname = 'dashboard.intranet.test'
+
+        def config_side_effect(key):
+            return {
+                'ssl-key': None,
+                'enforce-ssl': None,
+                'dns-ha': None,
+                'os-public-hostname': hostname,
+                'webroot': '/horizon'
+            }[key]
+        self.config.side_effect = config_side_effect
+        self.resolve_address.return_value = hostname
         self._call_hook('websso-trusted-dashboard-relation-changed')
         self.relation_set.assert_has_calls([
             call(relation_id='websso-trusted-dashboard:0',
                  relation_settings={
                      "scheme": "https://",
                      "hostname": "dashboard.intranet.test",
-                     "path": "/auth/websso/",
+                     "path": "/horizon/auth/websso/",
                  }),
             call(relation_id='websso-trusted-dashboard:1',
                  relation_settings={
                      "scheme": "https://",
                      "hostname": "dashboard.intranet.test",
-                     "path": "/auth/websso/",
+                     "path": "/horizon/auth/websso/",
+                 }),
+        ])
+
+    def test_websso_trusted_dashboard_changed_ssl_config(self):
+        def relation_ids_side_effect(rname):
+            return {
+                'websso-trusted-dashboard': [
+                    'websso-trusted-dashboard:0',
+                    'websso-trusted-dashboard:1',
+                ],
+                'certificates': [],
+            }[rname]
+        self.relation_ids.side_effect = relation_ids_side_effect
+        hostname = 'dashboard.intranet.test'
+
+        def config_side_effect(key):
+            return {
+                'ssl-key': 'somekey',
+                'enforce-ssl': True,
+                'dns-ha': True,
+                'os-public-hostname': hostname,
+                'webroot': '/horizon',
+            }[key]
+        self.config.side_effect = config_side_effect
+        self.resolve_address.return_value = hostname
+        self._call_hook('websso-trusted-dashboard-relation-changed')
+        self.relation_set.assert_has_calls([
+            call(relation_id='websso-trusted-dashboard:0',
+                 relation_settings={
+                     "scheme": "https://",
+                     "hostname": "dashboard.intranet.test",
+                     "path": "/horizon/auth/websso/",
+                 }),
+            call(relation_id='websso-trusted-dashboard:1',
+                 relation_settings={
+                     "scheme": "https://",
+                     "hostname": "dashboard.intranet.test",
+                     "path": "/horizon/auth/websso/",
                  }),
         ])
 

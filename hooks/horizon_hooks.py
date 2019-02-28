@@ -45,7 +45,6 @@ from charmhelpers.core.hookenv import (
     status_set,
     is_leader,
     local_unit,
-    network_get,
 )
 from charmhelpers.fetch import (
     apt_update, apt_install,
@@ -55,6 +54,10 @@ from charmhelpers.core.host import (
     lsb_release,
     service_reload,
     service_restart,
+)
+from charmhelpers.contrib.openstack.ip import (
+    PUBLIC,
+    resolve_address,
 )
 from charmhelpers.contrib.openstack.utils import (
     configure_installation_source,
@@ -338,24 +341,18 @@ def websso_trusted_dashboard_changed():
         return
 
     # TODO: check for vault relation in order to determine url scheme
-    tls_configured = config('ssl-key') or config('enforce-ssl')
+    tls_configured = (relation_ids('certificates') or
+                      config('ssl-key') or config('enforce-ssl'))
     scheme = 'https://' if tls_configured else 'http://'
 
-    if config('dns-ha') or config('os-public-hostname'):
-        hostname = config('os-public-hostname')
-    elif config('vip'):
-        hostname = config('vip')
-    else:
-        # use an ingress-address of a given unit as a fallback
-        netinfo = network_get('websso-trusted-dashboard')
-        hostname = netinfo['ingress-addresses'][0]
-
+    hostname = resolve_address(endpoint_type=PUBLIC, override=True)
+    path = "{}/auth/websso/".format(config('webroot'))
     # provide trusted dashboard URL details
     for rid in relations:
         relation_set(relation_id=rid, relation_settings={
             "scheme": scheme,
             "hostname": hostname,
-            "path": "/auth/websso/"
+            "path": path,
         })
 
 
