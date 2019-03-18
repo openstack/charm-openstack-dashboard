@@ -1,0 +1,21 @@
+{% if enable_consistency_groups -%}
+"consistencygroup:create" : ""
+"consistencygroup:create_cgsnapshot" : ""
+"consistencygroup:delete": ""
+"consistencygroup:delete_cgsnapshot": ""
+"consistencygroup:get": ""
+"consistencygroup:get_all": ""
+"consistencygroup:get_all_cgsnapshots": ""
+"consistencygroup:get_cgsnapshot": ""
+"consistencygroup:update": ""
+{% else -%}
+"consistencygroup:create" : "group:nobody"
+"consistencygroup:create_cgsnapshot" : "group:nobody"
+"consistencygroup:delete": "group:nobody"
+"consistencygroup:delete_cgsnapshot": "group:nobody"
+"consistencygroup:get": "group:nobody"
+"consistencygroup:get_all": "group:nobody"
+"consistencygroup:get_all_cgsnapshots": "group:nobody"
+"consistencygroup:get_cgsnapshot": "group:nobody"
+"consistencygroup:update": "group:nobody"
+{% endif -%}

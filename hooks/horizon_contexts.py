@@ -203,7 +203,8 @@ class HorizonContext(OSContextGenerator):
             'api_result_limit': config('api-result-limit') or 1000,
             'enable_fip_topology_check': config('enable-fip-topology-check'),
             'session_timeout': config('session-timeout'),
-            'dropdown_max_items': config('dropdown-max-items')
+            'dropdown_max_items': config('dropdown-max-items'),
+            'enable_consistency_groups': config('enable-consistency-groups'),
         }
 
         return ctxt

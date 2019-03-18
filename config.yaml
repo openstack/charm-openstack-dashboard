@@ -362,3 +362,11 @@ options:
       external network before allowing FIPs to be attached to a VM. Some use
       cases will not meet this constraint, e.g. if the router is owned by a
       different project. Setting this to False removes this check from Horizon.
+  enable-consistency-groups:
+    type: boolean
+    default: false
+    description: |
+      By default Cinder does not enable the Consistency Groups feature. To
+      avoid having the Consistency Groups tabs on Horizon without the feature
+      enabled on Cinder, this also defaults to False. Setting this to True
+      will make the Consistency Groups tabs appear on the dashboard.

@@ -133,6 +133,9 @@ class TestHorizonUtils(CharmTestCase):
             ('/usr/share/openstack-dashboard/openstack_dashboard/conf/'
              'keystonev3_policy.json',
              ['apache2', 'memcached']),
+            ('/usr/share/openstack-dashboard/openstack_dashboard/conf/'
+             'cinder_policy.d/consistencygroup.yaml',
+             ['apache2', 'memcached']),
         ])
         self.assertEqual(horizon_utils.restart_map(), ex_map)
 

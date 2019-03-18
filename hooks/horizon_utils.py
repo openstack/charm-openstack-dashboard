@@ -106,6 +106,9 @@ ROUTER_SETTING = ('/usr/share/openstack-dashboard/openstack_dashboard/enabled/'
                   '_40_router.py')
 KEYSTONEV3_POLICY = ('/usr/share/openstack-dashboard/openstack_dashboard/conf/'
                      'keystonev3_policy.json')
+CONSISTENCY_GROUP_POLICY = ('/usr/share/openstack-dashboard/'
+                            'openstack_dashboard/conf/cinder_policy.d/'
+                            'consistencygroup.yaml')
 TEMPLATES = 'templates'
 CUSTOM_THEME_DIR = ("/usr/share/openstack-dashboard/openstack_dashboard/"
                     "themes/custom")
@@ -171,6 +174,10 @@ CONFIG_FILES = OrderedDict([
         'hook_contexts': [horizon_contexts.IdentityServiceContext()],
         'services': ['apache2', 'memcached'],
     }),
+    (CONSISTENCY_GROUP_POLICY, {
+        'hook_contexts': [horizon_contexts.HorizonContext()],
+        'services': ['apache2', 'memcached'],
+    }),
 ])
 
 
@@ -183,6 +190,11 @@ def register_configs():
     confs = [LOCAL_SETTINGS,
              HAPROXY_CONF,
              PORTS_CONF]
+
+    if CompareOpenStackReleases(release) >= 'queens':
+        configs.register(
+            CONSISTENCY_GROUP_POLICY,
+            CONFIG_FILES[CONSISTENCY_GROUP_POLICY]['hook_contexts'])
 
     if CompareOpenStackReleases(release) >= 'mitaka':
         configs.register(KEYSTONEV3_POLICY,
