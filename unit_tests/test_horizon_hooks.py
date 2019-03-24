@@ -126,10 +126,10 @@ class TestHorizonHooks(CharmTestCase):
         openstack_origin_git = {
             'repositories': [
                 {'name': 'requirements',
-                 'repository': 'git://git.openstack.org/openstack/requirements',  # noqa
+                 'repository': 'https://git.openstack.org/openstack/requirements',  # noqa
                  'branch': 'stable/juno'},
                 {'name': 'horizon',
-                 'repository': 'git://git.openstack.org/openstack/horizon',
+                 'repository': 'https://git.openstack.org/openstack/horizon',
                  'branch': 'stable/juno'}
             ],
             'directory': '/mnt/openstack-git',
@@ -265,10 +265,10 @@ class TestHorizonHooks(CharmTestCase):
         openstack_origin_git = {
             'repositories': [
                 {'name': 'requirements',
-                 'repository': 'git://git.openstack.org/openstack/requirements',  # noqa
+                 'repository': 'https://git.openstack.org/openstack/requirements',  # noqa
                  'branch': 'stable/juno'},
                 {'name': 'horizon',
-                 'repository': 'git://git.openstack.org/openstack/horizon',
+                 'repository': 'https://git.openstack.org/openstack/horizon',
                  'branch': 'stable/juno'}
             ],
             'directory': '/mnt/openstack-git',

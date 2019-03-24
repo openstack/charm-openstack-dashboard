@@ -29,10 +29,10 @@ TO_PATCH = [
 openstack_origin_git = \
     """repositories:
          - {name: requirements,
-            repository: 'git://git.openstack.org/openstack/requirements',
+            repository: 'https://git.openstack.org/openstack/requirements',
             branch: stable/juno}
          - {name: horizon,
-            repository: 'git://git.openstack.org/openstack/horizon',
+            repository: 'https://git.openstack.org/openstack/horizon',
             branch: stable/juno}"""
 
 
