@@ -44,6 +44,7 @@ NameVirtualHost *:{{ 443 }}
     SSLCertificateKeyFile /etc/apache2/ssl/{{ namespace }}/key_{{ endpoint }}
 {% if enforce_ssl %}
     Header set Strict-Transport-Security "max-age={{ hsts_max_age_seconds }}"
+    Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure
 {% endif %}
     Header set X-XSS-Protection "1; mode=block"
     Header set X-Content-Type-Options "nosniff"
