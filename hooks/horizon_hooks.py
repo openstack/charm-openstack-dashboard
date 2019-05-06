@@ -19,7 +19,7 @@
 from base64 import b64decode
 import os
 import sys
-
+import urllib
 
 _path = os.path.dirname(os.path.realpath(__file__))
 _root = os.path.abspath(os.path.join(_path, '..'))
@@ -346,7 +346,13 @@ def websso_trusted_dashboard_changed():
     scheme = 'https://' if tls_configured else 'http://'
 
     hostname = resolve_address(endpoint_type=PUBLIC, override=True)
-    path = "{}/auth/websso/".format(config('webroot'))
+
+    # urljoin needs a base url to be '/'-terminated contrary to the joined path
+    webroot = config('webroot')
+    if not webroot.endswith('/'):
+        webroot += '/'
+
+    path = urllib.parse.urljoin(webroot, "auth/websso/")
     # provide trusted dashboard URL details
     for rid in relations:
         relation_set(relation_id=rid, relation_settings={
