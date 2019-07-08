@@ -270,6 +270,11 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
             # presence of the following text is sufficient to determine whether
             # authentication succeeded or not
             expect = 'ServiceCatalogException at /admin/'
+        elif self._get_openstack_release() >= self.bionic_stein:
+            expect = "Sign Out"
+            # update the in dashboard seems to require region to be default in
+            # this test configuration
+            region = 'default'
         else:
             expect = 'Projects - OpenStack Dashboard'
 

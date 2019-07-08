@@ -19,7 +19,8 @@
 from basic_deployment import OpenstackDashboardBasicDeployment
 
 if __name__ == '__main__':
-    deployment = OpenstackDashboardBasicDeployment(series='bionic',
-                                                   openstack='cloud:bionic-stein',
-                                                   source='cloud:bionic-updates/stein')
+    deployment = OpenstackDashboardBasicDeployment(
+        series='bionic',
+        openstack='cloud:bionic-stein',
+        source='cloud:bionic-updates/stein')
     deployment.run_tests()
