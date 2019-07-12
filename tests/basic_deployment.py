@@ -70,7 +70,7 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
                         'constraints': {'mem': '3072M'}}
         other_services = [
             {'name': 'keystone'},
-            {'name': 'percona-cluster', 'constraints': {'mem': '3072M'}},
+            self.get_percona_service_entry(),
         ]
         super(OpenstackDashboardBasicDeployment, self)._add_services(
             this_service,
@@ -270,8 +270,6 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
             # presence of the following text is sufficient to determine whether
             # authentication succeeded or not
             expect = 'ServiceCatalogException at /admin/'
-        elif self._get_openstack_release() >= self.xenial_queens:
-            expect = 'API Access - OpenStack Dashboard'
         else:
             expect = 'Projects - OpenStack Dashboard'
 
@@ -298,10 +296,16 @@ class OpenstackDashboardBasicDeployment(OpenStackAmuletDeployment):
                 'region': region,
             }
 
-            # In the redirect /horizon/project/ is unauthorized.
-            # Redirect to /horizon/project/api_access/
+            # In the minimal test deployment /horizon/project/ is unauthorized,
+            # this does not occur in a full deployment and is probably due to
+            # services/information missing that horizon wants to display data
+            # for.
+            # Redirect to /horizon/identity/ instead.
             if self._get_openstack_release() >= self.xenial_queens:
-                auth['next'] = '/horizon/project/api_access'
+                auth['next'] = '/horizon/identity/'
+
+            if self._get_openstack_release() >= self.bionic_stein:
+                auth['region'] = 'default'
 
             if api_version == 2:
                 del auth['domain']
