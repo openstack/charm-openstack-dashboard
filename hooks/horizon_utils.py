@@ -273,6 +273,10 @@ def determine_packages():
     if release >= 'rocky':
         packages = [p for p in packages if not p.startswith('python-')]
         packages.extend(PY3_PACKAGES)
+    if release >= 'stein':
+        # NOTE(jamespage): Django in Ubuntu disco or later uses
+        #                  mysqldb rather than pymysql.
+        packages.append('python3-mysqldb')
     return list(set(packages))
 
 
