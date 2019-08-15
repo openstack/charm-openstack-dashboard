@@ -12,7 +12,7 @@ extra-bindings:
 series:
   - xenial
   - bionic
-  - cosmic
+  - eoan
   - disco
   - trusty
 provides:
