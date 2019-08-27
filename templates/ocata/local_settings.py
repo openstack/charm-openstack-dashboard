@@ -126,6 +126,10 @@ HORIZON_CONFIG["password_autocomplete"] = "on"
 # Setting this to True will disable the reveal button for password fields,
 # including on the login form.
 #HORIZON_CONFIG["disable_password_reveal"] = False
+{% if disable_password_reveal %}
+HORIZON_CONFIG["disable_password_reveal"] = True
+{% endif %}
+
 
 LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 

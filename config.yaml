@@ -404,3 +404,8 @@ options:
       belongs to.  Please see the README of the charm for further details.
       .
       If False then remove/disable any overrides in force.
+  disable-password-reveal:
+    type: boolean
+    default: false
+    description: |
+      If enabled, the reveal button for passwords is removed.

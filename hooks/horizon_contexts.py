@@ -208,7 +208,8 @@ class HorizonContext(OSContextGenerator):
             'dropdown_max_items': config('dropdown-max-items'),
             'enable_consistency_groups': config('enable-consistency-groups'),
             'disable_instance_snapshot': bool(
-                config('disable-instance-snapshot'))
+                config('disable-instance-snapshot')),
+            'disable_password_reveal': config('disable-password-reveal'),
         }
 
         return ctxt
