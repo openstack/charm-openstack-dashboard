@@ -191,7 +191,8 @@ def register_configs():
              HAPROXY_CONF,
              PORTS_CONF]
 
-    if CompareOpenStackReleases(release) >= 'queens':
+    if (CompareOpenStackReleases(release) >= 'queens' and
+            CompareOpenStackReleases(release) <= 'stein'):
         configs.register(
             CONSISTENCY_GROUP_POLICY,
             CONFIG_FILES[CONSISTENCY_GROUP_POLICY]['hook_contexts'])

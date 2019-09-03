@@ -370,3 +370,8 @@ options:
       avoid having the Consistency Groups tabs on Horizon without the feature
       enabled on Cinder, this also defaults to False. Setting this to True
       will make the Consistency Groups tabs appear on the dashboard.
+      .
+      This option is supported for releases up to OpenStack Stein only. As of
+      OpenStack Train, consistency groups have been dropped and replaced by
+      the generic group feature. Setting this option for OpenStack Train or
+      above will not do anything.
