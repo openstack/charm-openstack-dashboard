@@ -278,6 +278,8 @@ def determine_packages():
         # NOTE(jamespage): Django in Ubuntu disco or later uses
         #                  mysqldb rather than pymysql.
         packages.append('python3-mysqldb')
+    if release >= 'train':
+        packages.remove('python3-neutron-lbaas-dashboard')
     return list(set(packages))
 
 
@@ -288,6 +290,7 @@ def determine_purge_packages():
 
     :returns: list of package names
     """
+    pkgs = []
     release = CompareOpenStackReleases(os_release('openstack-dashboard'))
     if release >= 'rocky':
         pkgs = [p for p in BASE_PACKAGES if p.startswith('python-')]
@@ -299,8 +302,9 @@ def determine_purge_packages():
             'python-designate-dashboard',
             'python-heat-dashboard',
         ])
-        return pkgs
-    return []
+    if release >= 'train':
+        pkgs.append('python3-neutron-lbaas-dashboard')
+    return pkgs
 
 
 def remove_old_packages():
