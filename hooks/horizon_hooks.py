@@ -105,7 +105,25 @@ from hooks.horizon_utils import (
 )
 
 hooks = Hooks()
-CONFIGS = register_configs()
+# Note that CONFIGS is now set up via resolve_CONFIGS so that it is not a
+# module load time constraint.
+CONFIGS = None
+
+
+def resolve_CONFIGS(force_update=False):
+    """lazy function to resolve the CONFIGS so that it doesn't have to evaluate
+    at module load time.  Note that it also returns the CONFIGS so that it can
+    be used in other, module loadtime, functions.
+
+    :param force_update: Force a refresh of CONFIGS
+    :type force_update: bool
+    :returns: CONFIGS variable
+    :rtype: `:class:templating.OSConfigRenderer`
+    """
+    global CONFIGS
+    if CONFIGS is None or not force_update:
+        CONFIGS = register_configs()
+    return CONFIGS
 
 
 @hooks.hook('install.real')
@@ -132,6 +150,7 @@ def install():
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
 @harden()
 def upgrade_charm():
+    resolve_CONFIGS()
     execd_preinstall()
     apt_install(filter_installed_packages(determine_packages()), fatal=True)
     packages_removed = remove_old_packages()
@@ -148,6 +167,7 @@ def upgrade_charm():
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
 @harden()
 def config_changed():
+    resolve_CONFIGS()
     if config('prefer-ipv6'):
         setup_ipv6()
         localhost = 'ip6-localhost'
@@ -168,6 +188,7 @@ def config_changed():
         if openstack_upgrade_available('openstack-dashboard'):
             status_set('maintenance', 'Upgrading to new OpenStack release')
             do_openstack_upgrade(configs=CONFIGS)
+            resolve_CONFIGS(force_update=True)
 
     env_vars = {
         'OPENSTACK_URL_HORIZON':
@@ -208,6 +229,7 @@ def keystone_joined(rel_id=None):
 @hooks.hook('identity-service-relation-changed')
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
 def keystone_changed():
+    resolve_CONFIGS()
     CONFIGS.write_all()
     if relation_get('ca_cert'):
         install_ca_cert(b64decode(relation_get('ca_cert')))
@@ -224,6 +246,7 @@ def cluster_joined(relation_id=None):
             'cluster-relation-changed')
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
 def cluster_relation():
+    resolve_CONFIGS()
     CONFIGS.write(HAPROXY_CONF)
 
 
@@ -273,6 +296,7 @@ def plugin_relation_joined(rel_id=None):
 @hooks.hook('dashboard-plugin-relation-changed')
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
 def update_plugin_config():
+    resolve_CONFIGS()
     CONFIGS.write(LOCAL_SETTINGS)
 
 
@@ -305,6 +329,7 @@ def db_joined():
 @hooks.hook('shared-db-relation-changed')
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
 def db_changed():
+    resolve_CONFIGS()
     if 'shared-db' not in CONFIGS.complete_contexts():
         log('shared-db relation incomplete. Peer not ready?')
         return
@@ -326,6 +351,7 @@ def db_changed():
             'websso-fid-service-provider-relation-departed')
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
 def websso_sp_changed():
+    resolve_CONFIGS()
     CONFIGS.write_all()
 
 
@@ -367,6 +393,7 @@ def main():
         hooks.execute(sys.argv)
     except UnregisteredHookError as e:
         log('Unknown hook {} - skipping.'.format(e))
+    resolve_CONFIGS()
     assess_status(CONFIGS)
 
 
@@ -379,6 +406,7 @@ def certs_joined(relation_id=None):
 
 @hooks.hook('certificates-relation-changed')
 def certs_changed(relation_id=None, unit=None):
+    resolve_CONFIGS()
     process_certificates('horizon', relation_id, unit)
     CONFIGS.write_all()
     service_reload('apache2')
@@ -388,6 +416,7 @@ def certs_changed(relation_id=None, unit=None):
 @hooks.hook('pre-series-upgrade')
 def pre_series_upgrade():
     log("Running prepare series upgrade hook", "INFO")
+    resolve_CONFIGS()
     series_upgrade_prepare(
         pause_unit_helper, CONFIGS)
 
@@ -395,6 +424,7 @@ def pre_series_upgrade():
 @hooks.hook('post-series-upgrade')
 def post_series_upgrade():
     log("Running complete series upgrade hook", "INFO")
+    resolve_CONFIGS()
     series_upgrade_complete(
         resume_unit_helper, CONFIGS)
 

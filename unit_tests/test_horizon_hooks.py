@@ -22,8 +22,6 @@ from unit_tests.test_utils import CharmTestCase
 sys.modules['apt'] = MagicMock()
 
 import hooks.horizon_utils as utils
-_register_configs = utils.register_configs
-utils.register_configs = MagicMock()
 
 with patch('charmhelpers.contrib.hardening.harden.harden') as mock_dec:
     mock_dec.side_effect = (lambda *dargs, **dkwargs: lambda f:
@@ -32,7 +30,6 @@ with patch('charmhelpers.contrib.hardening.harden.harden') as mock_dec:
     import hooks.horizon_hooks as hooks
 
 RESTART_MAP = utils.restart_map()
-utils.register_configs = _register_configs
 
 TO_PATCH = [
     'config',
@@ -63,6 +60,7 @@ TO_PATCH = [
     'remove_old_packages',
     'generate_ha_relation_data',
     'resolve_address',
+    'register_configs',
 ]
 
 
@@ -149,7 +147,7 @@ class TestHorizonHooks(CharmTestCase):
         self.filter_installed_packages.return_value = ['foo']
         self._call_hook('upgrade-charm')
         self.apt_install.assert_called_with(['foo'], fatal=True)
-        self.assertTrue(self.CONFIGS.write_all.called)
+        self.assertTrue(self.register_configs().write_all.called)
         ex = [
             call('stop', 'apache2'),
             call('stop', 'memcached'),
@@ -229,18 +227,28 @@ class TestHorizonHooks(CharmTestCase):
         self.assertTrue(self.enable_ssl.called)
         self.do_openstack_upgrade.assert_not_called()
         self.assertTrue(self.save_script_rc.called)
-        self.assertTrue(self.CONFIGS.write_all.called)
+        self.assertTrue(self.register_configs().write_all.called)
         self.open_port.assert_has_calls([call(80), call(443)])
         self.assertTrue(_custom_theme.called)
 
     @patch('hooks.horizon_hooks.check_custom_theme')
     def test_config_changed_do_upgrade(self, _custom_theme):
+        config_mock1 = MagicMock()
+        config_mock2 = MagicMock()
+        config_mocks = [config_mock1, config_mock2]
+
+        def _register_configs():
+            return config_mocks.pop()
+        self.register_configs.side_effect = _register_configs
         self.relation_ids.return_value = []
         self.test_config.set('openstack-origin', 'cloud:precise-grizzly')
         self.openstack_upgrade_available.return_value = True
         self._call_hook('config-changed')
         self.assertTrue(self.do_openstack_upgrade.called)
         self.assertTrue(_custom_theme.called)
+        # Assert that the second mock is used for writing config as
+        # that shows that CONFIGS was refreshed post-upgrade.
+        config_mock2.write_all.assert_called_once_with()
 
     def test_keystone_joined_in_relation(self):
         self._call_hook('identity-service-relation-joined')
@@ -261,22 +269,24 @@ class TestHorizonHooks(CharmTestCase):
     def test_keystone_changed_no_cert(self):
         self.relation_get.return_value = None
         self._call_hook('identity-service-relation-changed')
-        self.CONFIGS.write_all.assert_called_with()
+        self.register_configs().write_all.assert_called_with()
         self.install_ca_cert.assert_not_called()
 
     def test_keystone_changed_cert(self):
         self.relation_get.return_value = 'certificate'
         self._call_hook('identity-service-relation-changed')
-        self.CONFIGS.write_all.assert_called_with()
+        self.register_configs().write_all.assert_called_with()
         self.install_ca_cert.assert_called_with('certificate')
 
     def test_cluster_departed(self):
         self._call_hook('cluster-relation-departed')
-        self.CONFIGS.write.assert_called_with('/etc/haproxy/haproxy.cfg')
+        self.register_configs().write.assert_called_with(
+            '/etc/haproxy/haproxy.cfg')
 
     def test_cluster_changed(self):
         self._call_hook('cluster-relation-changed')
-        self.CONFIGS.write.assert_called_with('/etc/haproxy/haproxy.cfg')
+        self.register_configs().write.assert_called_with(
+            '/etc/haproxy/haproxy.cfg')
 
     def test_website_joined(self):
         self.unit_get.return_value = '192.168.1.1'
@@ -296,7 +306,7 @@ class TestHorizonHooks(CharmTestCase):
 
     def test_websso_fid_service_provider_changed(self):
         self._call_hook('websso-fid-service-provider-relation-changed')
-        self.CONFIGS.write_all.assert_called_with()
+        self.register_configs().write_all.assert_called_with()
 
     def test_websso_trusted_dashboard_changed_no_tls(self):
         def relation_ids_side_effect(rname):
@@ -418,6 +428,6 @@ class TestHorizonHooks(CharmTestCase):
         self._call_hook('certificates-relation-changed')
         _process_certificates.assert_called_with(
             'horizon', None, None)
-        self.CONFIGS.write_all.assert_called_with()
+        self.register_configs().write_all.assert_called_with()
         _service_reload.assert_called_with('apache2')
         self.enable_ssl.assert_called_with()
