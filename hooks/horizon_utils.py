@@ -112,7 +112,8 @@ CONSISTENCY_GROUP_POLICY = ('/usr/share/openstack-dashboard/'
 TEMPLATES = 'templates'
 CUSTOM_THEME_DIR = ("/usr/share/openstack-dashboard/openstack_dashboard/"
                     "themes/custom")
-LOCAL_DIR = '/usr/share/openstack-dashboard/openstack_dashboard/local/'
+LOCAL_DIR = ('/usr/share/openstack-dashboard/openstack_dashboard/local/'
+             'local_settings.d')
 
 CONFIG_FILES = OrderedDict([
     (LOCAL_SETTINGS, {
@@ -508,14 +509,14 @@ def check_custom_theme():
         if e.errno is 17:
             pass  # already exists
     theme_file = resource_get('theme')
-    log('Retreived resource: {}'.format(theme_file))
+    log('Retrieved resource: {}'.format(theme_file))
     if theme_file:
         with tarfile.open(theme_file, 'r:gz') as in_file:
             in_file.extractall(CUSTOM_THEME_DIR)
     custom_settings = '{}/local_settings.py'.format(CUSTOM_THEME_DIR)
     if os.path.isfile(custom_settings):
         try:
-            os.symlink(custom_settings, LOCAL_DIR + 'custom_theme.py')
+            os.symlink(custom_settings, '{}/custom_theme.py'.format(LOCAL_DIR))
         except OSError as e:
             if e.errno is 17:
                 pass  # already exists
