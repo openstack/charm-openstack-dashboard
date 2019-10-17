@@ -121,7 +121,7 @@ def resolve_CONFIGS(force_update=False):
     :rtype: `:class:templating.OSConfigRenderer`
     """
     global CONFIGS
-    if CONFIGS is None or not force_update:
+    if CONFIGS is None or force_update:
         CONFIGS = register_configs()
     return CONFIGS
 

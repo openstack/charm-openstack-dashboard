@@ -75,10 +75,36 @@ class TestHorizonHooks(CharmTestCase):
         self.config.side_effect = self.test_config.get
         self.b64decode.side_effect = passthrough
         hooks.hooks._config_save = False
+        hooks.CONFIGS = None
 
     def _call_hook(self, hookname):
         hooks.hooks.execute([
             'hooks/{}'.format(hookname)])
+
+    @patch.object(hooks, 'register_configs')
+    def test_resolve_CONFIGS(self, _register_configs):
+        _register_configs.return_value = 'new configs'
+        self.assertEqual(
+            hooks.resolve_CONFIGS(),
+            'new configs')
+        _register_configs.assert_called_once_with()
+
+    @patch.object(hooks, 'register_configs')
+    def test_resolve_CONFIGS_existing_configs(self, _register_configs):
+        hooks.CONFIGS = 'existing stuff'
+        self.assertEqual(
+            hooks.resolve_CONFIGS(),
+            'existing stuff')
+        self.assertFalse(_register_configs.called)
+
+    @patch.object(hooks, 'register_configs')
+    def test_resolve_CONFIGS_existing_configs_force(self, _register_configs):
+        _register_configs.return_value = 'new configs from force'
+        hooks.CONFIGS = 'existing stuff'
+        self.assertEqual(
+            hooks.resolve_CONFIGS(force_update=True),
+            'new configs from force')
+        _register_configs.assert_called_once_with()
 
     @patch.object(hooks, 'determine_packages')
     def test_install_hook(self, _determine_packages):
@@ -235,7 +261,7 @@ class TestHorizonHooks(CharmTestCase):
     def test_config_changed_do_upgrade(self, _custom_theme):
         config_mock1 = MagicMock()
         config_mock2 = MagicMock()
-        config_mocks = [config_mock1, config_mock2]
+        config_mocks = [config_mock2, config_mock1]
 
         def _register_configs():
             return config_mocks.pop()
