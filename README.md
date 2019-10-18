@@ -106,9 +106,77 @@ Once the option is enabled a custom theme can be provided via a juju resource.
 The resource should be a .tgz file with the contents of your custom theme. If
 the file 'local_settings.py' is included it will be sourced.
 
-    juju attach-resource openstack-dashboard theme=theme.tgz 
+    juju attach-resource openstack-dashboard theme=theme.tgz
 
 Repeating the attach-resource will update the theme and turning off the
 custom-theme option will return to the default.
 
 [themes]: https://docs.openstack.org/horizon/latest/configuration/themes.html
+
+Policy Overrides
+================
+
+This feature allows for policy overrides using the `POLICY_DIRS` override
+feature of horizon (the OpenStack dashboard project).  This is an **advanced**
+feature and the policies that the OpenStack dashboard supports should be
+clearly understood before trying to override, or add to, the default policies
+that the dashboard uses.  The charm also has some policy defaults.  They should
+also be understood before being overridden.
+
+> **Caution**: It is possible to break the system (for tenants and other
+  services) if policies are incorrectly applied to the service.
+
+Policy overrides are YAML files that contain rules that will add to, or
+override, existing policy rules in the service.  This charm owns the
+`POLICY_DIRS` directory, and as such, any manual changes to it will
+be overwritten on charm upgrades.
+
+The Juju resource `policyd-override` must be a ZIP file that contains at least
+one directory that corresponds with the OpenStack services that the OpenStack
+dashboard has policy override support for.  These directory names correspond to
+the follow service/charms:
+
+- `compute` - the compute service provided by Nova
+- `identity` - the identity service provided by Keystone
+- `image` - the image service provided by Glance
+- `network` - the networking service provided by Neutron
+- `volume` - the volume service provided by Cinder
+
+The files in the directory/directories must be YAML files.  Thus, to provide
+overrides for the `compute` and `identity` services, the resource ZIP file
+should contain something like:
+
+    \ compute - compute-override1.yaml
+    |         \ compute-override2.yaml
+    |
+    \ identity - identity-override1.yaml
+               | identity-override2.yaml
+               \ identity-override3.yaml
+
+The names of the YAML files is not important.  The names of the directories
+**is** important and must match the list above.  Any other files/directories in
+the ZIP are ignored.
+
+The resource file, say `overrides.zip`, is attached to the charm by:
+
+
+    juju attach-resource keystone policyd-override=overrides.zip
+
+The policy override is enabled in the charm using:
+
+    juju config keystone use-policyd-override=true
+
+When `use-policyd-override` is `True` the status line of the charm will be
+prefixed with `PO:` indicating that policies have been overridden.  If the
+installation of the policy override YAML files failed for any reason then the
+status line will be prefixed with `PO (broken):`.  The log file for the charm
+will indicate the reason.  No policy override files are installed if the `PO
+(broken):` is shown.  The status line indicates that the overrides are broken,
+not that the policy for the service has failed. The policy will be the defaults
+for the charm and service.
+
+Policy overrides on one service may affect the functionality of another
+service. Therefore, it may be necessary to provide policy overrides for
+multiple service charms to achieve a consistent set of policies across the
+OpenStack system.  The charms for the other services that may need overrides
+should be checked to ensure that they support overrides before proceeding.

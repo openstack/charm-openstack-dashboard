@@ -375,3 +375,14 @@ options:
       OpenStack Train, consistency groups have been dropped and replaced by
       the generic group feature. Setting this option for OpenStack Train or
       above will not do anything.
+  use-policyd-override:
+    type: boolean
+    default: False
+    description: |
+      If True then use the resource named 'policyd-override' to install
+      override YAML files in the horizon's policy directories.  The resource
+      file should be a ZIP file containing YAML policy files.  These are to be
+      placed into directories that indicate the service that the policy file
+      belongs to.  Please see the README of the charm for further details.
+      .
+      If False then remove/disable any overrides in force.

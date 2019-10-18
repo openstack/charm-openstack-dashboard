@@ -1940,7 +1940,7 @@ class VolumeAPIContext(InternalEndpointContext):
         as well as the catalog_info string that would be supplied. Returns
         a dict containing the volume_api_version and the volume_catalog_info.
         """
-        rel = os_release(self.pkg, base='icehouse')
+        rel = os_release(self.pkg)
         version = '2'
         if CompareOpenStackReleases(rel) >= 'pike':
             version = '3'
@@ -2140,7 +2140,7 @@ class VersionsContext(OSContextGenerator):
         self.pkg = pkg
 
     def __call__(self):
-        ostack = os_release(self.pkg, base='icehouse')
+        ostack = os_release(self.pkg)
         osystem = lsb_release()['DISTRIB_CODENAME'].lower()
         return {
             'openstack_release': ostack,

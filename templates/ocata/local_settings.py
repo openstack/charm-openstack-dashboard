@@ -507,6 +507,19 @@ TIME_ZONE = "UTC"
 
 # Path to directory containing policy.json files
 #POLICY_FILES_PATH = os.path.join(ROOT_PATH, "conf")
+{% if policyd_overrides_activated -%}
+# Policies are overriden and all policies are here rather than in package conf
+POLICY_FILES_PATH = '/etc/openstack-dashboard/policy.d/'
+
+# These are matched from the defaults + any in the overrides
+{% if policy_dirs -%}
+POLICY_DIRS = {
+{% for k, vs in policy_dirs.items() -%}
+    "{{ k }}": [{% for v in vs -%}"{{ v }}", {% endfor -%}],
+{% endfor -%}
+}
+{% endif -%}
+{% endif -%}
 
 # Map of local copy of service policy files.
 # Please insure that your identity policy file matches the one being used on

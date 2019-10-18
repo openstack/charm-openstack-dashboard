@@ -17,12 +17,14 @@
 from collections import OrderedDict
 from copy import deepcopy
 import os
+import shutil
 import subprocess
 import time
 import tarfile
 
 import charmhelpers.contrib.openstack.context as context
 import charmhelpers.contrib.openstack.templating as templating
+import charmhelpers.contrib.openstack.policyd as policyd
 
 from charmhelpers.contrib.openstack.utils import (
     configure_installation_source,
@@ -38,15 +40,21 @@ from charmhelpers.contrib.openstack.utils import (
 )
 from charmhelpers.core.hookenv import (
     config,
+    DEBUG,
+    ERROR,
+    hook_name,
+    INFO,
     log,
     resource_get,
 )
 from charmhelpers.core.host import (
     cmp_pkgrevno,
+    CompareHostReleases,
     lsb_release,
+    mkdir,
     path_hash,
     service,
-    CompareHostReleases,
+    write_file,
 )
 from charmhelpers.fetch import (
     apt_upgrade,
@@ -89,31 +97,39 @@ REQUIRED_INTERFACES = {
     'identity': ['identity-service'],
 }
 
+POLICYD_HORIZON_SERVICE_TO_DIR = {
+    'identity': 'keystone_policy.d',
+    'compute': 'nova_policy.d',
+    'volume': 'cinder_policy.d',
+    'image': 'glance_policy.d',
+    'network': 'neutron_policy.d',
+    'orchestration': 'heat_policy.d',
+}
+
 APACHE_CONF_DIR = "/etc/apache2"
 LOCAL_SETTINGS = "/etc/openstack-dashboard/local_settings.py"
 DASHBOARD_CONF_DIR = "/etc/openstack-dashboard/"
+DASHBOARD_PKG_DIR = "/usr/share/openstack-dashboard/openstack_dashboard"
 HAPROXY_CONF = "/etc/haproxy/haproxy.cfg"
-APACHE_CONF = "%s/conf.d/openstack-dashboard.conf" % (APACHE_CONF_DIR)
-APACHE_24_CONF = "%s/conf-available/openstack-dashboard.conf" \
-    % (APACHE_CONF_DIR)
-PORTS_CONF = "%s/ports.conf" % (APACHE_CONF_DIR)
-APACHE_24_SSL = "%s/sites-available/default-ssl.conf" % (APACHE_CONF_DIR)
-APACHE_24_DEFAULT = "%s/sites-available/000-default.conf" % (APACHE_CONF_DIR)
-APACHE_SSL = "%s/sites-available/default-ssl" % (APACHE_CONF_DIR)
-APACHE_DEFAULT = "%s/sites-available/default" % (APACHE_CONF_DIR)
+APACHE_CONF = os.path.join(APACHE_CONF_DIR, "conf.d/openstack-dashboard.conf")
+APACHE_24_CONF = os.path.join(APACHE_CONF_DIR,
+                              "conf-available/openstack-dashboard.conf")
+PORTS_CONF = os.path.join(APACHE_CONF_DIR, "ports.conf")
+APACHE_24_SSL = os.path.join(APACHE_CONF_DIR,
+                             "sites-available/default-ssl.conf")
+APACHE_24_DEFAULT = os.path.join(APACHE_CONF_DIR,
+                                 "sites-available/000-default.conf")
+APACHE_SSL = os.path.join(APACHE_CONF_DIR, "sites-available/default-ssl")
+APACHE_DEFAULT = os.path.join(APACHE_CONF_DIR, "sites-available/default")
 INSTALL_DIR = "/usr/share/openstack-dashboard"
-ROUTER_SETTING = ('/usr/share/openstack-dashboard/openstack_dashboard/enabled/'
-                  '_40_router.py')
-KEYSTONEV3_POLICY = ('/usr/share/openstack-dashboard/openstack_dashboard/conf/'
-                     'keystonev3_policy.json')
-CONSISTENCY_GROUP_POLICY = ('/usr/share/openstack-dashboard/'
-                            'openstack_dashboard/conf/cinder_policy.d/'
-                            'consistencygroup.yaml')
+ROUTER_SETTING = os.path.join(DASHBOARD_PKG_DIR, 'enabled/_40_router.py')
+KEYSTONEV3_POLICY = os.path.join(DASHBOARD_PKG_DIR,
+                                 'conf/keystonev3_policy.json')
+CONSISTENCY_GROUP_POLICY = os.path.join(
+    DASHBOARD_PKG_DIR, 'conf/cinder_policy.d/consistencygroup.yaml')
 TEMPLATES = 'templates'
-CUSTOM_THEME_DIR = ("/usr/share/openstack-dashboard/openstack_dashboard/"
-                    "themes/custom")
-LOCAL_DIR = ('/usr/share/openstack-dashboard/openstack_dashboard/local/'
-             'local_settings.d')
+CUSTOM_THEME_DIR = os.path.join(DASHBOARD_PKG_DIR, "themes/custom")
+LOCAL_DIR = os.path.join(DASHBOARD_PKG_DIR, 'local/local_settings.d')
 
 CONFIG_FILES = OrderedDict([
     (LOCAL_SETTINGS, {
@@ -122,7 +138,9 @@ CONFIG_FILES = OrderedDict([
                           context.SyslogContext(),
                           horizon_contexts.LocalSettingsContext(),
                           horizon_contexts.ApacheSSLContext(),
-                          horizon_contexts.WebSSOFIDServiceProviderContext()],
+                          horizon_contexts.WebSSOFIDServiceProviderContext(),
+                          horizon_contexts.PolicydContext(
+                              lambda: read_policyd_dirs())],
         'services': ['apache2', 'memcached']
     }),
     (APACHE_CONF, {
@@ -185,15 +203,15 @@ CONFIG_FILES = OrderedDict([
 def register_configs():
     ''' Register config files with their respective contexts. '''
     release = os_release('openstack-dashboard')
-    configs = templating.OSConfigRenderer(templates_dir=TEMPLATES,
-                                          openstack_release=release)
+    configs = HorizonOSConfigRenderer(templates_dir=TEMPLATES,
+                                      openstack_release=release)
 
     confs = [LOCAL_SETTINGS,
              HAPROXY_CONF,
              PORTS_CONF]
 
-    if (CompareOpenStackReleases(release) >= 'queens' and
-            CompareOpenStackReleases(release) <= 'stein'):
+    if (CompareOpenStackReleases(release) >= 'queens'
+            and CompareOpenStackReleases(release) <= 'stein'):
         configs.register(
             CONSISTENCY_GROUP_POLICY,
             CONFIG_FILES[CONSISTENCY_GROUP_POLICY]['hook_contexts'])
@@ -223,6 +241,208 @@ def register_configs():
                          CONFIG_FILES[ROUTER_SETTING]['hook_contexts'])
 
     return configs
+
+
+class HorizonOSConfigRenderer(templating.OSConfigRenderer):
+
+    def write_all(self):
+        """Write all of the config files.
+
+        This function subclasses the parent version of the function such that
+        if the hook is config-changed or upgrade-charm then it defers writing
+        the LOCAL_SETTINGS file until after processing the policyd stuff.
+        """
+        _hook = hook_name()
+        if _hook not in ('upgrade-charm', 'config-changed'):
+            return super(HorizonOSConfigRenderer, self).write_all()
+        # Otherwise, first do all the other templates
+        for k in self.templates.keys():
+            if k != LOCAL_SETTINGS:
+                self.write(k)
+        # Now do the policy overrides thing
+        maybe_handle_policyd_override(os_release('openstack-dashboard'),
+                                      _hook)
+        # Finally, let's do the LOCAL_SETTINGS if the policyd worked.
+        self.write(LOCAL_SETTINGS)
+
+
+def maybe_handle_policyd_override(openstack_release, hook):
+    """Handle the use-policy-override config flag and resource file.
+
+    This function checks that policy overrides are supported on this release,
+    that the config flag is enabled, and then processes the resources, copies
+    the package policies to the config area, loads the override files.  In the
+    case where the config flag is false, it removes the policy overrides by
+    deleting the config area policys.  Note that the template for
+    `local_settings.py` controls where the horizon service actually reads the
+    policies from.
+
+    Note that for the 'config-changed' hook, the function is only interested in
+    whether the config value of `use-policy-override` matches the current
+    status of the policy overrides success file.  If it doesn't, either the
+    config area policies are removed (i.e. False) or the policy overrides file
+    is processed.
+
+    :param openstack_release: The release of OpenStack installed.
+    :type openstack_release: str
+    :param hook: The hook name
+    :type hook: str
+    """
+    log("Seeing if policyd overrides need doing", level=INFO)
+    if not policyd.is_policyd_override_valid_on_this_release(
+            openstack_release):
+        log("... policy overrides not valid on this release: {}"
+            .format(openstack_release),
+            level=INFO)
+        return
+    # if policy config is not set, then remove the entire directory
+    _config = config()
+    if not _config.get(policyd.POLICYD_CONFIG_NAME, False):
+        _dir = policyd.policyd_dir_for('openstack-dashboard')
+        if os.path.exists(_dir):
+            log("... config is cleared, and removing {}".format(_dir), INFO)
+            shutil.rmtree(_dir)
+        else:
+            log("... nothing to do", INFO)
+        policyd.remove_policy_success_file()
+        return
+    # config-change and the policyd overrides have been performed just return
+    if hook == "config-changed" and policyd.is_policy_success_file_set():
+        log("... already setup, so skipping.", level=INFO)
+        return
+    # from now on it should succeed; if it doesn't then status line will show
+    # broken.
+    resource_filename = policyd.get_policy_resource_filename()
+    restart = policyd.process_policy_resource_file(
+        resource_filename,
+        'openstack-dashboard',
+        blacklist_paths=blacklist_policyd_paths(),
+        preserve_topdir=True,
+        preprocess_filename=policyd_preprocess_name,
+        user='horizon',
+        group='horizon')
+    copy_conf_to_policyd()
+    if restart:
+        service('stop', 'apache2')
+        service('start', 'apache2')
+    log("Policy override processing complete.", level=INFO)
+
+
+def blacklist_policyd_paths():
+    """Process the .../conf directory and create a list of blacklisted paths.
+
+    This is so that the policyd helpers don't delete the copied files from the
+    .../conf directory.
+
+    :returns: list of blacklisted paths.
+    :rtype: [str]
+    """
+    conf_dir = os.path.join(DASHBOARD_PKG_DIR, 'conf')
+    conf_parts_count = len(conf_dir.split(os.path.sep))
+    policy_dir = policyd.policyd_dir_for('openstack-dashboard')
+    paths = []
+    for root, _, files in os.walk(conf_dir):
+        # make _root relative to the conf_dir
+        _root = os.path.sep.join(root.split(os.path.sep)[conf_parts_count:])
+        for file in files:
+            paths.append(os.path.join(policy_dir, _root, file))
+    log("blacklisted paths: {}".format(", ".join(paths)), INFO)
+    return paths
+
+
+def copy_conf_to_policyd():
+    """Walk the conf_dir and copy everything into the policy_dir.
+
+    This is used after processing the policy.d resource file to put the package
+    and templated policy files in DASHBOARD_PKG_DIR/conf/ into the
+    /etc/openstack-dashboard/policy.d/
+    """
+    log("policyd: copy files from conf to /etc/openstack-dashboard/policy.d",
+        level=INFO)
+    conf_dir = os.path.join(DASHBOARD_PKG_DIR, 'conf')
+    conf_parts_count = len(conf_dir.split(os.path.sep))
+    policy_dir = policyd.policyd_dir_for('openstack-dashboard')
+    for root, dirs, files in os.walk(conf_dir):
+        # make _root relative to the conf_dir
+        _root = os.path.sep.join(root.split(os.path.sep)[conf_parts_count:])
+        # make any dirs necessary
+        for d in dirs:
+            _dir = os.path.join(policy_dir, _root, d)
+            if not os.path.exists(_dir):
+                mkdir(_dir, owner='horizon', group='horizon', perms=0o775)
+        # now copy the files.
+        for f in files:
+            source = os.path.join(conf_dir, _root, f)
+            dest = os.path.join(policy_dir, _root, f)
+            with open(source, 'r') as fh:
+                content = fh.read()
+            write_file(dest, content, 'horizon', 'horizon')
+    log("...done.", level=INFO)
+
+
+def read_policyd_dirs():
+    """Return a mapping of policy type to directory name.
+
+    This returns a subset of:
+
+        {
+            'identity': ['keystone_policy.d'],
+            'compute': ['nova_policy.d'],
+            'volume': ['cinder_policy.d'],
+            'image': ['glance_policy.d'],
+            'network': ['neutron_policy.d'],
+        }
+
+    depending on what is actually set in the policy directory that has
+    been written.
+
+    :returns: mapping of type to policyd dir name.
+    :rtype: Dict[str, List[str]]
+    """
+    policy_dir = policyd.policyd_dir_for('openstack-dashboard')
+    try:
+        _, dirs, _ = list(os.walk(policy_dir))[0]
+        return {k: [v] for k, v in POLICYD_HORIZON_SERVICE_TO_DIR.items()
+                if v in dirs}
+    except IndexError:
+        # The directory doesn't exist to return an empty dictionary
+        return {}
+    except Exception:
+        # Something else went wrong; log it but don't fail.
+        log("read_policyd_dirs went wrong -- need to fix this!!", ERROR)
+        import traceback
+        log(traceback.format_exc(), ERROR)
+        return {}
+
+
+def policyd_preprocess_name(name):
+    """Try to preprocess the name supplied to the one horizon expects.
+
+    This takes a name of the form "compute/file01.yaml" and converts it to
+    "nova_policy.d/file01.yaml" to match the expectations of the service.
+
+    It raises policyd's BadPolicyYamlFile exception if the file can't be
+    converted and should be skipped.
+
+    :param name: The name to convert
+    :type name: AnyStr
+    :raises: charmhelpers.contrib.openstack.policyd.BadPolicyYamlFile
+    :returns: the converted name
+    :rtype: str
+    """
+    if os.path.sep not in name:
+        raise policyd.BadPolicyYamlFile("No prefix for section")
+    horizon_service, name = os.path.split(name)
+    try:
+        policy_dir = POLICYD_HORIZON_SERVICE_TO_DIR[horizon_service]
+        name = os.path.join(policy_dir, name)
+    except KeyError:
+        log("horizon override service {} from {} not recognised, so ignoring"
+            .format(horizon_service, name),
+            level=DEBUG)
+        raise policyd.BadPolicyYamlFile("Bad prefix : {}"
+                                        .format(horizon_service))
+    return name
 
 
 def restart_map():
@@ -358,8 +578,8 @@ def setup_ipv6():
     # Need haproxy >= 1.5.3 for ipv6 so for Trusty if we are <= Kilo we need to
     # use trusty-backports otherwise we can use the UCA.
     _os_release = os_release('openstack-dashboard')
-    if (ubuntu_rel == 'trusty' and
-            CompareOpenStackReleases(_os_release) < 'liberty'):
+    if (ubuntu_rel == 'trusty'
+            and CompareOpenStackReleases(_os_release) < 'liberty'):
         add_source('deb http://archive.ubuntu.com/ubuntu trusty-backports '
                    'main')
         apt_update()

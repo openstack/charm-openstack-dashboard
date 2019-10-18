@@ -817,3 +817,28 @@ class TestHorizonContexts(CharmTestCase):
                     },
                 ]
             })
+
+    @patch.object(horizon_contexts.policyd, 'is_policy_success_file_set')
+    def test_policyd_context(self, mock_is_policy_success_file_set):
+        self.test_config.set('use-policyd-override', True)
+
+        def extract_dirs_func():
+            return {'a': ['a-dir']}
+
+        mock_is_policy_success_file_set.return_value = True
+        self.assertEqual(
+            horizon_contexts.PolicydContext(extract_dirs_func)(), {
+                'policyd_overrides_activated': True,
+                'policy_dirs': {'a': ['a-dir']},
+            })
+        mock_is_policy_success_file_set.return_value = False
+        self.assertEqual(
+            horizon_contexts.PolicydContext(extract_dirs_func)(), {
+                'policyd_overrides_activated': False,
+            })
+        mock_is_policy_success_file_set.return_value = True
+        self.test_config.set('use-policyd-override', False)
+        self.assertEqual(
+            horizon_contexts.PolicydContext(extract_dirs_func)(), {
+                'policyd_overrides_activated': False,
+            })

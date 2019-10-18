@@ -119,6 +119,24 @@ def log(message, level=None):
             raise
 
 
+def action_log(message):
+    """Write an action progress message"""
+    command = ['action-log']
+    if not isinstance(message, six.string_types):
+        message = repr(message)
+    command += [message[:SH_MAX_ARG]]
+    # Missing action-log should not cause failures in unit tests
+    # Send action_log output to stderr
+    try:
+        subprocess.call(command)
+    except OSError as e:
+        if e.errno == errno.ENOENT:
+            message = "action-log: {}".format(message)
+            print(message, file=sys.stderr)
+        else:
+            raise
+
+
 class Serializable(UserDict):
     """Wrapper, an object that can be serialized to yaml or json"""
 

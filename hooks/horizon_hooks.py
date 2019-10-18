@@ -104,6 +104,7 @@ from hooks.horizon_utils import (
     remove_old_packages,
 )
 
+
 hooks = Hooks()
 # Note that CONFIGS is now set up via resolve_CONFIGS so that it is not a
 # module load time constraint.
@@ -174,8 +175,8 @@ def config_changed():
     else:
         localhost = 'localhost'
 
-    if (os_release('openstack-dashboard') == 'icehouse' and
-            config('offline-compression') in ['no', 'False']):
+    if (os_release('openstack-dashboard') == 'icehouse'
+            and config('offline-compression') in ['no', 'False']):
         apt_install(filter_installed_packages(['python-lesscpy']),
                     fatal=True)
 
@@ -367,8 +368,8 @@ def websso_trusted_dashboard_changed():
         return
 
     # TODO: check for vault relation in order to determine url scheme
-    tls_configured = (relation_ids('certificates') or
-                      config('ssl-key') or config('enforce-ssl'))
+    tls_configured = (relation_ids('certificates')
+                      or config('ssl-key') or config('enforce-ssl'))
     scheme = 'https://' if tls_configured else 'http://'
 
     hostname = resolve_address(endpoint_type=PUBLIC, override=True)

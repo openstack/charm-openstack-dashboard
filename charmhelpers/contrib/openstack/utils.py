@@ -531,7 +531,7 @@ def reset_os_release():
     _os_rel = None
 
 
-def os_release(package, base='essex', reset_cache=False):
+def os_release(package, base=None, reset_cache=False):
     '''
     Returns OpenStack release codename from a cached global.
 
@@ -542,6 +542,8 @@ def os_release(package, base='essex', reset_cache=False):
     the installation source, the earliest release supported by the charm should
     be returned.
     '''
+    if not base:
+        base = UBUNTU_OPENSTACK_RELEASE[lsb_release()['DISTRIB_CODENAME']]
     global _os_rel
     if reset_cache:
         reset_os_release()
@@ -670,7 +672,10 @@ def openstack_upgrade_available(package):
         codename = get_os_codename_install_source(src)
         avail_vers = get_os_version_codename_swift(codename)
     else:
-        avail_vers = get_os_version_install_source(src)
+        try:
+            avail_vers = get_os_version_install_source(src)
+        except:
+            avail_vers = cur_vers
     apt.init()
     return apt.version_compare(avail_vers, cur_vers) >= 1
 
@@ -1693,7 +1698,7 @@ def enable_memcache(source=None, release=None, package=None):
     if release:
         _release = release
     else:
-        _release = os_release(package, base='icehouse')
+        _release = os_release(package)
     if not _release:
         _release = get_os_codename_install_source(source)
 

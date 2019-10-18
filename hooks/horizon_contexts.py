@@ -40,6 +40,7 @@ from charmhelpers.contrib.network.ip import (
     format_ipv6_addr,
     get_relation_ip,
 )
+import charmhelpers.contrib.openstack.policyd as policyd
 
 from charmhelpers.core.host import pwgen
 
@@ -186,7 +187,7 @@ class HorizonContext(OSContextGenerator):
             "custom_theme": config('custom-theme'),
             "secret": config('secret') or pwgen(),
             'support_profile': config('profile')
-            if config('profile') in ['cisco'] else None,
+                if config('profile') in ['cisco'] else None,
             "neutron_network_dvr": config("neutron-network-dvr"),
             "neutron_network_l3ha": config("neutron-network-l3ha"),
             "neutron_network_lb": config("neutron-network-lb"),
@@ -194,7 +195,7 @@ class HorizonContext(OSContextGenerator):
             "neutron_network_vpn": config("neutron-network-vpn"),
             "cinder_backup": config("cinder-backup"),
             "allow_password_autocompletion":
-            config("allow-password-autocompletion"),
+                config("allow-password-autocompletion"),
             "password_retrieve": config("password-retrieve"),
             'default_domain': config('default-domain'),
             'multi_domain': False if config('default-domain') else True,
@@ -208,6 +209,31 @@ class HorizonContext(OSContextGenerator):
         }
 
         return ctxt
+
+
+class PolicydContext(OSContextGenerator):
+
+    def __init__(self, policyd_extract_policy_dirs_fn):
+        self.policyd_extract_policy_dirs_fn = policyd_extract_policy_dirs_fn
+
+    def __call__(self):
+        """Policyd variables for the local_settings.py configuration file.
+
+        :returns: The context to help set vars in the localsettings.
+        :rtype: Dict[str, ANY]
+        """
+        activated = (config('use-policyd-override')
+                     and policyd.is_policy_success_file_set())
+
+        if activated:
+            return {
+                'policyd_overrides_activated': activated,
+                'policy_dirs': self.policyd_extract_policy_dirs_fn(),
+            }
+        else:
+            return {
+                'policyd_overrides_activated': activated
+            }
 
 
 class ApacheContext(OSContextGenerator):

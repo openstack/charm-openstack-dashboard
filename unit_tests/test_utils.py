@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import logging
-import unittest
 import os
+import unittest
 import yaml
 
-from mock import patch
+from contextlib import contextmanager
+from mock import patch, MagicMock
 
 
 def load_config():
@@ -83,7 +85,9 @@ class TestConfig(object):
     def __init__(self):
         self.config = get_default_config()
 
-    def get(self, attr):
+    def get(self, attr=None):
+        if attr is None:
+            return self.config.copy()
         try:
             return self.config[attr]
         except KeyError:
@@ -112,3 +116,21 @@ class TestRelation(object):
         elif attr in self.relation_data:
             return self.relation_data[attr]
         return None
+
+
+@contextmanager
+def patch_open():
+    '''Patch open() to allow mocking both open() itself and the file that is
+    yielded.
+
+    Yields the mock for "open" and "file", respectively.'''
+    mock_open = MagicMock(spec=open)
+    mock_file = MagicMock(spec=io.FileIO)
+
+    @contextmanager
+    def stub_open(*args, **kwargs):
+        mock_open(*args, **kwargs)
+        yield mock_file
+
+    with patch('builtins.open', stub_open):
+        yield mock_open, mock_file

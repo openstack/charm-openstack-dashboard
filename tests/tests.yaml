@@ -19,5 +19,12 @@ gate_bundles:
 dev_bundles:
   - disco-train
 
+configure:
+  - zaza.openstack.charm_tests.keystone.setup.add_demo_user
+
 tests:
   - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
+  - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
+tests_options:
+  policyd:
+    service: openstack-dashboard

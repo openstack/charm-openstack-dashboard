@@ -46,3 +46,7 @@ resources:
     type: file
     filename: theme.tgz
     description: "Custom dashboard theme"
+  policyd-override:
+    type: file
+    filename: policyd-override.zip
+    description: The policy.d overrides file
