@@ -1,0 +1,39 @@
+series: bionic
+
+comment:
+  - 'machines section to decide order of deployment. database sooner = faster'
+  - 'virt-type=kvm is workaround while awaiting new release of python-libjuju'
+
+machines:
+  '0':
+    constraints: virt-type=kvm mem=3072M
+  '1':
+    constraints: virt-type=kvm
+  '2':
+    constraints: virt-type=kvm mem=3072M
+
+relations:
+  - ["keystone:shared-db", "mysql:shared-db"]
+  - ["openstack-dashboard:shared-db", "mysql:shared-db"]
+  - ["openstack-dashboard:identity-service", "keystone:identity-service"]
+
+applications:
+  mysql:
+    charm: cs:~openstack-charmers-next/percona-cluster
+    num_units: 1
+    to:
+      - '0'
+  keystone:
+    charm: cs:~openstack-charmers-next/keystone
+    num_units: 1
+    options:
+      openstack-origin: cloud:bionic-stein
+    to:
+      - '1'
+  openstack-dashboard:
+    charm: ../../../openstack-dashboard
+    num_units: 1
+    options:
+      openstack-origin: cloud:bionic-stein
+    to:
+      - '2'
