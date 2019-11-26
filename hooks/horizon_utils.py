@@ -431,7 +431,8 @@ def policyd_preprocess_name(name):
     :rtype: str
     """
     if os.path.sep not in name:
-        raise policyd.BadPolicyYamlFile("No prefix for section")
+        raise policyd.BadPolicyYamlFile("No prefix for section: name={}"
+                                        .format(name))
     horizon_service, name = os.path.split(name)
     try:
         policy_dir = POLICYD_HORIZON_SERVICE_TO_DIR[horizon_service]
