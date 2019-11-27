@@ -190,7 +190,12 @@ options:
   neutron-network-lb:
     type: boolean
     default: False
-    description: Enable neutron load balancer service panel.
+    description: |
+      Enable neutron load balancer service panel.
+      .
+      NOTE: This configuration option only applies to OpenStack Stein and
+      earlier. Since OpenStack Train the Neutron load balancer components
+      have been replaced by Octavia.
   neutron-network-firewall:
     type: boolean
     default: False
