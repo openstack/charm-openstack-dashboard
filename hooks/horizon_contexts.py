@@ -84,7 +84,8 @@ class HorizonHAProxyContext(OSContextGenerator):
                 'dash_insecure': [80, 70],
                 'dash_secure': [443, 433]
             },
-            'prefer_ipv6': config('prefer-ipv6')
+            'prefer_ipv6': config('prefer-ipv6'),
+            'haproxy_expose_stats': config('haproxy-expose-stats')
         }
         return ctxt
 
