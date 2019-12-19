@@ -38,6 +38,7 @@ from hooks.horizon_utils import (
 
 from hooks.horizon_hooks import (
     config_changed,
+    resolve_CONFIGS,
     CONFIGS,
 )
 
@@ -50,6 +51,7 @@ def openstack_upgrade():
     code to run, otherwise a full service level upgrade will fire
     on config-changed."""
 
+    resolve_CONFIGS()
     if do_action_openstack_upgrade('openstack-dashboard',
                                    do_openstack_upgrade,
                                    CONFIGS):
