@@ -175,6 +175,14 @@ options:
     type: string
     default:
     description: Default profile for the dashboard. Eg. cisco.
+  disable-instance-snapshot:
+    type: boolean
+    default: False
+    description: |
+      This setting disables Snapshots as a valid boot source for launching
+      instances. Snapshots sources won’t show up in the Launch Instance modal
+      dialogue box.  This option works from the Newton release, and has no
+      effect on earlier OpenStack releases.
   neutron-network-dvr:
     type: boolean
     default: False

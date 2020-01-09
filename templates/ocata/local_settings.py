@@ -299,7 +299,8 @@ OPENSTACK_ENABLE_PASSWORD_RETRIEVE = True
 #    'create_volume': True,
 #}
 LAUNCH_INSTANCE_DEFAULTS = {
-    'create_volume': {{ default_create_volume }}
+    'create_volume': {{ default_create_volume }},
+    'disable_instance_snapshot': {{ disable_instance_snapshot }},
 }
 
 # The Xen Hypervisor has the ability to set the mount point for volumes
