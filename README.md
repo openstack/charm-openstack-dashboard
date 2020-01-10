@@ -1,5 +1,4 @@
-Overview
-========
+# Overview
 
 The OpenStack Dashboard provides a Django based web interface for use by both
 administrators and users of an OpenStack Cloud.
@@ -7,8 +6,7 @@ administrators and users of an OpenStack Cloud.
 It allows you to manage Nova, Glance, Cinder and Neutron resources within the
 cloud.
 
-Usage
-=====
+# Usage
 
 The OpenStack Dashboard is deployed and related to keystone:
 
@@ -24,24 +22,22 @@ The dashboard is accessible on:
 
 At a minimum, the cloud must provide Glance and Nova services.
 
-SSL configuration
-=================
+## SSL configuration
 
 To fully secure your dashboard services, you can provide a SSL key and
-certificate for installation and configuration.  These are provided as
-base64 encoded configuration options::
+certificate for installation and configuration. These are provided as base64
+encoded configuration options::
 
     juju set openstack-dashboard ssl_key="$(base64 my.key)" \
         ssl_cert="$(base64 my.cert)"
 
 The service will be reconfigured to use the supplied information.
 
-HA/Clustering
-=============
+## HA/Clustering
 
-There are two mutually exclusive high availability options: using virtual
-IP(s) or DNS. In both cases, a relationship to hacluster is required which
-provides the corosync back end HA functionality.
+There are two mutually exclusive high availability options: using virtual IP(s)
+or DNS. In both cases, a relationship to hacluster is required which provides
+the corosync back end HA functionality.
 
 To use virtual IP(s) the clustered nodes must be on the same subnet such that
 the VIP is a valid IP on the subnet for one of the node's interfaces and each
@@ -54,35 +50,31 @@ network, separated by spaces. Optionally, vip_iface or vip_cidr may be
 specified.
 
 To use DNS high availability there are several prerequisites. However, DNS HA
-does not require the clustered nodes to be on the same subnet.
-Currently the DNS HA feature is only available for MAAS 2.0 or greater
-environments. MAAS 2.0 requires Juju 2.0 or greater. The clustered nodes must
-have static or "reserved" IP addresses registered in MAAS. The DNS hostname(s)
-must be pre-registered in MAAS before use with DNS HA.
+does not require the clustered nodes to be on the same subnet. Currently the
+DNS HA feature is only available for MAAS 2.0 or greater environments. MAAS 2.0
+requires Juju 2.0 or greater. The clustered nodes must have static or
+"reserved" IP addresses registered in MAAS. The DNS hostname(s) must be
+pre-registered in MAAS before use with DNS HA.
 
 At a minimum, the config option 'dns-ha' must be set to true and at least one
 of 'os-public-hostname', 'os-internal-hostname' or 'os-internal-hostname' must
 be set in order to use DNS HA. One or more of the above hostnames may be set.
 
-The charm will throw an exception in the following circumstances:
-If neither 'vip' nor 'dns-ha' is set and the charm is related to hacluster
-If both 'vip' and 'dns-ha' are set as they are mutually exclusive
-If 'dns-ha' is set and none of the os-{admin,internal,public}-hostname(s) are
-set
+The charm will throw an exception in the following circumstances: If neither
+'vip' nor 'dns-ha' is set and the charm is related to hacluster If both 'vip'
+and 'dns-ha' are set as they are mutually exclusive If 'dns-ha' is set and none
+of the os-{admin,internal,public}-hostname(s) are set
 
-Whichever method has been used to cluster the charm the 'secret' option
-should be set to ensure that the Django secret is consistent across all units.
+Whichever method has been used to cluster the charm the 'secret' option should
+be set to ensure that the Django secret is consistent across all units.
 
-Keystone V3
-===========
+## Keystone V3
 
 If the charm is being deployed into a keystone v3 enabled environment then the
 charm needs to be related to a database to store session information. This is
 only supported for Mitaka or later.
 
-
-Use with a Load Balancing Proxy
-===============================
+## Use with a Load Balancing Proxy
 
 Instead of deploying with the hacluster charm for load balancing, its possible
 to also deploy the dashboard with load balancing proxy such as HAProxy:
@@ -94,11 +86,10 @@ to also deploy the dashboard with load balancing proxy such as HAProxy:
 This option potentially provides better scale-out than using the charm in
 conjunction with the hacluster charm.
 
+## Custom Theme
 
-Custom Theme
-============
-This charm supports providing a custom theme as documented in the [themes
-configuration]. In order to enable this capability the configuration options
+This charm supports providing a custom theme as documented in the [themes]
+configuration. In order to enable this capability the configuration options
 'ubuntu-theme' and 'default-theme' must both be turned off and the option
 'custom-theme' turned on.
 
@@ -113,38 +104,40 @@ custom-theme option will return to the default.
 
 [themes]: https://docs.openstack.org/horizon/latest/configuration/themes.html
 
-Policy Overrides
-================
+## Policy Overrides
 
-This feature allows for policy overrides using the `POLICY_DIRS` override
-feature of horizon (the OpenStack dashboard project).  This is an **advanced**
-feature and the policies that the OpenStack dashboard supports should be
-clearly understood before trying to override, or add to, the default policies
-that the dashboard uses.  The charm also has some policy defaults.  They should
-also be understood before being overridden.
+Policy overrides is an **advanced** feature that allows an operator to override
+the default policy of an OpenStack service. The policies that the service
+supports, the defaults it implements in its code, and the defaults that a charm
+may include should all be clearly understood before proceeding.
 
 > **Caution**: It is possible to break the system (for tenants and other
   services) if policies are incorrectly applied to the service.
 
-Policy overrides are YAML files that contain rules that will add to, or
-override, existing policy rules in the service.  This charm owns the
-`POLICY_DIRS` directory, and as such, any manual changes to it will
-be overwritten on charm upgrades.
+Policy statements are placed in a YAML file. This file (or files) is then
+placed into an appropriately-name directory (or directories) and (ZIP)
+compressed into a single file. This compressed file is then used as an
+application resource. Finally, the override is enabled via a Boolean charm
+option.
 
-The Juju resource `policyd-override` must be a ZIP file that contains at least
-one directory that corresponds with the OpenStack services that the OpenStack
-dashboard has policy override support for.  These directory names correspond to
-the follow service/charms:
+The directory names correspond to the OpenStack services that Horizon has
+policy override support for:
 
-- `compute` - the compute service provided by Nova
-- `identity` - the identity service provided by Keystone
-- `image` - the image service provided by Glance
-- `network` - the networking service provided by Neutron
-- `volume` - the volume service provided by Cinder
+| directory name | service   | charm                  |
+|----------------|-----------|------------------------|
+| `compute`      | Nova      | nova-cloud-controller  |
+| `identity`     | Keystone  | keystone               |
+| `image`        | Glance    | glance                 |
+| `network`      | Neutron   | neutron-api            |
+| `volume`       | Cinder    | cinder                 |
 
-The files in the directory/directories must be YAML files.  Thus, to provide
-overrides for the `compute` and `identity` services, the resource ZIP file
-should contain something like:
+> **Important**: The exact same overrides must also be implemented at the
+  service level using the appropriate charm. See the Policy Overrides section
+  of each charm's README.
+
+For example, to provide overrides for Nova and Keystone, the compressed file
+should have a structure similar to the following (the YAML filenames are
+arbitrary):
 
     \ compute - compute-override1.yaml
     |         \ compute-override2.yaml
@@ -153,30 +146,24 @@ should contain something like:
                | identity-override2.yaml
                \ identity-override3.yaml
 
-The names of the YAML files is not important.  The names of the directories
-**is** important and must match the list above.  Any other files/directories in
-the ZIP are ignored.
+Here are the essential commands:
 
-The resource file, say `overrides.zip`, is attached to the charm by:
+    zip -r overrides.zip compute identity
+    juju attach-resource openstack-dashboard policyd-override=overrides.zip
+    juju config openstack-dashboard use-policyd-override=true
 
+See appendix [Policy Overrides][cdg-appendix-n] in the [OpenStack Charms
+Deployment Guide][cdg] for a thorough treatment of this feature.
 
-    juju attach-resource keystone policyd-override=overrides.zip
+# Bugs
 
-The policy override is enabled in the charm using:
+Please report bugs on [Launchpad][lp-bugs-charm-openstack-dashboard].
 
-    juju config keystone use-policyd-override=true
+For general charm questions refer to the OpenStack [Charm Guide][cg].
 
-When `use-policyd-override` is `True` the status line of the charm will be
-prefixed with `PO:` indicating that policies have been overridden.  If the
-installation of the policy override YAML files failed for any reason then the
-status line will be prefixed with `PO (broken):`.  The log file for the charm
-will indicate the reason.  No policy override files are installed if the `PO
-(broken):` is shown.  The status line indicates that the overrides are broken,
-not that the policy for the service has failed. The policy will be the defaults
-for the charm and service.
+<!-- LINKS -->
 
-Policy overrides on one service may affect the functionality of another
-service. Therefore, it may be necessary to provide policy overrides for
-multiple service charms to achieve a consistent set of policies across the
-OpenStack system.  The charms for the other services that may need overrides
-should be checked to ensure that they support overrides before proceeding.
+[cg]: https://docs.openstack.org/charm-guide
+[cdg]: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide
+[cdg-appendix-n]: https://docs.openstack.org/project-deploy-guide/charm-deployment-guide/latest/app-policy-overrides.html
+[lp-bugs-charm-openstack-dashboard]: https://bugs.launchpad.net/charm-openstack-dashboard/+filebug
