@@ -123,6 +123,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -154,6 +155,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -185,6 +187,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -216,6 +219,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -248,6 +252,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -283,6 +288,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -314,6 +320,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -345,6 +352,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -381,6 +389,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -412,6 +421,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -443,10 +453,11 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
-    def test_HorizonContext_password_autocompletion(self):
+    def test_HorizonContex_password_autocompletion(self):
         self.maxDiff = 900
         self.test_config.set('allow-password-autocompletion', True)
         self.assertEqual(horizon_contexts.HorizonContext()(),
@@ -475,6 +486,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -507,6 +519,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -539,6 +552,7 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
 
@@ -571,8 +585,15 @@ class TestHorizonContexts(CharmTestCase):
                           "session_timeout": 3600,
                           "dropdown_max_items": 30,
                           "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
                           }
                          )
+
+    def test_HorizonContext_can_set_disable_instance_snapshot(self):
+        self.maxDiff = 900
+        self.test_config.set('disable-instance-snapshot', True)
+        self.assertTrue(horizon_contexts
+                        .HorizonContext()()['disable_instance_snapshot'])
 
     def test_IdentityServiceContext_not_related(self):
         self.relation_ids.return_value = []
