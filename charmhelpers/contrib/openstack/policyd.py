@@ -307,9 +307,9 @@ def maybe_do_policyd_overrides(openstack_release,
                                   blacklist_paths,
                                   user=_user,
                                   group=_group)
-            if (os.path.isfile(_policy_success_file())
-                    and restart_handler is not None
-                    and callable(restart_handler)):
+            if (os.path.isfile(_policy_success_file()) and
+                    restart_handler is not None and
+                    callable(restart_handler)):
                 restart_handler()
             remove_policy_success_file()
             return
@@ -685,9 +685,9 @@ def process_policy_resource_file(resource_file,
     black list.
 
     The yaml filename can be modified in two ways.  If the `preserve_topdir`
-    param is True, then files will be flattened to the this top dir.  This
-    allows for creating sets of files that can be grouped into a single level
-    tree structure.
+    param is True, then files will be flattened to the top dir.  This allows
+    for creating sets of files that can be grouped into a single level tree
+    structure.
 
     Secondly, if the `preprocess_filename` param is not None and callable()
     then the name is passed to that function for preprocessing before being
