@@ -15,9 +15,6 @@ gate_bundles:
   - bionic-rocky
   - bionic-stein
   - bionic-train
-  - disco-stein
-dev_bundles:
-  - disco-train
 
 configure:
   - zaza.openstack.charm_tests.keystone.setup.add_demo_user

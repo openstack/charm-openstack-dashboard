@@ -381,18 +381,21 @@ class TestHorizonUtils(CharmTestCase):
                 horizon_utils.VERSION_PACKAGE
             )
 
+    @patch.object(horizon_utils.ch_cluster, 'get_managed_services_and_ports')
     @patch.object(horizon_utils, 'REQUIRED_INTERFACES')
     @patch.object(horizon_utils, 'services')
     @patch.object(horizon_utils, 'make_assess_status_func')
     def test_assess_status_func(self,
                                 make_assess_status_func,
                                 services,
-                                REQUIRED_INTERFACES):
-        services.return_value = 's1'
+                                REQUIRED_INTERFACES,
+                                get_managed_services_and_ports):
+        get_managed_services_and_ports.return_value = (['s1'], [])
+        services.return_value = ['s1']
         horizon_utils.assess_status_func('test-config')
         # ports=None whilst port checks are disabled.
         make_assess_status_func.assert_called_once_with(
-            'test-config', REQUIRED_INTERFACES, services='s1', ports=None)
+            'test-config', REQUIRED_INTERFACES, services=['s1'], ports=None)
 
     def test_pause_unit_helper(self):
         with patch.object(horizon_utils, '_pause_resume_helper') as prh:
@@ -404,16 +407,19 @@ class TestHorizonUtils(CharmTestCase):
             prh.assert_called_once_with(horizon_utils.resume_unit,
                                         'random-config')
 
+    @patch.object(horizon_utils.ch_cluster, 'get_managed_services_and_ports')
     @patch.object(horizon_utils, 'services')
-    def test_pause_resume_helper(self, services):
+    def test_pause_resume_helper(self, services,
+                                 get_managed_services_and_ports):
+        get_managed_services_and_ports.return_value = (['s1'], [])
         f = MagicMock()
-        services.return_value = 's1'
+        services.return_value = ['s1']
         with patch.object(horizon_utils, 'assess_status_func') as asf:
             asf.return_value = 'assessor'
             horizon_utils._pause_resume_helper(f, 'some-config')
             asf.assert_called_once_with('some-config')
             # ports=None whilst port checks are disabled.
-            f.assert_called_once_with('assessor', services='s1', ports=None)
+            f.assert_called_once_with('assessor', services=['s1'], ports=None)
 
     @patch('subprocess.check_call')
     def test_db_migration(self, mock_subprocess):
