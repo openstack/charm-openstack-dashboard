@@ -1,4 +1,4 @@
-series: disco
+series: eoan
 
 comment:
   - 'machines section to decide order of deployment. database sooner = faster'
@@ -17,7 +17,6 @@ relations:
   - ["openstack-dashboard:shared-db", "mysql:shared-db"]
   - ["openstack-dashboard:identity-service", "keystone:identity-service"]
 
-
 applications:
   mysql:
     charm: cs:~openstack-charmers-next/percona-cluster
@@ -27,10 +26,14 @@ applications:
   keystone:
     charm: cs:~openstack-charmers-next/keystone
     num_units: 1
+    options:
+      openstack-origin: cloud:eoan-train
     to:
       - '1'
   openstack-dashboard:
     charm: ../../../openstack-dashboard
     num_units: 1
+    options:
+      openstack-origin: cloud:eoan-train
     to:
       - '2'

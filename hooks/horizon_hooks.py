@@ -33,22 +33,29 @@ def _add_path(path):
 _add_path(_root)
 
 from charmhelpers.core.hookenv import (
-    Hooks, UnregisteredHookError,
-    log,
-    open_port,
     config,
-    relation_set,
-    relation_get,
-    relation_ids,
-    related_units,
-    unit_get,
-    status_set,
+    Hooks,
     is_leader,
     local_unit,
+    log,
+    open_port,
+    related_units,
+    relation_get,
+    relation_id as juju_relation_id,
+    relation_ids,
+    relation_set,
+    remote_unit as juju_remote_unit,
+    status_set,
+    unit_get,
+    UnregisteredHookError,
 )
 from charmhelpers.fetch import (
-    apt_update, apt_install,
+    apt_autoremove,
+    apt_install,
+    apt_purge,
+    apt_update,
     filter_installed_packages,
+    filter_missing_packages,
 )
 from charmhelpers.core.host import (
     lsb_release,
@@ -86,22 +93,24 @@ from charmhelpers.contrib.charmsupport import nrpe
 from charmhelpers.contrib.hardening.harden import harden
 
 from hooks.horizon_utils import (
-    determine_packages,
-    register_configs,
-    restart_map,
-    services,
-    LOCAL_SETTINGS, HAPROXY_CONF,
-    enable_ssl,
-    do_openstack_upgrade,
-    setup_ipv6,
-    INSTALL_DIR,
-    restart_on_change,
     assess_status,
-    db_migration,
     check_custom_theme,
+    db_migration,
+    determine_packages,
+    do_openstack_upgrade,
+    enable_ssl,
+    get_plugin_packages_from_kv,
+    INSTALL_DIR,
+    LOCAL_SETTINGS, HAPROXY_CONF,
     pause_unit_helper,
-    resume_unit_helper,
+    register_configs,
     remove_old_packages,
+    restart_map,
+    restart_on_change,
+    resume_unit_helper,
+    services,
+    setup_ipv6,
+    update_plugin_packages_in_kv,
 )
 
 
@@ -298,6 +307,61 @@ def plugin_relation_joined(rel_id=None):
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
 def update_plugin_config():
     resolve_CONFIGS()
+    # NOTE(ajkavanagh) - plugins can indicate that they have packages to
+    # install and purge.  Grab them from the relation and install/update as
+    # needed.
+    rid = juju_relation_id()
+    runit = juju_remote_unit()
+    (add_packages, remove_packages) = update_plugin_packages_in_kv(rid, runit)
+    remove_packages = filter_missing_packages(remove_packages)
+    if remove_packages:
+        status_set('maintenance', 'Removing packages')
+        apt_purge(remove_packages, fatal=True)
+        apt_autoremove(purge=True, fatal=True)
+    add_packages = filter_installed_packages(add_packages)
+    if add_packages:
+        status_set('maintenance', 'Installing packages')
+        apt_install(add_packages, fatal=True)
+    if remove_packages or add_packages:
+        log("Package installation/purge detected, restarting services", "INFO")
+        for s in services():
+            service_restart(s)
+    CONFIGS.write(LOCAL_SETTINGS)
+
+
+@hooks.hook('dashboard-plugin-relation-departed')
+@restart_on_change(restart_map(), stopstart=True, sleep=3)
+def remove_plugin_config():
+    """Called when a dashboard plugin is leaving.
+
+    This is necessary so that the packages that the plugin asked to install are
+    removed and any conflicting packages are restored and the config updated.
+    This ensures that when changing plugins the system isn't left in a broken
+    state.
+    """
+    resolve_CONFIGS()
+    rid = juju_relation_id()
+    runit = juju_remote_unit()
+    pkg_data = get_plugin_packages_from_kv(rid, runit)
+    changed = False
+    if pkg_data['install_packages']:
+        remove_packages = filter_missing_packages(pkg_data['install_packages'])
+        if remove_packages:
+            status_set('maintenance', 'Removing packages')
+            apt_purge(remove_packages, fatal=True)
+            apt_autoremove(purge=True, fatal=True)
+            changed = True
+    if pkg_data['conflicting_packages']:
+        install_packages = filter_installed_packages(
+            pkg_data['conflicting_packages'])
+        if install_packages:
+            status_set('maintenance', 'Installing packages')
+            apt_install(install_packages, fatal=True)
+            changed = True
+    if changed:
+        log("Package installation/purge detected, restarting services", "INFO")
+        for s in services():
+            service_restart(s)
     CONFIGS.write(LOCAL_SETTINGS)
 
 

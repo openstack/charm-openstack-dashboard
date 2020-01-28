@@ -36,6 +36,9 @@ TO_PATCH = [
     'os_release',
     'os_application_version_set',
     'reset_os_release',
+    'relation_ids',
+    'related_units',
+    'relation_get',
     'HorizonOSConfigRenderer',
 ]
 
@@ -86,13 +89,14 @@ class TestHorizonUtils(CharmTestCase):
     def test_determine_purge_packages(self):
         'Ensure no packages are identified for purge prior to rocky'
         horizon_utils.os_release.return_value = 'queens'
+        horizon_utils.relation_ids.return_value = []
         self.assertEqual(horizon_utils.determine_purge_packages(), [])
 
     def test_determine_purge_packages_rocky(self):
         'Ensure python packages are identified for purge at rocky'
+        horizon_utils.relation_ids.return_value = []
         horizon_utils.os_release.return_value = 'rocky'
-        self.assertEqual(
-            horizon_utils.determine_purge_packages(),
+        verify_pkgs = (
             [p for p in horizon_utils.BASE_PACKAGES
              if p.startswith('python-')] +
             ['python-django-horizon',
@@ -101,6 +105,173 @@ class TestHorizonUtils(CharmTestCase):
              'python-neutron-lbaas-dashboard',
              'python-designate-dashboard',
              'python-heat-dashboard'])
+        self.assertEqual(
+            sorted(horizon_utils.determine_purge_packages()),
+            sorted(verify_pkgs))
+
+    def _patch_for_dashboard_plugin_packages(self):
+
+        def relation_ids_side_effect(rname):
+            return {
+                'dashboard-plugin': [
+                    'dashboard-plugin:0',
+                    'dashboard-plugin:1',
+                ],
+            }[rname]
+        horizon_utils.relation_ids.side_effect = relation_ids_side_effect
+
+        def related_units_side_effect(rid):
+            return {
+                'dashboard-plugin:0': ['r0', 'r1'],
+                'dashboard-plugin:1': ['r2'],
+            }[rid]
+        horizon_utils.related_units.side_effect = related_units_side_effect
+
+        def relation_get_side_effect(unit=None, rid=None):
+            return {
+                "dashboard-plugin:0/r0": {
+                    'install-packages': '["p1", "p3", "p2"]',
+                    'conflicting-packages': '["n2"]',
+                },
+                "dashboard-plugin:0/r1": {
+                    'install-packages': '["p5", "p6"]',
+                    'conflicting-packages': "",
+                },
+                "dashboard-plugin:1/r2": {
+                    'install-packages': '["p4", "p6"]',
+                    'conflicting-packages': '["n1"]',
+                },
+            }["{}/{}".format(rid, unit)]
+        horizon_utils.relation_get.side_effect = relation_get_side_effect
+
+    def test_determine_packages_dashboard_plugin(self):
+        'Ensure that plugins can provide their packages.'
+        self._patch_for_dashboard_plugin_packages()
+        self.assertEqual(
+            sorted(horizon_utils.determine_packages_dashboard_plugin()),
+            sorted(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']))
+
+    def test_determine_packages_with_dashboard_plugin_rocky(self):
+        'Ensure that plugin packages are part of determine_packages()'
+        horizon_utils.os_release.return_value = 'rocky'
+        pkgs = ([p for p in horizon_utils.BASE_PACKAGES
+                 if not p.startswith('python-')] +
+                horizon_utils.PY3_PACKAGES +
+                ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'])
+        self._patch_for_dashboard_plugin_packages()
+        self.assertEqual(
+            sorted(horizon_utils.determine_packages()),
+            sorted(pkgs)
+        )
+
+    def test_determine_purge_packages_dashboard_plugin(self):
+        'Ensure that plugins can provide their conflicting packages'
+        self._patch_for_dashboard_plugin_packages()
+        self.assertEqual(
+            sorted(horizon_utils.determine_purge_packages_dashboard_plugin()),
+            sorted(['n1', 'n2']))
+
+    def test_determine_purge_packages_dashboard_plugin_rocky(self):
+        'Ensure python packages are identified for purge at rocky'
+        self._patch_for_dashboard_plugin_packages()
+        horizon_utils.os_release.return_value = 'rocky'
+        verify_pkgs = (
+            [p for p in horizon_utils.BASE_PACKAGES
+             if p.startswith('python-')] +
+            ['python-django-horizon',
+             'python-django-openstack-auth',
+             'python-pymysql',
+             'python-neutron-lbaas-dashboard',
+             'python-designate-dashboard',
+             'python-heat-dashboard'])
+        self.assertEqual(
+            sorted(horizon_utils.determine_purge_packages()),
+            sorted(verify_pkgs + ["n1", "n2"]))
+
+    @patch('charmhelpers.core.unitdata.kv')
+    def test_store_plugin_packages_in_kv(self, mock_kv):
+        'Ensure that plugin packages state can be stored.'
+        _key = None
+        _value = None
+        _flush = None
+
+        class MockKV():
+            def set(key, value):
+                nonlocal _key, _value
+                _key = key
+                _value = value
+
+            def flush():
+                nonlocal _flush
+                _flush = True
+        mock_kv.return_value = MockKV
+        horizon_utils.store_plugin_packages_in_kv('r1', 'u1',
+                                                  ['n1'],
+                                                  ['p1', 'p2', 'p3'])
+        self.assertEqual(_value,
+                         {"conflicting_packages": ['n1'],
+                          "install_packages": ['p1', 'p2', 'p3']})
+        self.assertEqual(
+            _key,
+            horizon_utils.make_dashboard_plugin_packages_kv_key('r1', 'u1'))
+        self.assertTrue(_flush)
+
+    @patch('charmhelpers.core.unitdata.kv')
+    def test_get_plugin_packages_from_kv(self, mock_kv):
+        'Ensure that plugin packages state can be recovered.'
+        # no data stored yet; ensure that it handles it gracefully
+        _key = None
+        _value = None
+
+        class MockKV():
+            def get(key, default=None):
+                nonlocal _key
+                _key = key
+                return _value
+        mock_kv.return_value = MockKV
+        self.assertEqual(horizon_utils.get_plugin_packages_from_kv('r1', 'u1'),
+                         {"conflicting_packages": [],
+                          "install_packages": []})
+        self.assertEqual(
+            _key,
+            horizon_utils.make_dashboard_plugin_packages_kv_key('r1', 'u1'))
+        # just packages are configured.
+        _key = None
+        _value = {"install_packages": ['p1', 'p2']}
+        self.assertEqual(horizon_utils.get_plugin_packages_from_kv('r1', 'u1'),
+                         {"conflicting_packages": [],
+                          "install_packages": ['p1', 'p2']})
+        # just conflicting packages are configured.
+        _key = None
+        _value = {"conflicting_packages": ['n1']}
+        self.assertEqual(horizon_utils.get_plugin_packages_from_kv('r1', 'u1'),
+                         {"conflicting_packages": ['n1'],
+                          "install_packages": []})
+        # configure both being stored.
+        _key = None
+        _value = {"install_packages": ['p1', 'p2'],
+                  "conflicting_packages": ['n1']}
+        self.assertEqual(horizon_utils.get_plugin_packages_from_kv('r1', 'u1'),
+                         {"conflicting_packages": ['n1'],
+                          "install_packages": ['p1', 'p2']})
+
+    @patch.object(horizon_utils, 'get_plugin_packages_from_kv')
+    @patch.object(horizon_utils, 'store_plugin_packages_in_kv')
+    def test_update_plugin_packages_in_kv(self,
+                                          mock_store_plugin_packages_in_kv,
+                                          mock_get_plugin_packages_from_kv):
+        'Ensure that plugin packages state can be faithfully held'
+        self._patch_for_dashboard_plugin_packages()
+        mock_get_plugin_packages_from_kv.return_value = {
+            "install_packages": ["p1", "q1"],
+            "conflicting_packages": ["m1"],
+        }
+        (added, removed) = horizon_utils.update_plugin_packages_in_kv(
+            "dashboard-plugin:0", "r0")
+        self.assertEqual(sorted(added), ["m1", "p2", "p3"])
+        self.assertEqual(sorted(removed), ["n2", "q1"])
+        mock_store_plugin_packages_in_kv.assert_called_once_with(
+            "dashboard-plugin:0", "r0", ["n2"], ["p1", "p3", "p2"])
 
     @patch('subprocess.call')
     def test_enable_ssl(self, _call):

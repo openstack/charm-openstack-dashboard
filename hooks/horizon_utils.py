@@ -16,6 +16,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
+import json
 import os
 import shutil
 import subprocess
@@ -46,6 +47,9 @@ from charmhelpers.core.hookenv import (
     hook_name,
     INFO,
     log,
+    related_units,
+    relation_get,
+    relation_ids,
     resource_get,
 )
 from charmhelpers.core.host import (
@@ -66,6 +70,7 @@ from charmhelpers.fetch import (
     apt_autoremove,
     filter_missing_packages,
 )
+import charmhelpers.core.unitdata as unitdata
 
 import hooks.horizon_contexts as horizon_contexts
 
@@ -501,8 +506,42 @@ def determine_packages():
         # NOTE(jamespage): Django in Ubuntu disco or later uses
         #                  mysqldb rather than pymysql.
         packages.append('python3-mysqldb')
+    packages = set(packages)
     if release >= 'train':
         packages.remove('python3-neutron-lbaas-dashboard')
+    # NOTE(ajkavanagh) - don't reinstall packages (e.g. on upgrade) that
+    # plugins have already indicated should not be installed as they clash with
+    # the plugin.  Do add in any packages that the plugins want.  Note that
+    # these will be [] during install, and thus only matter during upgrades.
+    skip_packages = determine_purge_packages_dashboard_plugin()
+    add_in_packages = determine_packages_dashboard_plugin()
+    packages = (packages - set(skip_packages)) | set(add_in_packages)
+
+    return list(packages)
+
+
+def determine_packages_dashboard_plugin():
+    """Determine the packages to install from the 'dashboard-plugin' relation.
+
+    The relation defines two keys 'conflicting-packages' and 'install-packages'
+    that are used by the plugin to signal to this charm which packages should
+    be installed and which are conflicting.
+
+    :returns: List of packages to install from dashboard plugins
+    :rtype: List[str]
+    """
+    packages = []
+    for rid in relation_ids("dashboard-plugin"):
+        for unit in related_units(rid):
+            rdata = relation_get(unit=unit, rid=rid)
+            install_packages_json = rdata.get("install-packages", "[]")
+            try:
+                packages.extend(json.loads(install_packages_json))
+            except json.JSONDecodeError as e:
+                log("Error decoding json from {}/{}: on dashboard-plugin "
+                    " relation - ignoring '{}' - error is:{}"
+                    .format(rid, unit, install_packages_json, str(e)),
+                    level=ERROR)
     return list(set(packages))
 
 
@@ -527,7 +566,34 @@ def determine_purge_packages():
         ])
     if release >= 'train':
         pkgs.append('python3-neutron-lbaas-dashboard')
-    return pkgs
+    # NOTE(ajkavanagh) also ensure that associated plugins can purge on upgrade
+    return list(set(pkgs)
+                .union(set(determine_purge_packages_dashboard_plugin())))
+
+
+def determine_purge_packages_dashboard_plugin():
+    """Determine the packages to purge from the 'dashboard-plugin' relation.
+
+    The relation defines two keys 'conflicting-packages' and 'install-packages'
+    that are used by the plugin to signal to this charm which packages should
+    be installed and which are conflicting.
+
+    :returns: List of packages to purge from dashboard plugins
+    :rtype: List[str]
+    """
+    conflict_packages = []
+    for rid in relation_ids("dashboard-plugin"):
+        for unit in related_units(rid):
+            rdata = relation_get(unit=unit, rid=rid)
+            conflicting_packages_json = rdata.get("conflicting-packages", "[]")
+            try:
+                conflict_packages.extend(json.loads(conflicting_packages_json))
+            except json.JSONDecodeError as e:
+                log("Error decoding json from {}/{}: on dashboard-plugin "
+                    " relation - ignoring '{}' - error is:{}"
+                    .format(rid, unit, conflicting_packages_json, str(e)),
+                    level=ERROR)
+    return list(set(conflict_packages))
 
 
 def remove_old_packages():
@@ -540,6 +606,103 @@ def remove_old_packages():
         apt_purge(installed_packages, fatal=True)
         apt_autoremove(purge=True, fatal=True)
     return bool(installed_packages)
+
+
+PLUGIN_PACKAGES_KV_KEY = "dashboard-plugin:{}:{}"
+
+
+def make_dashboard_plugin_packages_kv_key(rid, runit):
+    """Construct a key for the kv store for the packages from a unit.
+
+    :param rid: The relation_id of the unit
+    :type rid: str
+    :param runit: The unit name of the unit
+    :type runit: str
+    :returns: String to use as a key to store the packages.
+    :rtype: str
+    """
+    return PLUGIN_PACKAGES_KV_KEY.format(rid, runit)
+
+
+def update_plugin_packages_in_kv(rid, runit):
+    """Update the plugin packages for this unit in the kv store.
+
+    It returns a tuple of 'install_packages' and 'purge_packages' that are
+    different from that which was previously stored.
+
+    :param rid: The relation_id of the unit
+    :type rid: str
+    :param runit: The unit name of the unit
+    :type runit: str
+    :returns: tuple of (added, removed) packages.
+    :rtype: Tuple[List[Str],List[str]]
+    """
+    current = get_plugin_packages_from_kv(rid, runit)
+    rdata = relation_get(unit=runit, rid=rid)
+    install_packages_json = rdata.get("install-packages", "[]")
+    install_packages = json.loads(install_packages_json)
+    conflicting_packages_json = rdata.get("conflicting-packages", "[]")
+    conflicting_packages = json.loads(conflicting_packages_json)
+    removed = list(
+        (set(current['install_packages']) - set(install_packages)) |
+        (set(conflicting_packages) - set(current['conflicting_packages'])))
+    added = list(
+        (set(install_packages) - set(current['install_packages'])) |
+        (set(current['conflicting_packages']) - set(conflicting_packages)))
+    store_plugin_packages_in_kv(
+        rid, runit, conflicting_packages, install_packages)
+    return (added, removed)
+
+
+def store_plugin_packages_in_kv(
+        rid, runit, conflicting_packages, install_packages):
+    """Store information from the dashboard plugin for packages
+
+    Essentially, the charm needs to know what the charm wants installed and
+    what packages conflict as if/when the package is removed, the charm has
+    to be able to restore the original situation (prior to the plugin) and that
+    means recording what the plugin installed so that it can be removed.
+
+    :param rid: The relation_id of the unit
+    :type rid: str
+    :param runit: The unit name of the unit
+    :type runit: str
+    :param conflicting_packages: the packages the plugin says conflicts with
+        the ones it wants to have installed.
+    :type conflicting_packages: List[str]
+    :param install_packages: the packages the plugin requires to operate.
+    :type install_packages: List[str]
+    """
+    kv = unitdata.kv()
+    kv.set(make_dashboard_plugin_packages_kv_key(rid, runit),
+           {"conflicting_packages": conflicting_packages,
+            "install_packages": install_packages})
+    kv.flush()
+
+
+def get_plugin_packages_from_kv(rid, runit):
+    """Get package information concerning a dashboard plugin.
+
+    Essentially, the charm needs to know what the charm wants installed and
+    what packages conflict as if/when the package is removed, the charm has
+    to be able to restore the original situation (prior to the plugin) and that
+    means recording what the plugin installed so that it can be removed.
+
+    :param rid: The relation_id of the unit
+    :type rid: str
+    :param runit: The unit name of the unit
+    :type runit: str
+    :returns: Dictionary of 'conflicting_packages' and 'install_packages' from
+        the plugin.
+    :rtype: Dict[str, List[str]]
+    """
+    kv = unitdata.kv()
+    data = kv.get(make_dashboard_plugin_packages_kv_key(rid, runit),
+                  default=None)
+    if data is None:
+        data = {}
+    return {"conflicting_packages": data.get("conflicting_packages", []),
+            "install_packages": data.get("install_packages", [])}
 
 
 def do_openstack_upgrade(configs):
