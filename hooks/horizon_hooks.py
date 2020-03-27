@@ -157,7 +157,7 @@ def install():
         apt_install(packages, fatal=True)
 
 
-@hooks.hook('upgrade-charm')
+@hooks.hook('upgrade-charm.real')
 @restart_on_change(restart_map(), stopstart=True, sleep=3)
 @harden()
 def upgrade_charm():

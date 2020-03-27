@@ -171,7 +171,7 @@ class TestHorizonHooks(CharmTestCase):
         [side_effects.append('bar') for f in RESTART_MAP.keys()]
         _hash.side_effect = side_effects
         self.filter_installed_packages.return_value = ['foo']
-        self._call_hook('upgrade-charm')
+        self._call_hook('upgrade-charm.real')
         self.apt_install.assert_called_with(['foo'], fatal=True)
         self.assertTrue(self.register_configs().write_all.called)
         ex = [
@@ -205,7 +205,7 @@ class TestHorizonHooks(CharmTestCase):
         [side_effects.append('bar') for f in RESTART_MAP.keys()]
         _hash.side_effect = side_effects
         self.filter_installed_packages.return_value = ['foo']
-        self._call_hook('upgrade-charm')
+        self._call_hook('upgrade-charm.real')
         self.remove_old_packages.assert_called_once_with()
         self.service_restart.assert_called_once_with('apache2')
 

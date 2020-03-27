@@ -15,6 +15,8 @@ gate_bundles:
   - bionic-rocky
   - bionic-stein
   - bionic-train
+  - bionic-ussuri
+  - focal-ussuri
 dev_bundles:
   - eoan-train
 
@@ -27,3 +29,6 @@ tests:
 tests_options:
   policyd:
     service: openstack-dashboard
+  force_deploy:
+    - focal-ussuri
+

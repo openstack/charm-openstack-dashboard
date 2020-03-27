@@ -259,7 +259,7 @@ class HorizonOSConfigRenderer(templating.OSConfigRenderer):
         the LOCAL_SETTINGS file until after processing the policyd stuff.
         """
         _hook = hook_name()
-        if _hook not in ('upgrade-charm', 'config-changed'):
+        if _hook not in ('upgrade-charm.real', 'config-changed'):
             return super(HorizonOSConfigRenderer, self).write_all()
         # Otherwise, first do all the other templates
         for k in self.templates.keys():
