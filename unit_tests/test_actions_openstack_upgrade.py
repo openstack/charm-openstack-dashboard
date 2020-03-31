@@ -34,7 +34,7 @@ with patch('charmhelpers.contrib.hardening.harden.harden') as mock_dec:
 from unit_tests.test_utils import CharmTestCase
 
 TO_PATCH = [
-    'CONFIGS',
+    'resolve_CONFIGS',
     'do_action_openstack_upgrade',
     'do_openstack_upgrade',
     'config_changed',
@@ -50,22 +50,25 @@ class TestHorizonUpgradeActions(CharmTestCase):
     def test_openstack_upgrade_true(self):
 
         self.do_action_openstack_upgrade.return_value = True
+        self.resolve_CONFIGS.return_value = 'configs'
+
         openstack_upgrade.openstack_upgrade()
 
         self.do_action_openstack_upgrade.assert_called_once_with(
             'openstack-dashboard',
             self.do_openstack_upgrade,
-            self.CONFIGS)
+            'configs')
         self.config_changed.assert_called_once_with()
 
     def test_openstack_upgrade_false(self):
         self.do_action_openstack_upgrade.return_value = False
+        self.resolve_CONFIGS.return_value = 'configs'
 
         openstack_upgrade.openstack_upgrade()
 
         self.do_action_openstack_upgrade.assert_called_once_with(
             'openstack-dashboard',
             self.do_openstack_upgrade,
-            self.CONFIGS)
+            'configs')
         self.assertFalse(self.do_openstack_upgrade.called)
         self.assertFalse(self.config_changed.called)
