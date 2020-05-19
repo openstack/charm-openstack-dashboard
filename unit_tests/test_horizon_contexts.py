@@ -26,7 +26,7 @@ TO_PATCH = [
     'relation_ids',
     'related_units',
     'log',
-    'get_cert',
+    'https',
     'context_complete',
     'local_unit',
     'get_relation_ip',
@@ -68,7 +68,7 @@ class TestHorizonContexts(CharmTestCase):
 
     def test_Apachecontext_enforce_ssl(self):
         self.test_config.set('enforce-ssl', True)
-        self.get_cert.return_value = ('cert', 'key')
+        self.https.return_value = True
         self.assertEquals(horizon_contexts.ApacheContext()(),
                           {'http_port': 70, 'https_port': 433,
                            'enforce_ssl': True,
@@ -77,7 +77,7 @@ class TestHorizonContexts(CharmTestCase):
 
     def test_Apachecontext_enforce_ssl_no_cert(self):
         self.test_config.set('enforce-ssl', True)
-        self.get_cert.return_value = (None, 'key')
+        self.https.return_value = False
         self.assertEquals(horizon_contexts.ApacheContext()(),
                           {'http_port': 70, 'https_port': 433,
                            'enforce_ssl': False,
@@ -86,7 +86,7 @@ class TestHorizonContexts(CharmTestCase):
 
     def test_Apachecontext_hsts_max_age_seconds(self):
         self.test_config.set('enforce-ssl', True)
-        self.get_cert.return_value = ('cert', 'key')
+        self.https.return_value = True
         self.test_config.set('hsts-max-age-seconds', 15768000)
         self.assertEquals(horizon_contexts.ApacheContext()(),
                           {'http_port': 70, 'https_port': 433,
