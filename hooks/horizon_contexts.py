@@ -32,8 +32,8 @@ from charmhelpers.contrib.openstack.context import (
     OSContextGenerator,
     context_complete
 )
-from charmhelpers.contrib.hahelpers.apache import (
-    get_cert,
+from charmhelpers.contrib.hahelpers.cluster import (
+    https,
 )
 from charmhelpers.contrib.network.ip import (
     get_ipv6_addr,
@@ -251,13 +251,11 @@ class ApacheContext(OSContextGenerator):
             "custom_theme": config('custom-theme'),
         }
 
-        if config('enforce-ssl'):
-            # NOTE(dosaboy): if ssl is not configured we shouldn't allow this
-            if all(get_cert()):
-                ctxt['enforce_ssl'] = True
-            else:
-                log("Enforce ssl redirect requested but ssl not configured - "
-                    "skipping redirect", level=WARNING)
+        if config('enforce-ssl') and https():
+            ctxt['enforce_ssl'] = True
+        else:
+            log("Enforce ssl redirect requested but ssl not configured - "
+                "skipping redirect", level=WARNING)
 
         return ctxt
 
