@@ -58,7 +58,7 @@ options:
       value of 1800 will log users out after 30 minutes.
   default-role:
     type: string
-    default: "Member"
+    default: "member"
     description: |
       Default role for Horizon operations that will be created in
       Keystone upon introduction of an identity-service relation.

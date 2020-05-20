@@ -281,7 +281,7 @@ class TestHorizonHooks(CharmTestCase):
         self.relation_set.assert_called_with(
             relation_id=None, service='None', region='None',
             public_url='None', admin_url='None', internal_url='None',
-            requested_roles='Member'
+            requested_roles='member'
         )
 
     def test_keystone_joined_not_in_relation(self):
@@ -289,7 +289,7 @@ class TestHorizonHooks(CharmTestCase):
         self.relation_set.assert_called_with(
             relation_id='identity/0', service='None', region='None',
             public_url='None', admin_url='None', internal_url='None',
-            requested_roles='Member'
+            requested_roles='member'
         )
 
     def test_keystone_changed_no_cert(self):
