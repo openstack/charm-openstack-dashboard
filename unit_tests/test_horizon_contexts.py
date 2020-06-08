@@ -14,7 +14,7 @@
 
 from contextlib import contextmanager
 import io
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import hooks.horizon_contexts as horizon_contexts
 
