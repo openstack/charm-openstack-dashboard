@@ -186,7 +186,8 @@ class HorizonContext(OSContextGenerator):
             "ubuntu_theme": bool_from_string(config('ubuntu-theme')),
             "default_theme": config('default-theme'),
             "custom_theme": config('custom-theme'),
-            "secret": config('secret') or pwgen(),
+            "secret": config('secret').strip()
+                if config('secret') else pwgen(),
             'support_profile': config('profile')
                 if config('profile') in ['cisco'] else None,
             "neutron_network_dvr": config("neutron-network-dvr"),
