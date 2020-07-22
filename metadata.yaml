@@ -2,19 +2,20 @@ name: openstack-dashboard
 summary: Web dashboard for OpenStack
 maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
- The OpenStack Dashboard provides a full feature web interface for interacting
- with instances, images, volumes and networks within an OpenStack deployment.
+  The OpenStack Dashboard provides a full feature web interface for interacting
+  with instances, images, volumes and networks within an OpenStack deployment.
 tags:
-  - openstack
-  - misc
+- openstack
+- misc
 extra-bindings:
   public:  # Only used to allow specifying a hostname for DNS-HA.
 series:
-  - xenial
-  - bionic
-  - eoan
-  - focal
-  - trusty
+- xenial
+- bionic
+- eoan
+- focal
+- trusty
+- groovy
 provides:
   nrpe-external-master:
     interface: nrpe-external-master
@@ -45,7 +46,7 @@ resources:
   theme:
     type: file
     filename: theme.tgz
-    description: "Custom dashboard theme"
+    description: Custom dashboard theme
   policyd-override:
     type: file
     filename: policyd-override.zip
