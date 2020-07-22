@@ -19,6 +19,8 @@ gate_bundles:
   - focal-ussuri
 dev_bundles:
   - eoan-train
+  - focal-victoria
+  - groovy-victoria
 
 configure:
   - zaza.openstack.charm_tests.keystone.setup.add_demo_user
@@ -30,5 +32,4 @@ tests_options:
   policyd:
     service: openstack-dashboard
   force_deploy:
-    - focal-ussuri
-
+    - groovy-victoria
