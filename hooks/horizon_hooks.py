@@ -185,8 +185,8 @@ def config_changed():
     else:
         localhost = 'localhost'
 
-    if (os_release('openstack-dashboard') == 'icehouse'
-            and config('offline-compression') in ['no', 'False']):
+    if (os_release('openstack-dashboard') == 'icehouse' and
+            config('offline-compression') in ['no', 'False']):
         apt_install(filter_installed_packages(['python-lesscpy']),
                     fatal=True)
 
@@ -436,8 +436,8 @@ def websso_trusted_dashboard_changed():
         return
 
     # TODO: check for vault relation in order to determine url scheme
-    tls_configured = (relation_ids('certificates')
-                      or config('ssl-key') or config('enforce-ssl'))
+    tls_configured = (relation_ids('certificates') or
+                      config('ssl-key') or config('enforce-ssl'))
     scheme = 'https://' if tls_configured else 'http://'
 
     hostname = resolve_address(endpoint_type=PUBLIC, override=True)

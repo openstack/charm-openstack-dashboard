@@ -216,8 +216,8 @@ def register_configs():
              HAPROXY_CONF,
              PORTS_CONF]
 
-    if (CompareOpenStackReleases(release) >= 'queens'
-            and CompareOpenStackReleases(release) <= 'stein'):
+    if (CompareOpenStackReleases(release) >= 'queens' and
+            CompareOpenStackReleases(release) <= 'stein'):
         configs.register(
             CONSISTENCY_GROUP_POLICY,
             CONFIG_FILES[CONSISTENCY_GROUP_POLICY]['hook_contexts'])
@@ -743,8 +743,8 @@ def setup_ipv6():
     # Need haproxy >= 1.5.3 for ipv6 so for Trusty if we are <= Kilo we need to
     # use trusty-backports otherwise we can use the UCA.
     _os_release = os_release('openstack-dashboard')
-    if (ubuntu_rel == 'trusty'
-            and CompareOpenStackReleases(_os_release) < 'liberty'):
+    if (ubuntu_rel == 'trusty' and
+            CompareOpenStackReleases(_os_release) < 'liberty'):
         add_source('deb http://archive.ubuntu.com/ubuntu trusty-backports '
                    'main')
         apt_update()

@@ -227,8 +227,8 @@ class PolicydContext(OSContextGenerator):
         :returns: The context to help set vars in the localsettings.
         :rtype: Dict[str, ANY]
         """
-        activated = (config('use-policyd-override')
-                     and policyd.is_policy_success_file_set())
+        activated = (config('use-policyd-override') and
+                     policyd.is_policy_success_file_set())
 
         if activated:
             return {
