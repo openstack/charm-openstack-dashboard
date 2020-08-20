@@ -119,6 +119,11 @@ class IdentityServiceContext(OSContextGenerator):
         for rid in relation_ids('identity-service'):
             for unit in related_units(rid):
                 rdata = relation_get(rid=rid, unit=unit)
+                default_role = config('default-role')
+                lc_default_role = config('default-role').lower()
+                for role in rdata.get('created_roles', '').split(','):
+                    if role.lower() == lc_default_role:
+                        default_role = role
                 serv_host = rdata.get('service_host')
                 serv_host = format_ipv6_addr(serv_host) or serv_host
                 region = rdata.get('region')
@@ -128,7 +133,8 @@ class IdentityServiceContext(OSContextGenerator):
                     'service_host': serv_host,
                     'service_protocol':
                     rdata.get('service_protocol') or 'http',
-                    'api_version': rdata.get('api_version', '2')
+                    'api_version': rdata.get('api_version', '2'),
+                    'default_role': default_role
                 }
                 # If using keystone v3 the context is incomplete without the
                 # admin domain id
@@ -181,7 +187,6 @@ class HorizonContext(OSContextGenerator):
                 bool_from_string(config('offline-compression')),
             'debug': bool_from_string(config('debug')),
             'customization_module': config('customization-module'),
-            'default_role': config('default-role'),
             "webroot": config('webroot') or '/',
             "ubuntu_theme": bool_from_string(config('ubuntu-theme')),
             "default_theme": config('default-theme'),

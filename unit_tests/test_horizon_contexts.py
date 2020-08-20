@@ -99,7 +99,6 @@ class TestHorizonContexts(CharmTestCase):
                          {'compress_offline': True,
                           'debug': False,
                           'customization_module': '',
-                          'default_role': 'member',
                           'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
@@ -133,7 +132,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -167,7 +166,6 @@ class TestHorizonContexts(CharmTestCase):
                          {'compress_offline': True,
                           'debug': False,
                           'customization_module': '',
-                          'default_role': 'member',
                           'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
@@ -201,7 +199,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': True,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -234,7 +232,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': False,
                           'default_theme': None,
                           'custom_theme': False,
@@ -268,7 +266,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': False,
                           'default_theme': 'material',
                           'custom_theme': False,
@@ -305,40 +303,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': False, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
-                          'ubuntu_theme': True,
-                          'default_theme': None,
-                          'custom_theme': False,
-                          'secret': 'secret',
-                          'support_profile': None,
-                          "neutron_network_dvr": False,
-                          "neutron_network_l3ha": False,
-                          "neutron_network_lb": False,
-                          "neutron_network_firewall": False,
-                          "neutron_network_vpn": False,
-                          "cinder_backup": False,
-                          "password_retrieve": False,
-                          "default_domain": None,
-                          "multi_domain": True,
-                          "allow_password_autocompletion": False,
-                          "default_create_volume": True,
-                          "image_formats": '',
-                          "api_result_limit": 1000,
-                          "enable_fip_topology_check": True,
-                          "session_timeout": 3600,
-                          "dropdown_max_items": 30,
-                          "enable_consistency_groups": False,
-                          "disable_instance_snapshot": False,
-                          "disable_password_reveal": False,
-                          }
-                         )
-
-    def test_HorizonContext_role(self):
-        self.test_config.set('default-role', 'foo')
-        self.assertEqual(horizon_contexts.HorizonContext()(),
-                         {'compress_offline': True, 'debug': False,
-                          'customization_module': '',
-                          'default_role': 'foo', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -371,7 +336,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/',
+                          'webroot': '/',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -409,7 +374,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -442,7 +407,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -475,7 +440,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': 'customization.py',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -509,7 +474,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -543,7 +508,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -577,7 +542,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -611,7 +576,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
-                          'default_role': 'member', 'webroot': '/horizon',
+                          'webroot': '/horizon',
                           'ubuntu_theme': True,
                           'default_theme': None,
                           'custom_theme': False,
@@ -677,6 +642,7 @@ class TestHorizonContexts(CharmTestCase):
         self.context_complete.return_value = True
         self.assertEqual(horizon_contexts.IdentityServiceContext()(),
                          {'service_host': 'foo', 'service_port': 5000,
+                          'default_role': 'member',
                           'api_version': '2', 'service_protocol': 'http'})
 
     @patch("hooks.horizon_contexts.format_ipv6_addr")
@@ -690,6 +656,7 @@ class TestHorizonContexts(CharmTestCase):
         self.context_complete.return_value = True
         self.assertEqual(horizon_contexts.IdentityServiceContext()(),
                          {'service_host': 'foo', 'service_port': 5000,
+                          'default_role': 'member',
                           'api_version': '2', 'service_protocol': 'http'})
 
     @patch("hooks.horizon_contexts.format_ipv6_addr")
@@ -704,6 +671,7 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.IdentityServiceContext()(),
                          {'service_host': 'foo', 'service_port': 5000,
                           'service_protocol': 'http', 'api_version': '2',
+                          'default_role': 'member',
                           'regions': [{'endpoint': 'http://foo:5000/v2.0',
                                        'title': 'regionOne'},
                                       {'endpoint': 'http://foo:5000/v2.0',
@@ -726,6 +694,7 @@ class TestHorizonContexts(CharmTestCase):
             'service_host': 'foo',
             'service_port': 5000,
             'api_version': '3',
+            'default_role': 'member',
             'admin_domain_id': 'admindomainid',
             'service_protocol': 'http'})
 
@@ -758,6 +727,52 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('endpoint-type', 'this_is_bad')
         with self.assertRaises(Exception):
             horizon_contexts.IdentityServiceContext()()
+
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
+    def test_IdentityServiceContext_default_role(self, mock_format_ipv6_addr):
+        self.test_config.set('default-role', 'member')
+        mock_format_ipv6_addr.return_value = "foo"
+        self.relation_ids.return_value = ['foo']
+        self.related_units.return_value = ['bar', 'baz']
+        self.relation_get.side_effect = self.test_relation.get
+        self.test_relation.set({
+            'service_host': 'foo',
+            'service_port': 5000,
+            'region': 'regionOne',
+            'api_version': '3',
+            'created_roles': 'Member',
+            'admin_domain_id': 'admindomainid'})
+        self.context_complete.return_value = True
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(), {
+            'service_host': 'foo',
+            'service_port': 5000,
+            'api_version': '3',
+            'default_role': 'Member',
+            'admin_domain_id': 'admindomainid',
+            'service_protocol': 'http'})
+
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
+    def test_IdentityServiceContext_default_role_fallback(self,
+                                                          mock_ipv6_addr):
+        self.test_config.set('default-role', 'member')
+        mock_ipv6_addr.return_value = "foo"
+        self.relation_ids.return_value = ['foo']
+        self.related_units.return_value = ['bar', 'baz']
+        self.relation_get.side_effect = self.test_relation.get
+        self.test_relation.set({
+            'service_host': 'foo',
+            'service_port': 5000,
+            'region': 'regionOne',
+            'api_version': '3',
+            'admin_domain_id': 'admindomainid'})
+        self.context_complete.return_value = True
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(), {
+            'service_host': 'foo',
+            'service_port': 5000,
+            'api_version': '3',
+            'default_role': 'member',
+            'admin_domain_id': 'admindomainid',
+            'service_protocol': 'http'})
 
     def test_HorizonHAProxyContext_no_cluster(self):
         self.relation_ids.return_value = []
