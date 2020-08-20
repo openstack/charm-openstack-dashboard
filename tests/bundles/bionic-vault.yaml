@@ -1,0 +1,12 @@
+series: bionic
+services:
+  vault:
+    num_units: 1
+    series: bionic
+    charm: cs:~openstack-charmers-next/vault
+  mysql:
+    charm: cs:~openstack-charmers-next/percona-cluster
+    num_units: 1
+relations:
+- - vault:shared-db
+  - mysql:shared-db

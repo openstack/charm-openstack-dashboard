@@ -7,6 +7,7 @@
 #       requirements.  They are intertwined.  Also, Zaza itself should specify
 #       all of its own requirements and if it doesn't, fix it there.
 #
+setuptools<50.0.0 
 charm-tools>=2.4.4
 requests>=2.18.4
 mock>=1.2

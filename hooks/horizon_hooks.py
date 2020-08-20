@@ -267,6 +267,12 @@ def ha_relation_joined(relation_id=None):
     relation_set(relation_id=relation_id, **settings)
 
 
+@hooks.hook('ha-relation-changed')
+def ha_changed():
+    for relid in relation_ids('certificates'):
+        certs_changed(relation_id=relid)
+
+
 @hooks.hook('website-relation-joined')
 def website_relation_joined():
     relation_set(port=70,
