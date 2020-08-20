@@ -6,6 +6,9 @@ comment:
 smoke_bundles:
   - bionic-stein
 gate_bundles:
+  - bionic-train-gr:
+    - vault: bionic-vault
+    - dashboard: bionic-queens-cmr-vault
   - trusty-mitaka
   - xenial-mitaka
   - xenial-ocata
@@ -23,9 +26,19 @@ dev_bundles:
   - groovy-victoria
 
 configure:
+  - vault:
+    - zaza.openstack.charm_tests.vault.setup.auto_initialize_no_validation_no_wait
+  - dashboard:
+    - zaza.openstack.charm_tests.keystone.setup.wait_for_cacert
+    - zaza.openstack.charm_tests.keystone.setup.add_demo_user
   - zaza.openstack.charm_tests.keystone.setup.add_demo_user
 
 tests:
+  - vault:
+    - zaza.charm_tests.noop.tests.NoopTest
+  - dashboard:
+    - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
+    - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
   - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
   - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
 tests_options:
@@ -33,3 +46,7 @@ tests_options:
     service: openstack-dashboard
   force_deploy:
     - groovy-victoria
+target_deploy_status:
+  vault:
+    workload-status: blocked
+    workload-status-message: Vault needs to be initialized
