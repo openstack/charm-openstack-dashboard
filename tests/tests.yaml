@@ -20,9 +20,9 @@ gate_bundles:
   - bionic-train
   - bionic-ussuri
   - focal-ussuri
+  - focal-victoria
 dev_bundles:
   - eoan-train
-  - focal-victoria
   - groovy-victoria
 
 configure:
