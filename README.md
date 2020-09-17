@@ -11,7 +11,8 @@ cloud.
 The OpenStack Dashboard is deployed and related to keystone:
 
     juju deploy openstack-dashboard
-    juju add-relation openstack-dashboard keystone
+    juju add-relation openstack-dashboard:identity-service \
+                      keystone:identity-service
 
 The dashboard will use keystone for user authentication and authorization and
 to interact with the catalog of services within the cloud.
