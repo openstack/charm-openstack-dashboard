@@ -186,5 +186,6 @@ def main():
     )
     return audits.action_parse_results(audits.run(config))
 
+
 if __name__ == "__main__":
     sys.exit(main())

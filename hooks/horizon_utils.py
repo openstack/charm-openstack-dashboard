@@ -893,7 +893,7 @@ def check_custom_theme():
     try:
         os.mkdir(CUSTOM_THEME_DIR)
     except OSError as e:
-        if e.errno is 17:
+        if e.errno == 17:
             pass  # already exists
     theme_file = resource_get('theme')
     log('Retrieved resource: {}'.format(theme_file))
@@ -905,6 +905,6 @@ def check_custom_theme():
         try:
             os.symlink(custom_settings, '{}/custom_theme.py'.format(LOCAL_DIR))
         except OSError as e:
-            if e.errno is 17:
+            if e.errno == 17:
                 pass  # already exists
-    log('Custom theme updated'.format(theme_file))
+    log('Custom theme updated: {}'.format(theme_file))

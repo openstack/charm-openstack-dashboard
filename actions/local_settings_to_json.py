@@ -20,6 +20,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE",
 
 def _(a):
     return a
+
+
 import django.utils.translation as translation
 translation.ugettext_lazy = _
 import local_settings
@@ -51,6 +53,7 @@ def main():
 
     settings_json = json.dumps(settings, skipkeys=True, default=format_other)
     print(settings_json)
+
 
 if __name__ == "__main__":
     sys.exit(main())
