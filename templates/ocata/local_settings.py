@@ -953,7 +953,7 @@ LOGIN_REDIRECT_URL='{{ webroot }}'
 ALLOWED_HOSTS = '*'
 
 # Compress all assets offline as part of packaging installation
-COMPRESS_OFFLINE = True
+#COMPRESS_OFFLINE = True
 
 # DISALLOW_IFRAME_EMBED can be used to prevent Horizon from being embedded
 # within an iframe. Legacy browsers are still vulnerable to a Cross-Frame
