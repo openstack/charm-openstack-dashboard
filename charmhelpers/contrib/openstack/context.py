@@ -1534,8 +1534,23 @@ class SubordinateConfigContext(OSContextGenerator):
                                         ctxt[k][section] = config_list
                             else:
                                 ctxt[k] = v
-        log("%d section(s) found" % (len(ctxt['sections'])), level=DEBUG)
-        return ctxt
+        if self.context_complete(ctxt):
+            log("%d section(s) found" % (len(ctxt['sections'])), level=DEBUG)
+            return ctxt
+        else:
+            return {}
+
+    def context_complete(self, ctxt):
+        """Overridden here to ensure the context is actually complete.
+
+        :param ctxt: The current context members
+        :type ctxt: Dict[str, ANY]
+        :returns: True if the context is complete
+        :rtype: bool
+        """
+        if not ctxt.get('sections'):
+            return False
+        return super(SubordinateConfigContext, self).context_complete(ctxt)
 
 
 class LogLevelContext(OSContextGenerator):
