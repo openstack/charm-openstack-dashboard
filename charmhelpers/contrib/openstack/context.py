@@ -3065,6 +3065,9 @@ class SRIOVContext(OSContextGenerator):
         blanket = 'blanket'
         explicit = 'explicit'
 
+    PCIDeviceNumVFs = collections.namedtuple(
+        'PCIDeviceNumVFs', ['device', 'numvfs'])
+
     def _determine_numvfs(self, device, sriov_numvfs):
         """Determine number of Virtual Functions (VFs) configured for device.
 
@@ -3180,14 +3183,15 @@ class SRIOVContext(OSContextGenerator):
                                'configuration.')
 
         self._map = {
-            device.interface_name: self._determine_numvfs(device, sriov_numvfs)
+            device.pci_address: self.PCIDeviceNumVFs(
+                device, self._determine_numvfs(device, sriov_numvfs))
             for device in devices.pci_devices
             if device.sriov and
             self._determine_numvfs(device, sriov_numvfs) is not None
         }
 
     def __call__(self):
-        """Provide SR-IOV context.
+        """Provide backward compatible SR-IOV context.
 
         :returns: Map interface name: min(configured, max) virtual functions.
         Example:
@@ -3197,6 +3201,23 @@ class SRIOVContext(OSContextGenerator):
                'eth2': 64,
            }
         :rtype: Dict[str,int]
+        """
+        return {
+            pcidnvfs.device.interface_name: pcidnvfs.numvfs
+            for _, pcidnvfs in self._map.items()
+        }
+
+    @property
+    def get_map(self):
+        """Provide map of configured SR-IOV capable PCI devices.
+
+        :returns: Map PCI-address: (PCIDevice, min(configured, max) VFs.
+        Example:
+            {
+                '0000:81:00.0': self.PCIDeviceNumVFs(<PCIDevice object>, 32),
+                '0000:81:00.1': self.PCIDeviceNumVFs(<PCIDevice object>, 32),
+            }
+        :rtype: Dict[str, self.PCIDeviceNumVFs]
         """
         return self._map
 
