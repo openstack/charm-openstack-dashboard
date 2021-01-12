@@ -22,7 +22,6 @@ gate_bundles:
   - focal-ussuri
   - focal-victoria
 dev_bundles:
-  - eoan-train
   - groovy-victoria
 
 configure:
