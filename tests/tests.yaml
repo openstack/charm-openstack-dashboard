@@ -9,12 +9,10 @@ gate_bundles:
   - bionic-train-gr:
     - vault: bionic-vault
     - dashboard: bionic-queens-cmr-vault
-  - trusty-mitaka
-  - xenial-mitaka
-  - xenial-ocata
-  - xenial-pike
-  - xenial-queens
-  - bionic-queens
+  # See bug #1915293 for more details
+  - checklist-work-required: xenial-mitaka
+  - checklist-work-required: xenial-queens
+  - checklist-work-required: bionic-queens
   - bionic-rocky
   - bionic-stein
   - bionic-train
@@ -29,6 +27,8 @@ configure:
   - dashboard:
     - zaza.openstack.charm_tests.keystone.setup.wait_for_cacert
     - zaza.openstack.charm_tests.keystone.setup.add_demo_user
+  - checklist-work-required:
+    - zaza.openstack.charm_tests.keystone.setup.add_demo_user
   - zaza.openstack.charm_tests.keystone.setup.add_demo_user
 
 tests:
@@ -37,8 +37,13 @@ tests:
   - dashboard:
     - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
     - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
+    - zaza.openstack.charm_tests.openstack_dashboard.tests.SecurityTests
+  - checklist-work-required:
+    - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
+    - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
   - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
   - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
+  - zaza.openstack.charm_tests.openstack_dashboard.tests.SecurityTests
 tests_options:
   policyd:
     service: openstack-dashboard

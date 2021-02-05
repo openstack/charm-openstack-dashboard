@@ -409,3 +409,9 @@ options:
     default: false
     description: |
       If enabled, the reveal button for passwords is removed.
+  enforce-password-check:
+    type: boolean
+    default: True
+    description: |
+      If True, displays an ‘Admin Password’ field on the Change Password form
+      to verify that it is indeed the admin logged-in who wants to change the password.

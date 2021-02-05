@@ -216,6 +216,7 @@ class HorizonContext(OSContextGenerator):
             'disable_instance_snapshot': bool(
                 config('disable-instance-snapshot')),
             'disable_password_reveal': config('disable-password-reveal'),
+            'enforce_password_check': config('enforce-password-check'),
         }
 
         return ctxt
