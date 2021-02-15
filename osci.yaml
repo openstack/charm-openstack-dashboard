@@ -1,0 +1,35 @@
+- project:
+    templates:
+      - charm-unit-jobs
+    check:
+      jobs:
+      - bionic-train-gr
+      - checklist-work-required-xenial-mitaka
+      - checklist-work-required-bionic-queens
+      - bionic-rocky
+      - bionic-stein
+      - bionic-train
+      - bionic-ussuri
+      - focal-ussuri
+      - focal-victoria
+      - groovy-victoria
+
+- job:
+    name: checklist-work-required-xenial-mitaka
+    parent: func-target
+    dependencies: &smoke-jobs
+      - bionic-ussuri
+    vars:
+      tox_extra_args: checklist-work-required:xenial-mitaka
+- job:
+    name: checklist-work-required-bionic-queens
+    parent: func-target
+    dependencies: *smoke-jobs
+    vars:
+      tox_extra_args: checklist-work-required:bionic-queens
+- job:
+    name: bionic-train-gr
+    parent: func-target
+    dependencies: *smoke-jobs
+    vars:
+      tox_extra_args: vault:bionic-vault dashboard:bionic-queens-cmr-vault
