@@ -415,3 +415,10 @@ options:
     description: |
       If True, displays an ‘Admin Password’ field on the Change Password form
       to verify that it is indeed the admin logged-in who wants to change the password.
+  use-internal-endpoints:
+    type: boolean
+    default: False
+    description: |
+      Openstack mostly defaults to using public endpoints for internal
+      communication between services. If set to True this option will
+      configure services to use internal endpoints where possible.

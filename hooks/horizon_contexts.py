@@ -23,8 +23,8 @@ from charmhelpers.core.hookenv import (
     relation_get,
     local_unit,
     log,
-    WARNING,
     ERROR,
+    WARNING,
 )
 from charmhelpers.core.strutils import bool_from_string
 from charmhelpers.contrib.openstack import context
@@ -90,8 +90,6 @@ class HorizonHAProxyContext(OSContextGenerator):
         return ctxt
 
 
-# NOTE: this is a stripped-down version of
-# contrib.openstack.IdentityServiceContext
 class IdentityServiceContext(OSContextGenerator):
     interfaces = ['identity-service']
 
@@ -126,6 +124,9 @@ class IdentityServiceContext(OSContextGenerator):
                         default_role = role
                 serv_host = rdata.get('service_host')
                 serv_host = format_ipv6_addr(serv_host) or serv_host
+                internal_host = rdata.get('internal_host')
+                internal_host = (format_ipv6_addr(internal_host)
+                                 or internal_host)
                 region = rdata.get('region')
 
                 local_ctxt = {
@@ -136,6 +137,7 @@ class IdentityServiceContext(OSContextGenerator):
                     'api_version': rdata.get('api_version', '2'),
                     'default_role': default_role
                 }
+
                 # If using keystone v3 the context is incomplete without the
                 # admin domain id
                 if local_ctxt['api_version'] == '3':
@@ -145,11 +147,41 @@ class IdentityServiceContext(OSContextGenerator):
                 if not context_complete(local_ctxt):
                     continue
 
+                # internal_* keys will be treated as optional, since the user
+                # could be upgrading the openstack-dashboard charm before
+                # keystone, so we add them to `local_ctxt` after calling
+                # `context_complete()`.
+                local_ctxt.update({
+                    'internal_port': rdata.get('internal_port'),
+                    'internal_host': internal_host,
+                    'internal_protocol':
+                    rdata.get('internal_protocol') or 'http',
+                })
+
+                # if the use configured the charm to use internal endpoints,
+                # but the keystone charm didn't provide the internal_host key
+                # in the relation we fallback to use the service_host.
+                if config("use-internal-endpoints") and internal_host:
+                    log("Using internal endpoints to configure horizon")
+                    local_ctxt["ks_protocol"] = local_ctxt["internal_protocol"]
+                    local_ctxt["ks_host"] = local_ctxt["internal_host"]
+                    local_ctxt["ks_port"] = local_ctxt["internal_port"]
+                else:
+                    log("Using service host to configure horizon")
+                    local_ctxt["ks_protocol"] = local_ctxt["service_protocol"]
+                    local_ctxt["ks_host"] = local_ctxt["service_host"]
+                    local_ctxt["ks_port"] = local_ctxt["service_port"]
+
                 # Update the service endpoint and title for each available
                 # region in order to support multi-region deployments
                 if region is not None:
-                    endpoint = ("%(service_protocol)s://%(service_host)s"
-                                ":%(service_port)s/v2.0") % local_ctxt
+                    if config("use-internal-endpoints") and internal_host:
+                        endpoint = ("%(internal_protocol)s://%(internal_host)s"
+                                    ":%(internal_port)s/v2.0") % local_ctxt
+                    else:
+                        endpoint = ("%(service_protocol)s://%(service_host)s"
+                                    ":%(service_port)s/v2.0") % local_ctxt
+
                     for reg in region.split():
                         regions.add((endpoint, reg))
 

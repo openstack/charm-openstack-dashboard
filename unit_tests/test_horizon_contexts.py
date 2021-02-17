@@ -684,43 +684,59 @@ class TestHorizonContexts(CharmTestCase):
 
     @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_data(self, mock_format_ipv6_addr):
-        mock_format_ipv6_addr.return_value = "foo"
+        mock_format_ipv6_addr.side_effect = lambda x: x
         self.relation_ids.return_value = ['foo']
         self.related_units.return_value = ['bar', 'baz']
         self.relation_get.side_effect = self.test_relation.get
-        self.test_relation.set({'service_host': 'foo', 'service_port': 5000})
+        self.test_relation.set({'service_host': 'foo', 'service_port': 5000,
+                                'internal_host': 'bar', 'internal_port': 5001})
+        self.test_config.set('use-internal-endpoints', False)
         self.context_complete.return_value = True
         self.assertEqual(horizon_contexts.IdentityServiceContext()(),
                          {'service_host': 'foo', 'service_port': 5000,
+                          'internal_host': 'bar', 'internal_port': 5001,
+                          'internal_protocol': 'http',
+                          'ks_host': 'foo', 'ks_port': 5000,
+                          'ks_protocol': 'http',
                           'default_role': 'member',
                           'api_version': '2', 'service_protocol': 'http'})
 
     @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_single_region(self, mock_format_ipv6_addr):
-        mock_format_ipv6_addr.return_value = "foo"
+        mock_format_ipv6_addr.side_effect = lambda x: x
         self.relation_ids.return_value = ['foo']
         self.related_units.return_value = ['bar', 'baz']
         self.relation_get.side_effect = self.test_relation.get
         self.test_relation.set({'service_host': 'foo', 'service_port': 5000,
+                                'internal_host': 'bar', 'internal_port': 5001,
                                 'region': 'regionOne'})
         self.context_complete.return_value = True
         self.assertEqual(horizon_contexts.IdentityServiceContext()(),
                          {'service_host': 'foo', 'service_port': 5000,
+                          'internal_host': 'bar', 'internal_port': 5001,
+                          'internal_protocol': 'http',
+                          'ks_host': 'foo', 'ks_port': 5000,
+                          'ks_protocol': 'http',
                           'default_role': 'member',
                           'api_version': '2', 'service_protocol': 'http'})
 
     @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_multi_region(self, mock_format_ipv6_addr):
-        mock_format_ipv6_addr.return_value = "foo"
+        mock_format_ipv6_addr.side_effect = lambda x: x
         self.relation_ids.return_value = ['foo']
         self.related_units.return_value = ['bar', 'baz']
         self.relation_get.side_effect = self.test_relation.get
         self.test_relation.set({'service_host': 'foo', 'service_port': 5000,
+                                'internal_host': 'bar', 'internal_port': 5001,
                                 'region': 'regionOne regionTwo'})
         self.context_complete.return_value = True
         self.assertEqual(horizon_contexts.IdentityServiceContext()(),
                          {'service_host': 'foo', 'service_port': 5000,
                           'service_protocol': 'http', 'api_version': '2',
+                          'internal_host': 'bar', 'internal_port': 5001,
+                          'internal_protocol': 'http',
+                          'ks_host': 'foo', 'ks_port': 5000,
+                          'ks_protocol': 'http',
                           'default_role': 'member',
                           'regions': [{'endpoint': 'http://foo:5000/v2.0',
                                        'title': 'regionOne'},
@@ -729,13 +745,15 @@ class TestHorizonContexts(CharmTestCase):
 
     @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_api3(self, mock_format_ipv6_addr):
-        mock_format_ipv6_addr.return_value = "foo"
+        mock_format_ipv6_addr.side_effect = lambda x: x
         self.relation_ids.return_value = ['foo']
         self.related_units.return_value = ['bar', 'baz']
         self.relation_get.side_effect = self.test_relation.get
         self.test_relation.set({
             'service_host': 'foo',
             'service_port': 5000,
+            'internal_host': 'bar',
+            'internal_port': 5001,
             'region': 'regionOne',
             'api_version': '3',
             'admin_domain_id': 'admindomainid'})
@@ -743,6 +761,12 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.IdentityServiceContext()(), {
             'service_host': 'foo',
             'service_port': 5000,
+            'internal_host': 'bar',
+            'internal_port': 5001,
+            'internal_protocol': 'http',
+            'ks_host': 'foo',
+            'ks_port': 5000,
+            'ks_protocol': 'http',
             'api_version': '3',
             'default_role': 'member',
             'admin_domain_id': 'admindomainid',
@@ -781,13 +805,16 @@ class TestHorizonContexts(CharmTestCase):
     @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_default_role(self, mock_format_ipv6_addr):
         self.test_config.set('default-role', 'member')
-        mock_format_ipv6_addr.return_value = "foo"
+        mock_format_ipv6_addr.side_effect = lambda x: x
         self.relation_ids.return_value = ['foo']
         self.related_units.return_value = ['bar', 'baz']
         self.relation_get.side_effect = self.test_relation.get
         self.test_relation.set({
             'service_host': 'foo',
             'service_port': 5000,
+            'internal_host': 'bar',
+            'internal_port': 5001,
+            'internal_protocol': 'http',
             'region': 'regionOne',
             'api_version': '3',
             'created_roles': 'Member',
@@ -796,6 +823,12 @@ class TestHorizonContexts(CharmTestCase):
         self.assertEqual(horizon_contexts.IdentityServiceContext()(), {
             'service_host': 'foo',
             'service_port': 5000,
+            'internal_host': 'bar',
+            'internal_port': 5001,
+            'internal_protocol': 'http',
+            'ks_host': 'foo',
+            'ks_port': 5000,
+            'ks_protocol': 'http',
             'api_version': '3',
             'default_role': 'Member',
             'admin_domain_id': 'admindomainid',
@@ -805,24 +838,76 @@ class TestHorizonContexts(CharmTestCase):
     def test_IdentityServiceContext_default_role_fallback(self,
                                                           mock_ipv6_addr):
         self.test_config.set('default-role', 'member')
-        mock_ipv6_addr.return_value = "foo"
+        mock_ipv6_addr.side_effect = lambda x: x
         self.relation_ids.return_value = ['foo']
         self.related_units.return_value = ['bar', 'baz']
         self.relation_get.side_effect = self.test_relation.get
         self.test_relation.set({
-            'service_host': 'foo',
-            'service_port': 5000,
+            'service_host': 'foo', 'service_port': 5000,
+            'internal_host': 'bar', 'internal_port': 5001,
             'region': 'regionOne',
             'api_version': '3',
             'admin_domain_id': 'admindomainid'})
         self.context_complete.return_value = True
         self.assertEqual(horizon_contexts.IdentityServiceContext()(), {
-            'service_host': 'foo',
-            'service_port': 5000,
+            'service_host': 'foo', 'service_port': 5000,
+            'internal_host': 'bar', 'internal_port': 5001,
+            'internal_protocol': 'http',
+            'ks_host': 'foo', 'ks_port': 5000,
+            'ks_protocol': 'http',
             'api_version': '3',
             'default_role': 'member',
             'admin_domain_id': 'admindomainid',
             'service_protocol': 'http'})
+
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
+    def test_IdentityServiceContext_use_internal_endpoints(self,
+                                                           mock_format_ipv6):
+        mock_format_ipv6.side_effect = lambda x: x
+        self.relation_ids.return_value = ['foo']
+        self.related_units.return_value = ['bar', 'baz']
+        self.relation_get.side_effect = self.test_relation.get
+        self.test_relation.set({'service_host': 'foo', 'service_port': 5000,
+                                'internal_host': 'bar', 'internal_port': 5001,
+                                'region': 'regionOne'})
+        self.test_config.set('use-internal-endpoints', True)
+        self.context_complete.return_value = True
+        self.maxDiff = None
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
+                         {'service_host': 'foo', 'service_port': 5000,
+                          'service_protocol': 'http',
+                          'internal_host': 'bar', 'internal_port': 5001,
+                          'internal_protocol': 'http',
+                          'ks_host': 'bar', 'ks_port': 5001,
+                          'ks_protocol': 'http',
+                          'api_version': '2',
+                          'default_role': 'member'})
+
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
+    def test_IdentityServiceContext_use_internal_endpoints_no_internal_host(
+            self, mock_format_ipv6):
+        mock_format_ipv6.side_effect = lambda x: x
+        self.relation_ids.return_value = ['foo']
+        self.related_units.return_value = ['bar', 'baz']
+        self.relation_get.side_effect = self.test_relation.get
+        self.test_relation.set({'service_host': 'foo', 'service_port': 5000,
+                                'region': 'regionOne regionTwo'})
+        self.test_config.set('use-internal-endpoints', True)
+        self.context_complete.return_value = True
+        self.maxDiff = None
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
+                         {'service_host': 'foo', 'service_port': 5000,
+                          'service_protocol': 'http',
+                          'internal_host': None, 'internal_port': None,
+                          'internal_protocol': 'http',
+                          'ks_host': 'foo', 'ks_port': 5000,
+                          'ks_protocol': 'http',
+                          'api_version': '2',
+                          'default_role': 'member',
+                          'regions': [{'endpoint': 'http://foo:5000/v2.0',
+                                       'title': 'regionOne'},
+                                      {'endpoint': 'http://foo:5000/v2.0',
+                                       'title': 'regionTwo'}]})
 
     def test_HorizonHAProxyContext_no_cluster(self):
         self.relation_ids.return_value = []
