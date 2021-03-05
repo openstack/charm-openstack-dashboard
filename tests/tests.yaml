@@ -4,7 +4,8 @@ comment:
   - ''
 
 smoke_bundles:
-  - bionic-stein
+  - focal-ussuri
+
 gate_bundles:
   - bionic-train-gr:
     - vault: bionic-vault
@@ -19,7 +20,11 @@ gate_bundles:
   - bionic-ussuri
   - focal-ussuri
   - focal-victoria
+  - focal-wallaby
   - groovy-victoria
+
+dev_bundles:
+  - hirsute-wallaby
 
 configure:
   - vault:
@@ -44,11 +49,13 @@ tests:
   - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
   - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
   - zaza.openstack.charm_tests.openstack_dashboard.tests.SecurityTests
+
 tests_options:
   policyd:
     service: openstack-dashboard
   force_deploy:
-    - groovy-victoria
+    - hirsute-wallaby
+
 target_deploy_status:
   vault:
     workload-status: blocked

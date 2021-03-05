@@ -12,7 +12,9 @@
       - bionic-ussuri
       - focal-ussuri
       - focal-victoria
+      - focal-wallaby
       - groovy-victoria
+      - hirsute-wallaby
 
 - job:
     name: checklist-work-required-xenial-mitaka
