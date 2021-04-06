@@ -139,8 +139,8 @@ AVAILABLE_REGIONS = [
 ]
 {% endif -%}
 
-OPENSTACK_HOST = "{{ service_host }}"
-OPENSTACK_KEYSTONE_URL = "{{ service_protocol }}://%s:{{ service_port }}/v2.0" % OPENSTACK_HOST
+OPENSTACK_HOST = "{{ ks_host }}"
+OPENSTACK_KEYSTONE_URL = "{{ ks_protocol }}://%s:{{ ks_port }}/v2.0" % OPENSTACK_HOST
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "{{ default_role }}"
 
 # Disable SSL certificate checks (useful for self-signed certificates):
