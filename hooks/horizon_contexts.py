@@ -141,9 +141,12 @@ class IdentityServiceContext(OSContextGenerator):
                 # If using keystone v3 the context is incomplete without the
                 # admin domain id
                 if local_ctxt['api_version'] == '3':
+                    local_ctxt['ks_endpoint_path'] = 'v3'
                     if not config('default_domain'):
                         local_ctxt['admin_domain_id'] = rdata.get(
                             'admin_domain_id')
+                else:
+                    local_ctxt['ks_endpoint_path'] = 'v2.0'
                 if not context_complete(local_ctxt):
                     continue
 
@@ -176,12 +179,15 @@ class IdentityServiceContext(OSContextGenerator):
                 # region in order to support multi-region deployments
                 if region is not None:
                     if config("use-internal-endpoints") and internal_host:
-                        endpoint = ("%(internal_protocol)s://%(internal_host)s"
-                                    ":%(internal_port)s/v2.0") % local_ctxt
+                        endpoint = (
+                            "{internal_protocol}://{internal_host}"
+                            ":{internal_port}/{ks_endpoint_path}").format(
+                                **local_ctxt)
                     else:
-                        endpoint = ("%(service_protocol)s://%(service_host)s"
-                                    ":%(service_port)s/v2.0") % local_ctxt
-
+                        endpoint = (
+                            "{service_protocol}://{service_host}"
+                            ":{service_port}/{ks_endpoint_path}").format(
+                                **local_ctxt)
                     for reg in region.split():
                         regions.add((endpoint, reg))
 

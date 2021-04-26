@@ -698,6 +698,7 @@ class TestHorizonContexts(CharmTestCase):
                           'internal_protocol': 'http',
                           'ks_host': 'foo', 'ks_port': 5000,
                           'ks_protocol': 'http',
+                          'ks_endpoint_path': 'v2.0',
                           'default_role': 'member',
                           'api_version': '2', 'service_protocol': 'http'})
 
@@ -716,6 +717,7 @@ class TestHorizonContexts(CharmTestCase):
                           'internal_host': 'bar', 'internal_port': 5001,
                           'internal_protocol': 'http',
                           'ks_host': 'foo', 'ks_port': 5000,
+                          'ks_endpoint_path': 'v2.0',
                           'ks_protocol': 'http',
                           'default_role': 'member',
                           'api_version': '2', 'service_protocol': 'http'})
@@ -737,10 +739,39 @@ class TestHorizonContexts(CharmTestCase):
                           'internal_protocol': 'http',
                           'ks_host': 'foo', 'ks_port': 5000,
                           'ks_protocol': 'http',
+                          'ks_endpoint_path': 'v2.0',
                           'default_role': 'member',
                           'regions': [{'endpoint': 'http://foo:5000/v2.0',
                                        'title': 'regionOne'},
                                       {'endpoint': 'http://foo:5000/v2.0',
+                                       'title': 'regionTwo'}]})
+
+    @patch("hooks.horizon_contexts.format_ipv6_addr")
+    def test_IdentityServiceContext_multi_region_v3(self,
+                                                    mock_format_ipv6_addr):
+        mock_format_ipv6_addr.side_effect = lambda x: x
+        self.relation_ids.return_value = ['foo']
+        self.related_units.return_value = ['bar', 'baz']
+        self.relation_get.side_effect = self.test_relation.get
+        self.test_relation.set({'service_host': 'foo', 'service_port': 5000,
+                                'internal_host': 'bar', 'internal_port': 5001,
+                                'region': 'regionOne regionTwo',
+                                'api_version': '3',
+                                'admin_domain_id': 'admindomainid'})
+        self.context_complete.return_value = True
+        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
+                         {'admin_domain_id': 'admindomainid',
+                          'service_host': 'foo', 'service_port': 5000,
+                          'service_protocol': 'http', 'api_version': '3',
+                          'internal_host': 'bar', 'internal_port': 5001,
+                          'internal_protocol': 'http',
+                          'ks_host': 'foo', 'ks_port': 5000,
+                          'ks_protocol': 'http',
+                          'ks_endpoint_path': 'v3',
+                          'default_role': 'member',
+                          'regions': [{'endpoint': 'http://foo:5000/v3',
+                                       'title': 'regionOne'},
+                                      {'endpoint': 'http://foo:5000/v3',
                                        'title': 'regionTwo'}]})
 
     @patch("hooks.horizon_contexts.format_ipv6_addr")
@@ -767,6 +798,7 @@ class TestHorizonContexts(CharmTestCase):
             'ks_host': 'foo',
             'ks_port': 5000,
             'ks_protocol': 'http',
+            'ks_endpoint_path': 'v3',
             'api_version': '3',
             'default_role': 'member',
             'admin_domain_id': 'admindomainid',
@@ -829,6 +861,7 @@ class TestHorizonContexts(CharmTestCase):
             'ks_host': 'foo',
             'ks_port': 5000,
             'ks_protocol': 'http',
+            'ks_endpoint_path': 'v3',
             'api_version': '3',
             'default_role': 'Member',
             'admin_domain_id': 'admindomainid',
@@ -855,6 +888,7 @@ class TestHorizonContexts(CharmTestCase):
             'internal_protocol': 'http',
             'ks_host': 'foo', 'ks_port': 5000,
             'ks_protocol': 'http',
+            'ks_endpoint_path': 'v3',
             'api_version': '3',
             'default_role': 'member',
             'admin_domain_id': 'admindomainid',
@@ -869,7 +903,7 @@ class TestHorizonContexts(CharmTestCase):
         self.relation_get.side_effect = self.test_relation.get
         self.test_relation.set({'service_host': 'foo', 'service_port': 5000,
                                 'internal_host': 'bar', 'internal_port': 5001,
-                                'region': 'regionOne'})
+                                'region': 'regionOne', 'api_version': '2'})
         self.test_config.set('use-internal-endpoints', True)
         self.context_complete.return_value = True
         self.maxDiff = None
@@ -879,6 +913,7 @@ class TestHorizonContexts(CharmTestCase):
                           'internal_host': 'bar', 'internal_port': 5001,
                           'internal_protocol': 'http',
                           'ks_host': 'bar', 'ks_port': 5001,
+                          'ks_endpoint_path': 'v2.0',
                           'ks_protocol': 'http',
                           'api_version': '2',
                           'default_role': 'member'})
@@ -891,7 +926,8 @@ class TestHorizonContexts(CharmTestCase):
         self.related_units.return_value = ['bar', 'baz']
         self.relation_get.side_effect = self.test_relation.get
         self.test_relation.set({'service_host': 'foo', 'service_port': 5000,
-                                'region': 'regionOne regionTwo'})
+                                'region': 'regionOne regionTwo',
+                                'api_version': '2'})
         self.test_config.set('use-internal-endpoints', True)
         self.context_complete.return_value = True
         self.maxDiff = None
@@ -901,6 +937,7 @@ class TestHorizonContexts(CharmTestCase):
                           'internal_host': None, 'internal_port': None,
                           'internal_protocol': 'http',
                           'ks_host': 'foo', 'ks_port': 5000,
+                          'ks_endpoint_path': 'v2.0',
                           'ks_protocol': 'http',
                           'api_version': '2',
                           'default_role': 'member',
