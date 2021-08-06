@@ -121,7 +121,7 @@ options:
     description: |
       Base64-encoded SSL certificate to install and use for Horizon.
       .
-      juju set openstack-dashboard ssl_cert="$(cat cert| base64)" \
+      juju config openstack-dashboard ssl_cert="$(cat cert| base64)" \
                                ssl_key="$(cat key| base64)"
   ssl_key:
     type: string

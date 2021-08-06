@@ -29,7 +29,7 @@ To fully secure your dashboard services, you can provide a SSL key and
 certificate for installation and configuration. These are provided as base64
 encoded configuration options:
 
-    juju set openstack-dashboard ssl_key="$(base64 my.key)" \
+    juju config openstack-dashboard ssl_key="$(base64 my.key)" \
         ssl_cert="$(base64 my.cert)"
 
 The service will be reconfigured to use the supplied information.
