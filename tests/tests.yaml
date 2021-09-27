@@ -24,7 +24,9 @@ gate_bundles:
   - groovy-victoria
 
 dev_bundles:
+  - focal-xena
   - hirsute-wallaby
+  - impish-xena
 
 configure:
   - vault:
@@ -54,7 +56,8 @@ tests_options:
   policyd:
     service: openstack-dashboard
   force_deploy:
-    - hirsute-wallaby
+    - groovy-victoria
+    - impish-xena
 
 target_deploy_status:
   vault:

@@ -13,8 +13,12 @@
       - focal-ussuri
       - focal-victoria
       - focal-wallaby
+      - focal-xena:
+          voting: false
       - groovy-victoria
       - hirsute-wallaby
+      - impish-xena:
+          voting: false
 
 - job:
     name: checklist-work-required-xenial-mitaka
