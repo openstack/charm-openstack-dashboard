@@ -224,6 +224,7 @@ def config_changed():
         ha_relation_joined(relation_id=relid)
 
     websso_trusted_dashboard_changed()
+    application_dashboard_relation_changed()
 
 
 @hooks.hook('identity-service-relation-joined')
@@ -502,6 +503,52 @@ def post_series_upgrade():
     resolve_CONFIGS()
     series_upgrade_complete(
         resume_unit_helper, CONFIGS)
+
+
+@hooks.hook("application-dashboard-relation-joined",
+            "application-dashboard-relation-changed")
+def application_dashboard_relation_changed(relation_id=None, unit=None):
+    """Register Horizon URL in dashboard charm such as Homer"""
+    if not is_leader():
+        return
+    relations = relation_ids("application-dashboard")
+    if not relations:
+        return
+    tls_configured = (
+        relation_ids("certificates") or config("ssl-key")
+        or config("enforce-ssl")
+    )
+    scheme = "https://" if tls_configured else "http://"
+    hostname = resolve_address(endpoint_type=PUBLIC, override=True)
+    path = scheme + str(hostname)
+    webroot = config("webroot")
+    if not webroot.endswith("/"):
+        webroot += "/"
+    url = urllib.parse.urljoin(path, webroot)
+    icon_str = None
+    icon_file = os.environ.get("JUJU_CHARM_DIR", "") + "/icon.svg"
+    if os.path.exists(icon_file):
+        with open(icon_file) as f:
+            icon_str = f.read()
+    name = "Horizon"
+    if config("site-name"):
+        subtitle = "[{}] OpenStack dashboard".format(config("site-name"))
+        group = "[{}] OpenStack".format(config("site-name"))
+    else:
+        subtitle = "OpenStack dashboard"
+        group = "OpenStack"
+    for rid in relations:
+        relation_set(
+            rid,
+            app=True,
+            relation_settings={
+                "name": name,
+                "url": url,
+                "subtitle": subtitle,
+                "icon": icon_str,
+                "group": group,
+            },
+        )
 
 
 if __name__ == '__main__':

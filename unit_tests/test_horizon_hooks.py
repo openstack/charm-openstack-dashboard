@@ -193,13 +193,17 @@ class TestHorizonHooks(CharmTestCase):
     @patch.object(hooks, 'determine_packages')
     @patch.object(utils, 'path_hash')
     @patch.object(utils, 'service')
-    def test_upgrade_charm_hook_purge(self, _service, _hash,
+    @patch('os.environ.get')
+    def test_upgrade_charm_hook_purge(self, _environ_get,
+                                      _service,
+                                      _hash,
                                       _determine_packages,
                                       _custom_theme,
                                       _sleep):
         self.remove_old_packages.return_value = True
         self.services.return_value = ['apache2']
         _determine_packages.return_value = []
+        _environ_get.return_value = ''
         side_effects = []
         [side_effects.append(None) for f in RESTART_MAP.keys()]
         [side_effects.append('bar') for f in RESTART_MAP.keys()]
@@ -218,12 +222,18 @@ class TestHorizonHooks(CharmTestCase):
 
     @patch('hooks.horizon_hooks.check_custom_theme')
     @patch('hooks.horizon_hooks.keystone_joined')
-    def test_config_changed_no_upgrade(self, _joined, _custom_theme):
+    @patch('hooks.horizon_hooks.is_leader')
+    @patch('os.environ.get')
+    def test_config_changed_no_upgrade(self, _environ_get, _is_leader,
+                                       _joined, _custom_theme):
         def relation_ids_side_effect(rname):
             return {
                 'websso-trusted-dashboard': [
                     'websso-trusted-dashboard:0',
                     'websso-trusted-dashboard:1',
+                ],
+                'application-dashboard': [
+                    'application-dashboard:0',
                 ],
                 'identity-service': [
                     'identity/0',
@@ -242,8 +252,11 @@ class TestHorizonHooks(CharmTestCase):
                 'prefer-ipv6': False,
                 'action-managed-upgrade': False,
                 'webroot': '/horizon',
+                'site-name': 'local',
             }[key]
         self.config.side_effect = config_side_effect
+        _is_leader.return_value = True
+        _environ_get.return_value = ''
         self.openstack_upgrade_available.return_value = False
         self._call_hook('config-changed')
         _joined.assert_called_with('identity/0')
@@ -258,7 +271,8 @@ class TestHorizonHooks(CharmTestCase):
         self.assertTrue(_custom_theme.called)
 
     @patch('hooks.horizon_hooks.check_custom_theme')
-    def test_config_changed_do_upgrade(self, _custom_theme):
+    @patch('hooks.horizon_hooks.is_leader')
+    def test_config_changed_do_upgrade(self, _is_leader, _custom_theme):
         config_mock1 = MagicMock()
         config_mock2 = MagicMock()
         config_mocks = [config_mock2, config_mock1]
@@ -267,6 +281,7 @@ class TestHorizonHooks(CharmTestCase):
             return config_mocks.pop()
         self.register_configs.side_effect = _register_configs
         self.relation_ids.return_value = []
+        _is_leader.return_value = True
         self.test_config.set('openstack-origin', 'cloud:precise-grizzly')
         self.openstack_upgrade_available.return_value = True
         self._call_hook('config-changed')
@@ -353,6 +368,7 @@ class TestHorizonHooks(CharmTestCase):
                 'dns-ha': None,
                 'os-public-hostname': hostname,
                 'webroot': '/horizon',
+                'site-name': 'local',
             }[key]
         self.config.side_effect = config_side_effect
         self.resolve_address.return_value = hostname
@@ -390,7 +406,8 @@ class TestHorizonHooks(CharmTestCase):
                 'enforce-ssl': None,
                 'dns-ha': None,
                 'os-public-hostname': hostname,
-                'webroot': '/horizon'
+                'webroot': '/horizon',
+                'site-name': 'local',
             }[key]
         self.config.side_effect = config_side_effect
         self.resolve_address.return_value = hostname
@@ -457,3 +474,42 @@ class TestHorizonHooks(CharmTestCase):
         self.register_configs().write_all.assert_called_with()
         _service_reload.assert_called_with('apache2')
         self.enable_ssl.assert_called_with()
+
+    @patch.object(hooks, 'is_leader')
+    @patch('os.environ.get')
+    def test_application_dashboard(self, _environ_get, _is_leader):
+        def relation_ids_side_effect(rname):
+            return {
+                'application-dashboard': [
+                    'application-dashboard:0',
+                ],
+                'certificates': [],
+            }[rname]
+        self.relation_ids.side_effect = relation_ids_side_effect
+        _is_leader.return_value = True
+        _environ_get.return_value = ''
+        hostname = 'dashboard.intranet.test'
+
+        def config_side_effect(key):
+            return {
+                'ssl-key': 'somekey',
+                'enforce-ssl': True,
+                'dns-ha': True,
+                'os-public-hostname': hostname,
+                'webroot': '/horizon',
+                'site-name': 'local'
+            }[key]
+        self.config.side_effect = config_side_effect
+        self.resolve_address.return_value = hostname
+        self._call_hook('application-dashboard-relation-joined')
+        self.relation_set.assert_has_calls([
+            call("application-dashboard:0",
+                 app=True,
+                 relation_settings={
+                     "name": "Horizon",
+                     "url": "https://{}/horizon/".format(hostname),
+                     "subtitle": "[local] OpenStack dashboard",
+                     "icon": None,
+                     "group": "[local] OpenStack"
+                 })
+        ])
