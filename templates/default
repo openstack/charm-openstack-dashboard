@@ -34,4 +34,6 @@
 
         CustomLog ${APACHE_LOG_DIR}/access.log combined
 
+        KeepAliveTimeout 75
+        MaxKeepAliveRequests 1000
 </VirtualHost>
