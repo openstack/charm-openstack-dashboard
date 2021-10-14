@@ -55,6 +55,8 @@ NameVirtualHost *:{{ 443 }}
 {% endif %}
     Header set X-XSS-Protection "1; mode=block"
     Header set X-Content-Type-Options "nosniff"
+    KeepAliveTimeout 75
+    MaxKeepAliveRequests 1000
     <FilesMatch "\.(cgi|shtml|phtml|php)$">
             SSLOptions +StdEnvVars
     </FilesMatch>
