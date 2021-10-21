@@ -28,13 +28,11 @@ applications:
     num_units: 1
     to:
       - '0'
-    channel: candidate
   keystone:
     charm: cs:~openstack-charmers/keystone
     num_units: 1
     to:
       - '1'
-    channel: candidate
   openstack-dashboard:
     charm: ../../../openstack-dashboard
     num_units: 3
@@ -47,4 +45,3 @@ applications:
     options:
       corosync_transport: unicast
       cluster_count: 3
-    channel: candidate

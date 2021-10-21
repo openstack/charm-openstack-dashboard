@@ -4,11 +4,9 @@ services:
     num_units: 1
     series: bionic
     charm: cs:~openstack-charmers/vault
-    channel: candidate
   mysql:
     charm: cs:~openstack-charmers/percona-cluster
     num_units: 1
-    channel: candidate
 relations:
 - - vault:shared-db
   - mysql:shared-db
