@@ -15,7 +15,7 @@
 import os
 import sys
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import call, patch, MagicMock
 
 os.environ['JUJU_UNIT_NAME'] = 'openstack-dashboard'
 
@@ -58,6 +58,10 @@ class TestHorizonUpgradeActions(CharmTestCase):
             'openstack-dashboard',
             self.do_openstack_upgrade,
             'configs')
+        self.resolve_CONFIGS.assert_has_calls([
+            call(),
+            call(force_update=True),
+        ])
         self.config_changed.assert_called_once_with()
 
     def test_openstack_upgrade_false(self):
