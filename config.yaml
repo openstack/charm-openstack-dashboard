@@ -340,6 +340,12 @@ options:
       workflow for image and instance snapshot sources when launching an
       instance. This option has an effect only to Ocata or newer
       releases.
+  hide-create-volume:
+    type: boolean
+    default: False
+    description: |
+      Hide the "Create New Volume" option and rely on the
+      default-create-volume value during instance creation.
   image-formats:
     type: string
     default: ""
