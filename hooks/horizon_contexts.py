@@ -245,6 +245,7 @@ class HorizonContext(OSContextGenerator):
             'default_domain': config('default-domain'),
             'multi_domain': False if config('default-domain') else True,
             "default_create_volume": config("default-create-volume"),
+            'hide_create_volume': config('hide-create-volume'),
             'image_formats': config('image-formats'),
             'api_result_limit': config('api-result-limit') or 1000,
             'enable_fip_topology_check': config('enable-fip-topology-check'),
