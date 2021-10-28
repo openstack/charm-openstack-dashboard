@@ -372,7 +372,7 @@ options:
       value will be capped to 4 workers unless this configuration option
       is set.
   api-result-limit:
-    type:  int
+    type: int
     default:
     description: |
       The maximum number of objects (e.g. Swift objects or Glance images) to

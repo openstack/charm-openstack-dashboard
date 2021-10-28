@@ -19,6 +19,7 @@ from mock import MagicMock, patch
 import hooks.horizon_contexts as horizon_contexts
 
 from unit_tests.test_utils import CharmTestCase
+from operator import itemgetter
 
 TO_PATCH = [
     'config',
@@ -50,6 +51,19 @@ def patch_open():
 
     with patch('builtins.open', stub_open):
         yield mock_open, mock_file
+
+
+def with_regions_sorted(identity_service_context, by='title'):
+    """Helper method to sort regions in Identity Service Context response.
+
+    :param identity_service_context: callable identity service context
+    :param by: regions sorting field name
+
+    :returns: identity service context with sorted regions
+    """
+    value = identity_service_context()
+    value['regions'] = sorted(value['regions'], key=itemgetter(by))
+    return value
 
 
 class TestHorizonContexts(CharmTestCase):
@@ -784,19 +798,20 @@ class TestHorizonContexts(CharmTestCase):
                                 'internal_host': 'bar', 'internal_port': 5001,
                                 'region': 'regionOne regionTwo'})
         self.context_complete.return_value = True
-        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
-                         {'service_host': 'foo', 'service_port': 5000,
-                          'service_protocol': 'http', 'api_version': '2',
-                          'internal_host': 'bar', 'internal_port': 5001,
-                          'internal_protocol': 'http',
-                          'ks_host': 'foo', 'ks_port': 5000,
-                          'ks_protocol': 'http',
-                          'ks_endpoint_path': 'v2.0',
-                          'default_role': 'member',
-                          'regions': [{'endpoint': 'http://foo:5000/v2.0',
-                                       'title': 'regionOne'},
-                                      {'endpoint': 'http://foo:5000/v2.0',
-                                       'title': 'regionTwo'}]})
+        self.assertEqual(
+            with_regions_sorted(horizon_contexts.IdentityServiceContext()),
+            {'service_host': 'foo', 'service_port': 5000,
+             'service_protocol': 'http', 'api_version': '2',
+             'internal_host': 'bar', 'internal_port': 5001,
+             'internal_protocol': 'http',
+             'ks_host': 'foo', 'ks_port': 5000,
+             'ks_protocol': 'http',
+             'ks_endpoint_path': 'v2.0',
+             'default_role': 'member',
+             'regions': [{'endpoint': 'http://foo:5000/v2.0',
+                          'title': 'regionOne'},
+                         {'endpoint': 'http://foo:5000/v2.0',
+                          'title': 'regionTwo'}]})
 
     @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_multi_region_v3(self,
@@ -811,20 +826,21 @@ class TestHorizonContexts(CharmTestCase):
                                 'api_version': '3',
                                 'admin_domain_id': 'admindomainid'})
         self.context_complete.return_value = True
-        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
-                         {'admin_domain_id': 'admindomainid',
-                          'service_host': 'foo', 'service_port': 5000,
-                          'service_protocol': 'http', 'api_version': '3',
-                          'internal_host': 'bar', 'internal_port': 5001,
-                          'internal_protocol': 'http',
-                          'ks_host': 'foo', 'ks_port': 5000,
-                          'ks_protocol': 'http',
-                          'ks_endpoint_path': 'v3',
-                          'default_role': 'member',
-                          'regions': [{'endpoint': 'http://foo:5000/v3',
-                                       'title': 'regionOne'},
-                                      {'endpoint': 'http://foo:5000/v3',
-                                       'title': 'regionTwo'}]})
+        self.assertEqual(
+            with_regions_sorted(horizon_contexts.IdentityServiceContext()),
+            {'admin_domain_id': 'admindomainid',
+             'service_host': 'foo', 'service_port': 5000,
+             'service_protocol': 'http', 'api_version': '3',
+             'internal_host': 'bar', 'internal_port': 5001,
+             'internal_protocol': 'http',
+             'ks_host': 'foo', 'ks_port': 5000,
+             'ks_protocol': 'http',
+             'ks_endpoint_path': 'v3',
+             'default_role': 'member',
+             'regions': [{'endpoint': 'http://foo:5000/v3',
+                          'title': 'regionOne'},
+                         {'endpoint': 'http://foo:5000/v3',
+                          'title': 'regionTwo'}]})
 
     @patch("hooks.horizon_contexts.format_ipv6_addr")
     def test_IdentityServiceContext_api3(self, mock_format_ipv6_addr):
@@ -983,20 +999,21 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('use-internal-endpoints', True)
         self.context_complete.return_value = True
         self.maxDiff = None
-        self.assertEqual(horizon_contexts.IdentityServiceContext()(),
-                         {'service_host': 'foo', 'service_port': 5000,
-                          'service_protocol': 'http',
-                          'internal_host': None, 'internal_port': None,
-                          'internal_protocol': 'http',
-                          'ks_host': 'foo', 'ks_port': 5000,
-                          'ks_endpoint_path': 'v2.0',
-                          'ks_protocol': 'http',
-                          'api_version': '2',
-                          'default_role': 'member',
-                          'regions': [{'endpoint': 'http://foo:5000/v2.0',
-                                       'title': 'regionOne'},
-                                      {'endpoint': 'http://foo:5000/v2.0',
-                                       'title': 'regionTwo'}]})
+        self.assertEqual(
+            with_regions_sorted(horizon_contexts.IdentityServiceContext()),
+            {'service_host': 'foo', 'service_port': 5000,
+             'service_protocol': 'http',
+             'internal_host': None, 'internal_port': None,
+             'internal_protocol': 'http',
+             'ks_host': 'foo', 'ks_port': 5000,
+             'ks_endpoint_path': 'v2.0',
+             'ks_protocol': 'http',
+             'api_version': '2',
+             'default_role': 'member',
+             'regions': [{'endpoint': 'http://foo:5000/v2.0',
+                          'title': 'regionOne'},
+                         {'endpoint': 'http://foo:5000/v2.0',
+                          'title': 'regionTwo'}]})
 
     def test_HorizonHAProxyContext_no_cluster(self):
         self.relation_ids.return_value = []
