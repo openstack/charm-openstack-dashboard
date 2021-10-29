@@ -7,26 +7,30 @@ smoke_bundles:
   - focal-ussuri
 
 gate_bundles:
-  - bionic-train-gr:
-    - vault: bionic-vault
-    - dashboard: bionic-queens-cmr-vault
-  # See bug #1915293 for more details
-  - checklist-work-required: xenial-mitaka
-  - checklist-work-required: xenial-queens
   - checklist-work-required: bionic-queens
-  - bionic-rocky
   - bionic-stein
-  - bionic-train
   - bionic-ussuri
   - focal-ussuri
+  - focal-ussuri-gr:
+    - vault: focal-vault
+    - dashboard: focal-ussuri-cmr-vault
   - focal-victoria
   - focal-wallaby
-  - groovy-victoria
-
-dev_bundles:
   - focal-xena
   - hirsute-wallaby
   - impish-xena
+
+dev_bundles:
+  - bionic-rocky
+  - bionic-train
+  - bionic-train-gr:
+    - vault: bionic-vault
+    - dashboard: bionic-queens-cmr-vault
+  - focal-yoga
+  - jammy-yoga
+  - jammy-yoga-gr:
+    - vault: jammy-vault
+    - dashboard: jammy-yoga-cmr-vault
 
 configure:
   - vault:
@@ -56,10 +60,11 @@ tests_options:
   policyd:
     service: openstack-dashboard
   force_deploy:
-    - groovy-victoria
+    - hirsute-wallaby
     - impish-xena
+    - jammy-yoga
 
 target_deploy_status:
   vault:
     workload-status: blocked
-    workload-status-message: Vault needs to be initialized
+    workload-status-message-prefix: Vault needs to be initialized

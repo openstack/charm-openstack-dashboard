@@ -10,7 +10,6 @@ tags:
 extra-bindings:
   public:  # Only used to allow specifying a hostname for DNS-HA.
 series:
-- xenial
 - bionic
 - focal
 - groovy
