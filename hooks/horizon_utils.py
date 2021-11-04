@@ -887,6 +887,7 @@ def db_migration():
 
 
 def check_custom_theme():
+    # check if using custom theme
     if not config('custom-theme'):
         log('No custom theme configured, exiting')
         return
@@ -894,12 +895,21 @@ def check_custom_theme():
         os.mkdir(CUSTOM_THEME_DIR)
     except OSError as e:
         if e.errno == 17:
-            pass  # already exists
+            # already exists, delete previous contents
+            for files in os.listdir(CUSTOM_THEME_DIR):
+                path = os.path.join(CUSTOM_THEME_DIR, files)
+                try:
+                    shutil.rmtree(path)
+                except OSError:
+                    os.remove(path)
+
+    # extract theme contents
     theme_file = resource_get('theme')
     log('Retrieved resource: {}'.format(theme_file))
     if theme_file:
         with tarfile.open(theme_file, 'r:gz') as in_file:
             in_file.extractall(CUSTOM_THEME_DIR)
+
     custom_settings = '{}/local_settings.py'.format(CUSTOM_THEME_DIR)
     if os.path.isfile(custom_settings):
         try:
