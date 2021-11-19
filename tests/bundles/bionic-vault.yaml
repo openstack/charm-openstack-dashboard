@@ -1,4 +1,5 @@
 series: bionic
+local_overlay_enabled: false
 services:
   vault:
     num_units: 1
