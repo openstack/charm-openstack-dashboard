@@ -509,6 +509,8 @@ def determine_packages():
     packages = set(packages)
     if release >= 'train':
         packages.remove('python3-neutron-lbaas-dashboard')
+    if release >= 'victoria':
+        packages.remove('python3-neutron-fwaas-dashboard')
     # NOTE(ajkavanagh) - don't reinstall packages (e.g. on upgrade) that
     # plugins have already indicated should not be installed as they clash with
     # the plugin.  Do add in any packages that the plugins want.  Note that
@@ -566,6 +568,8 @@ def determine_purge_packages():
         ])
     if release >= 'train':
         pkgs.append('python3-neutron-lbaas-dashboard')
+    if release >= 'victoria':
+        pkgs.append('python3-neutron-fwaas-dashboard')
     # NOTE(ajkavanagh) also ensure that associated plugins can purge on upgrade
     return list(set(pkgs)
                 .union(set(determine_purge_packages_dashboard_plugin())))

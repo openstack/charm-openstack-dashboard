@@ -86,6 +86,21 @@ class TestHorizonUtils(CharmTestCase):
                    horizon_utils.PY3_PACKAGES)
         )
 
+    def test_determine_packages_victoria(self):
+        horizon_utils.os_release.return_value = 'victoria'
+        verify_pkgs = [
+            p for p in horizon_utils.BASE_PACKAGES
+            if not p.startswith('python-')
+        ] + horizon_utils.PY3_PACKAGES
+        verify_pkgs.append('python3-mysqldb')
+        verify_pkgs.remove('python3-neutron-lbaas-dashboard')
+        verify_pkgs.remove('python3-neutron-fwaas-dashboard')
+
+        self.assertEqual(
+            sorted(horizon_utils.determine_packages()),
+            sorted(verify_pkgs)
+        )
+
     def test_determine_purge_packages(self):
         'Ensure no packages are identified for purge prior to rocky'
         horizon_utils.os_release.return_value = 'queens'
@@ -105,6 +120,25 @@ class TestHorizonUtils(CharmTestCase):
              'python-neutron-lbaas-dashboard',
              'python-designate-dashboard',
              'python-heat-dashboard'])
+        self.assertEqual(
+            sorted(horizon_utils.determine_purge_packages()),
+            sorted(verify_pkgs))
+
+    def test_determine_purge_packages_victoria(self):
+        'Ensure python packages are identified for purge at victoria'
+        horizon_utils.relation_ids.return_value = []
+        horizon_utils.os_release.return_value = 'victoria'
+        verify_pkgs = (
+            [p for p in horizon_utils.BASE_PACKAGES
+             if p.startswith('python-')] +
+            ['python-django-horizon',
+             'python-django-openstack-auth',
+             'python-pymysql',
+             'python-neutron-lbaas-dashboard',
+             'python-designate-dashboard',
+             'python-heat-dashboard',
+             'python3-neutron-lbaas-dashboard',
+             'python3-neutron-fwaas-dashboard'])
         self.assertEqual(
             sorted(horizon_utils.determine_purge_packages()),
             sorted(verify_pkgs))
