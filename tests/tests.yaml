@@ -4,28 +4,13 @@ comment:
   - ''
 
 smoke_bundles:
-  - focal-ussuri
+  - focal-xena
 
 gate_bundles:
-  - checklist-work-required: bionic-queens
-  - bionic-stein
-  - bionic-ussuri
-  - focal-ussuri
-  - focal-ussuri-gr:
-    - vault: focal-vault
-    - dashboard: focal-ussuri-cmr-vault
-  - focal-victoria
-  - focal-wallaby
   - focal-xena
-  - hirsute-wallaby
   - impish-xena
 
 dev_bundles:
-  - bionic-rocky
-  - bionic-train
-  - bionic-train-gr:
-    - vault: bionic-vault
-    - dashboard: bionic-queens-cmr-vault
   - focal-yoga
   - jammy-yoga
   - jammy-yoga-gr:
@@ -60,7 +45,6 @@ tests_options:
   policyd:
     service: openstack-dashboard
   force_deploy:
-    - hirsute-wallaby
     - impish-xena
     - jammy-yoga
 

@@ -1,47 +1,23 @@
 - project:
     templates:
-      - charm-yoga-unit-jobs
-      - charm-yoga-functional-jobs
+      - charm-unit-jobs-py38
+      - charm-unit-jobs-py39
       - charm-xena-functional-jobs
-      - charm-wallaby-functional-jobs
-      - charm-victoria-functional-jobs
-      - charm-ussuri-functional-jobs
-      - charm-stein-functional-jobs
-      - charm-queens-functional-jobs
+      - charm-yoga-functional-jobs
     check:
       jobs:
-      - checklist-work-required-bionic-queens
       # gr tests are disabled due to:
       # https://bugs.launchpad.net/charm-openstack-dashboard/+bug/1951644
-      - bionic-train-gr:
-          voting: false
-      - focal-ussuri-gr:
-          voting: false
       - jammy-yoga-gr:
           voting: false
 
 - job:
-    name: checklist-work-required-bionic-queens
-    parent: func-target
-    dependencies: &smoke-jobs
-      - bionic-ussuri
-    vars:
-      tox_extra_args: checklist-work-required:bionic-queens
-- job:
-    name: bionic-train-gr
-    parent: func-target
-    dependencies: *smoke-jobs
-    vars:
-      tox_extra_args: vault:bionic-vault dashboard:bionic-queens-cmr-vault
-- job:
-    name: focal-ussuri-gr
-    parent: func-target
-    dependencies: *smoke-jobs
-    vars:
-      tox_extra_args: vault:focal-vault dashboard:focal-ussuri-cmr-vault
-- job:
     name: jammy-yoga-gr
     parent: func-target
-    dependencies: *smoke-jobs
+    dependencies:
+      - osci-lint
+      - tox-py38
+      - tox-py39
+      - charm-build
     vars:
       tox_extra_args: vault:jammy-vault dashboard:jammy-yoga-cmr-vault

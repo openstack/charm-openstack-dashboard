@@ -22,12 +22,14 @@ machines:
 applications:
 
   keystone-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: ch:mysql-router
+    channel: latest/edge
   openstack-dashboard-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: ch:mysql-router
+    channel: latest/edge
 
   mysql-innodb-cluster:
-    charm: cs:~openstack-charmers-next/mysql-innodb-cluster
+    charm: ch:mysql-innodb-cluster
     num_units: 3
     options:
       source: *openstack-origin
@@ -35,14 +37,16 @@ applications:
       - '0'
       - '1'
       - '2'
+    channel: latest/edge
 
   keystone:
-    charm: cs:~openstack-charmers-next/keystone
+    charm: ch:keystone
     num_units: 1
     options:
       openstack-origin: *openstack-origin
     to:
       - '3'
+    channel: latest/edge
 
   openstack-dashboard:
     charm: ../../../openstack-dashboard
