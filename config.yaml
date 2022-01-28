@@ -428,3 +428,7 @@ options:
       Openstack mostly defaults to using public endpoints for internal
       communication between services. If set to True this option will
       configure services to use internal endpoints where possible.
+  site-name:
+    type: string
+    default: ''
+    description: An unique site name for OpenStack deployment

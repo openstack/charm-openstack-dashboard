@@ -38,6 +38,8 @@ requires:
     interface: websso-fid-service-provider
   certificates:
     interface: tls-certificates
+  application-dashboard:
+    interface: register-application
 peers:
   cluster:
     interface: openstack-dashboard-ha
