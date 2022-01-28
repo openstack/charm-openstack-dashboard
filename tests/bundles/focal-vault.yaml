@@ -10,7 +10,7 @@ machines:
   '3':
 services:
   mysql-innodb-cluster:
-    charm: cs:~openstack-charmers-next/mysql-innodb-cluster
+    charm: ch:mysql-innodb-cluster
     num_units: 3
     options:
       source: distro
@@ -18,14 +18,17 @@ services:
       - '0'
       - '1'
       - '2'
+    channel: latest/edge
   vault-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: ch:mysql-router
+    channel: latest/edge
   vault:
     num_units: 1
     series: bionic
-    charm: cs:~openstack-charmers-next/vault
+    charm: ch:vault
     to:
       - '4'
+    channel: latest/edge
 relations:
 - - vault:shared-db
   - vault-mysql-router:shared-db
