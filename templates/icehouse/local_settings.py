@@ -539,3 +539,13 @@ OPENSTACK_ENABLE_PASSWORD_RETRIEVE = True
 {% endif %}
 
 {{ settings|join('\n\n') }}
+
+{%- if site_branding %}
+SITE_BRANDING = "{{ site_branding }}"
+{%- endif %}
+{%- if site_branding_link %}
+SITE_BRANDING_LINK = "{{ site_branding_link }}"
+{%- endif %}
+{%- if help_url %}
+HORIZON_CONFIG["help_url"] = "{{ help_url }}"
+{%- endif %}

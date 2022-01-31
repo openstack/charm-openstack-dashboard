@@ -256,6 +256,9 @@ class HorizonContext(OSContextGenerator):
                 config('disable-instance-snapshot')),
             'disable_password_reveal': config('disable-password-reveal'),
             'enforce_password_check': config('enforce-password-check'),
+            'site_branding': config('site-branding'),
+            'site_branding_link': config('site-branding-link'),
+            'help_url': config('help-url'),
         }
 
         return ctxt

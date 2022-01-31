@@ -1009,3 +1009,13 @@ ALLOWED_PRIVATE_SUBNET_CIDR = {'ipv4': [], 'ipv6': []}
 #   'phone_num': _('Phone Number'),
 #}
 {{ settings|join('\n\n') }}
+
+{%- if site_branding %}
+SITE_BRANDING = "{{ site_branding }}"
+{%- endif %}
+{%- if site_branding_link %}
+SITE_BRANDING_LINK = "{{ site_branding_link }}"
+{%- endif %}
+{%- if help_url %}
+HORIZON_CONFIG["help_url"] = "{{ help_url }}"
+{%- endif %}

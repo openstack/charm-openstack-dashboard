@@ -431,4 +431,26 @@ options:
   site-name:
     type: string
     default: ''
-    description: An unique site name for OpenStack deployment
+    description: |
+      An unique site name for OpenStack deployment to be passed via the
+      application-dashboard relation
+  site-branding:
+    type: string
+    default:
+    description: |
+      A brand name to be shown in the HTML title. The default value is
+      "OpenStack Dashboard", e.g. "Instance Overview - OpenStack Dashboard"
+  site-branding-link:
+    type: string
+    default:
+    description: |
+      A custom hyperlink when the logo in the dashboard is clicked, e.g.
+      https://mycloud.example.com/. The default value is
+      "horizon:user_home" to open the top level of the dashboard.
+  help-url:
+    type: string
+    default:
+    description: |
+      A custom hyperlink for the "Help" menu, e.g.
+      https://mycloud.example.com/help. The default value is
+      https://docs.openstack.org/
