@@ -72,8 +72,10 @@ conjunction with the hacluster charm.
 
 This charm supports providing a custom theme as documented in the [themes]
 configuration. In order to enable this capability the configuration options
-'ubuntu-theme' and 'default-theme' must both be turned off and the option
-'custom-theme' turned on.
+'ubuntu-theme' must be turned off and the option 'custom-theme' turned on.
+
+    juju config openstack-dashboard ubuntu-theme=no
+    juju config openstack-dashboard custom-theme=true
 
 Once the option is enabled a custom theme can be provided via a juju resource.
 The resource should be a .tgz file with the contents of your custom theme. If
@@ -83,6 +85,10 @@ the file 'local_settings.py' is included it will be sourced.
 
 Repeating the attach-resource will update the theme and turning off the
 custom-theme option will return to the default.
+
+Optionally, the uploaded custom theme can be set as the default theme.
+
+    juju config openstack-dashboard default-theme='custom'
 
 [themes]: https://docs.openstack.org/horizon/latest/configuration/themes.html
 
