@@ -444,7 +444,7 @@ def websso_trusted_dashboard_changed():
 
     # TODO: check for vault relation in order to determine url scheme
     tls_configured = (relation_ids('certificates') or
-                      config('ssl-key') or config('enforce-ssl'))
+                      config('ssl_key') or config('enforce-ssl'))
     scheme = 'https://' if tls_configured else 'http://'
 
     hostname = resolve_address(endpoint_type=PUBLIC, override=True)
@@ -515,7 +515,7 @@ def application_dashboard_relation_changed(relation_id=None, unit=None):
     if not relations:
         return
     tls_configured = (
-        relation_ids("certificates") or config("ssl-key")
+        relation_ids("certificates") or config("ssl_key")
         or config("enforce-ssl")
     )
     scheme = "https://" if tls_configured else "http://"

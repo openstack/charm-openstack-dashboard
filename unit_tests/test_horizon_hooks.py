@@ -245,7 +245,7 @@ class TestHorizonHooks(CharmTestCase):
 
         def config_side_effect(key):
             return {
-                'ssl-key': 'somekey',
+                'ssl_key': 'somekey',
                 'enforce-ssl': True,
                 'dns-ha': True,
                 'os-public-hostname': 'dashboard.intranet.test',
@@ -363,7 +363,7 @@ class TestHorizonHooks(CharmTestCase):
 
         def config_side_effect(key):
             return {
-                'ssl-key': None,
+                'ssl_key': None,
                 'enforce-ssl': None,
                 'dns-ha': None,
                 'os-public-hostname': hostname,
@@ -402,7 +402,7 @@ class TestHorizonHooks(CharmTestCase):
 
         def config_side_effect(key):
             return {
-                'ssl-key': None,
+                'ssl_key': None,
                 'enforce-ssl': None,
                 'dns-ha': None,
                 'os-public-hostname': hostname,
@@ -441,7 +441,7 @@ class TestHorizonHooks(CharmTestCase):
 
         def config_side_effect(key):
             return {
-                'ssl-key': 'somekey',
+                'ssl_key': 'somekey',
                 'enforce-ssl': True,
                 'dns-ha': True,
                 'os-public-hostname': hostname,
@@ -492,7 +492,7 @@ class TestHorizonHooks(CharmTestCase):
 
         def config_side_effect(key):
             return {
-                'ssl-key': 'somekey',
+                'ssl_key': 'somekey',
                 'enforce-ssl': True,
                 'dns-ha': True,
                 'os-public-hostname': hostname,
