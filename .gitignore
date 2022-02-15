@@ -5,6 +5,7 @@ tags
 .tox
 *.sw[nop]
 *.pyc
+*.charm
 .unit-state.db
 .settings
 .stestr

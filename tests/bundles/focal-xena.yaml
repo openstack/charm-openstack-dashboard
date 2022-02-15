@@ -49,7 +49,7 @@ applications:
     channel: latest/edge
 
   openstack-dashboard:
-    charm: ../../../openstack-dashboard
+    charm: ../../openstack-dashboard.charm
     num_units: 1
     options:
       openstack-origin: *openstack-origin

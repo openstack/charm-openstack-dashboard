@@ -10,6 +10,10 @@
       # https://bugs.launchpad.net/charm-openstack-dashboard/+bug/1951644
       - jammy-yoga-gr:
           voting: false
+    vars:
+      needs_charm_build: true
+      charm_build_name: openstack-dashboard
+      build_type: charmcraft
 
 - job:
     name: jammy-yoga-gr
