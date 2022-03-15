@@ -10,3 +10,4 @@ tags
 .stestr
 func-results.json
 tests/keystone_juju_ca_cert.crt
+*.charm
