@@ -112,7 +112,8 @@ class TestHorizonHooks(CharmTestCase):
         self.filter_installed_packages.return_value = ['foo', 'bar']
         self.os_release.return_value = 'icehouse'
         self._call_hook('install.real')
-        self.configure_installation_source.assert_called_with('distro')
+        self.configure_installation_source.assert_called_with(
+            'cloud:focal-xena')
         self.apt_update.assert_called_with(fatal=True)
         self.apt_install.assert_called_with(['foo', 'bar'], fatal=True)
 
@@ -123,7 +124,8 @@ class TestHorizonHooks(CharmTestCase):
         self.os_release.return_value = 'icehouse'
         self.lsb_release.return_value = {'DISTRIB_CODENAME': 'precise'}
         self._call_hook('install.real')
-        self.configure_installation_source.assert_called_with('distro')
+        self.configure_installation_source.assert_called_with(
+            'cloud:focal-xena')
         self.apt_update.assert_called_with(fatal=True)
         calls = [
             call('python-six', fatal=True),
