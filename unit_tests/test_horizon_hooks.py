@@ -111,6 +111,12 @@ class TestHorizonHooks(CharmTestCase):
         _determine_packages.return_value = []
         self.filter_installed_packages.return_value = ['foo', 'bar']
         self.os_release.return_value = 'icehouse'
+
+        def config_side_effect(key):
+            return {
+                'openstack-origin': 'distro',
+            }[key]
+        self.config.side_effect = config_side_effect
         self._call_hook('install.real')
         self.configure_installation_source.assert_called_with('distro')
         self.apt_update.assert_called_with(fatal=True)
@@ -122,6 +128,12 @@ class TestHorizonHooks(CharmTestCase):
         self.filter_installed_packages.return_value = ['foo', 'bar']
         self.os_release.return_value = 'icehouse'
         self.lsb_release.return_value = {'DISTRIB_CODENAME': 'precise'}
+
+        def config_side_effect(key):
+            return {
+                'openstack-origin': 'distro',
+            }[key]
+        self.config.side_effect = config_side_effect
         self._call_hook('install.real')
         self.configure_installation_source.assert_called_with('distro')
         self.apt_update.assert_called_with(fatal=True)
