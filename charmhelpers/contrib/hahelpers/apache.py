@@ -24,6 +24,8 @@
 
 import os
 
+from base64 import b64decode
+
 from charmhelpers.core import host
 from charmhelpers.core.hookenv import (
     config as config_get,
@@ -31,7 +33,12 @@ from charmhelpers.core.hookenv import (
     relation_ids,
     related_units as relation_list,
     log,
+    ERROR,
     INFO,
+)
+from charmhelpers.contrib.openstack.cert_utils import (
+    x509_get_pubkey,
+    x509_validate_cert,
 )
 
 # This file contains the CA cert from the charms ssl_ca configuration
@@ -61,6 +68,11 @@ def get_cert(cn=None):
                 if not key:
                     key = relation_get(ssl_key_attr,
                                        rid=r_id, unit=unit)
+
+    # this likely fails too quietly, raise?
+    if not x509_validate_cert(b64decode(cert), ssl_key=b64decode(key)):
+        return (None, None)
+
     return (cert, key)
 
 
@@ -75,6 +87,11 @@ def get_ca_cert():
                 if ca_cert is None:
                     ca_cert = relation_get('ca_cert',
                                            rid=r_id, unit=unit)
+
+    # this likely fails too quietly, raise?
+    if not x509_get_pubkey(b64decode(ca_cert)):
+        return None
+
     return ca_cert
 
 
