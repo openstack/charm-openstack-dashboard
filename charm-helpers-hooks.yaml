@@ -7,6 +7,7 @@ include:
     - fetch
     - contrib.openstack|inc=*
     - contrib.storage.linux
+    - contrib.hardware.pci
     - contrib.hahelpers
     - contrib.storage
     - contrib.network.ip
