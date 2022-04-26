@@ -259,6 +259,10 @@ class HorizonContext(OSContextGenerator):
             'site_branding': config('site-branding'),
             'site_branding_link': config('site-branding-link'),
             'help_url': config('help-url'),
+            'create_instance_flavor_sort_key':
+                config('create-instance-flavor-sort-key'),
+            'create_instance_flavor_sort_reverse':
+                config('create-instance-flavor-sort-reverse'),
         }
 
         return ctxt

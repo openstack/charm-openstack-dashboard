@@ -454,3 +454,17 @@ options:
       A custom hyperlink for the "Help" menu, e.g.
       https://mycloud.example.com/help. The default value is
       https://docs.openstack.org/
+  create-instance-flavor-sort-key:
+    type: string
+    default:
+    description: |
+      This option can be used to customise the order instances are sorted in.
+      Support values include: id, name, ram, disk, and vcpus.
+      See https://docs.openstack.org/horizon/latest/configuration/settings.html#create-instance-flavor-sort
+      for more details.
+  create-instance-flavor-sort-reverse:
+    type: boolean
+    default: False
+    description: |
+      This option can be used to set the instance sorting to either ascending or descending.
+      Set True to sort in ascending order or False for descending order.

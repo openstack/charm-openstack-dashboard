@@ -493,6 +493,12 @@ TIME_ZONE = "UTC"
 #    'key': my_awesome_callback_method,
 #    'reverse': False,
 #}
+{% if create_instance_flavor_sort_key %}
+CREATE_INSTANCE_FLAVOR_SORT = {
+    'key': '{{ create_instance_flavor_sort_key }}',
+    'reverse': {{ create_instance_flavor_sort_reverse }},
+}
+{% endif %}
 
 # Set this to True to display an 'Admin Password' field on the Change Password
 # form to verify that it is indeed the admin logged-in who wants to change
