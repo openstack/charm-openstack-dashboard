@@ -54,6 +54,7 @@ def openstack_upgrade():
     if do_action_openstack_upgrade('openstack-dashboard',
                                    do_openstack_upgrade,
                                    CONFIGS):
+        resolve_CONFIGS(force_update=True)
         config_changed()
 
 
