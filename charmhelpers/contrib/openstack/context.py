@@ -87,6 +87,10 @@ from charmhelpers.contrib.hahelpers.apache import (
     get_ca_cert,
     install_ca_cert,
 )
+from charmhelpers.contrib.openstack.cert_utils import (
+    x509_get_pubkey,
+    x509_validate_cert,
+)
 from charmhelpers.contrib.openstack.neutron import (
     neutron_plugin_attribute,
     parse_data_port_mappings,
@@ -313,17 +317,22 @@ class PostgresqlDBContext(OSContextGenerator):
 
 
 def db_ssl(rdata, ctxt, ssl_dir):
-    if 'ssl_ca' in rdata and ssl_dir:
+    ssl_ca = b64decode(rdata.get('ssl_ca', bytes()))
+    if 'ssl_ca' in rdata and x509_get_pubkey(ssl_ca) and ssl_dir:
         ca_path = os.path.join(ssl_dir, 'db-client.ca')
         with open(ca_path, 'wb') as fh:
-            fh.write(b64decode(rdata['ssl_ca']))
+            fh.write(ssl_ca)
 
         ctxt['database_ssl_ca'] = ca_path
     elif 'ssl_ca' in rdata:
         log("Charm not setup for ssl support but ssl ca found", level=INFO)
         return ctxt
 
-    if 'ssl_cert' in rdata:
+    ssl_cert = b64decode(rdata.get('ssl_cert', bytes()))
+    ssl_key = b64decode(rdata.get('ssl_key', bytes()))
+    if 'ssl_cert' in rdata and x509_validate_cert(
+        ssl_cert, ssl_key, ssl_ca.decode() if ssl_ca else None
+    ):
         cert_path = os.path.join(
             ssl_dir, 'db-client.cert')
         if not os.path.exists(cert_path):
@@ -331,12 +340,12 @@ def db_ssl(rdata, ctxt, ssl_dir):
             time.sleep(60)
 
         with open(cert_path, 'wb') as fh:
-            fh.write(b64decode(rdata['ssl_cert']))
+            fh.write(ssl_cert)
 
         ctxt['database_ssl_cert'] = cert_path
         key_path = os.path.join(ssl_dir, 'db-client.key')
         with open(key_path, 'wb') as fh:
-            fh.write(b64decode(rdata['ssl_key']))
+            fh.write(ssl_key)
 
         ctxt['database_ssl_key'] = key_path
 
@@ -697,7 +706,7 @@ class AMQPContext(OSContextGenerator):
                     rabbitmq_port = ssl_port
 
                 ssl_ca = relation_get('ssl_ca', rid=rid, unit=unit)
-                if ssl_ca:
+                if ssl_ca and x509_get_pubkey(b64decode(ssl_ca)):
                     ctxt['rabbit_ssl_ca'] = ssl_ca
 
                 if relation_get('ha_queues', rid=rid, unit=unit) is not None:

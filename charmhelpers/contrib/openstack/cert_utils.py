@@ -16,7 +16,11 @@
 
 import os
 import json
+import subprocess
+import tempfile
 from base64 import b64decode
+
+import six
 
 from charmhelpers.contrib.network.ip import (
     get_hostname,
@@ -34,6 +38,7 @@ from charmhelpers.core.hookenv import (
     log,
     WARNING,
     INFO,
+    ERROR,
 )
 from charmhelpers.contrib.openstack.ip import (
     resolve_address,
@@ -53,9 +58,9 @@ from charmhelpers.core.host import (
     write_file,
 )
 
-from charmhelpers.contrib.hahelpers.apache import (
-    CONFIG_CA_CERT_FILE,
-)
+# This file contains the CA cert from the charms ssl_ca configuration
+# option, in future the file name should be updated reflect that.
+CONFIG_CA_CERT_FILE = 'keystone_juju_ca_cert'
 
 
 class CertRequest(object):
@@ -337,7 +342,7 @@ def _manage_ca_certs(ca, cert_relation_id):
     """
     config_ssl_ca = config('ssl_ca')
     config_cert_file = ca_cert_absolute_path(CONFIG_CA_CERT_FILE)
-    if config_ssl_ca:
+    if config_ssl_ca and x509_get_pubkey(b64decode(config_ssl_ca)):
         log("Installing CA certificate from charm ssl_ca config to {}".format(
             config_cert_file), INFO)
         install_ca_cert(
@@ -346,10 +351,12 @@ def _manage_ca_certs(ca, cert_relation_id):
     elif os.path.exists(config_cert_file):
         log("Removing CA certificate {}".format(config_cert_file), INFO)
         os.remove(config_cert_file)
-    log("Installing CA certificate from certificate relation", INFO)
-    install_ca_cert(
-        ca.encode(),
-        name=get_cert_relation_ca_name(cert_relation_id))
+
+    if x509_get_pubkey(ca.encode()):
+        log("Installing CA certificate from certificate relation", INFO)
+        install_ca_cert(
+            ca.encode(),
+            name=get_cert_relation_ca_name(cert_relation_id))
 
 
 def process_certificates(service_name, relation_id, unit,
@@ -441,3 +448,79 @@ def get_bundle_for_cn(cn, relation_name=None):
         if cert_bundle:
             break
     return cert_bundle
+
+
+def _x509_normalize_input(input_):
+    if isinstance(input_, six.text_type):
+        return input_.encode()
+    if isinstance(input_, bytes):
+        return input_
+    return bytes()
+
+
+def x509_validate_cert_chain(ssl_cert, ssl_ca=None):
+    cmd = ['openssl', 'verify']
+
+    with tempfile.TemporaryFile() as cert_fd, tempfile.NamedTemporaryFile() as ca_fd:
+        cert_fd.write(ssl_cert); cert_fd.seek(0)  # noqa: E702
+        if ssl_ca:
+            ca_fd.write(ssl_ca); ca_fd.seek(0)  # noqa: E702
+            cmd.extend(['-CAfile', ca_fd.name])
+
+        try:
+            subprocess.check_output(cmd, stdin=cert_fd)
+            return True
+        except subprocess.CalledProcessError as e:
+            log('Chain verification exited with code {} and output:\n{}'.format(
+                e.returncode, e.output.decode()), level=ERROR)
+            return False
+    raise Exception('Error during certificate chain validation')
+
+
+def x509_get_pubkey(input_, private=False):
+    # since we don't want to leak private key material and generally wouldn't
+    # want to loiter on the filesystem more than it's necessary, we can't use
+    # `ssl.SSLContext.load_cert_chain` to confirm cert-key parity without
+    # dropping `tempfile.NamedTemporaryFile`s and passing their paths in
+    #
+    # issue with this approach is that any sort of exception condition may let
+    # these files linger, posing a leakage risk, so the best we can afford is
+    # `tempfile.TemporaryFile` which immediately removes filesystem-mappable
+    # paths, while keeping a file descriptor, sufficient for passing as stdin
+    # to subprocess calls
+
+    input_ = _x509_normalize_input(input_)
+    if not input_:
+        return bytes()
+
+    cmd = ['openssl']
+    cmd += ['pkey', '-pubout'] if private else ['x509', '-pubkey', '-noout']
+    cmd += ['-in', '/dev/stdin']
+
+    with tempfile.TemporaryFile() as fd:
+        fd.write(input_); fd.seek(0)  # noqa: E702
+        try:
+            return subprocess.check_output(cmd, stdin=fd).strip()
+        except subprocess.CalledProcessError as e:
+            log('Getting public key exited with code {} and output:\n{}'.format(
+                e.returncode, e.output.decode()), level=ERROR)
+            return bytes()
+
+
+def x509_validate_cert_parity(ssl_cert, ssl_key):
+    priv = x509_get_pubkey(ssl_key, private=True)
+    pub = x509_get_pubkey(ssl_cert)
+    return all([priv, pub, priv == pub])
+
+
+def x509_validate_cert(ssl_cert, ssl_key=None, ssl_ca=None, validate_chain=False):
+    # normalize string input types
+    ssl_cert = _x509_normalize_input(ssl_cert)
+    ssl_key = _x509_normalize_input(ssl_key)
+    ssl_ca = _x509_normalize_input(ssl_ca)
+
+    return all([
+        x509_validate_cert_parity(
+            ssl_cert, ssl_key) if ssl_cert and ssl_key else True,
+        x509_validate_cert_chain(ssl_cert, ssl_ca) if validate_chain else True
+    ])
