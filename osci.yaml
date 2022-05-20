@@ -1,41 +1,25 @@
 - project:
     templates:
-      - charm-unit-jobs
+      - charm-unit-jobs-py36
+      - charm-unit-jobs-py38
     check:
       jobs:
-      - bionic-train-gr
-      - checklist-work-required-xenial-mitaka
-      - checklist-work-required-bionic-queens
-      - bionic-rocky
-      - bionic-stein
-      - bionic-train
-      - bionic-ussuri
-      - focal-ussuri
-      - focal-victoria
-      - focal-wallaby
-      - focal-xena:
-          voting: false
-      - groovy-victoria
-      - hirsute-wallaby
-      - impish-xena:
-          voting: false
+        # gr tests are disabled due to:
+        # https://bugs.launchpad.net/charm-openstack-dashboard/+bug/1951644
+        - bionic-train-gr:
+            voting: false
+        - bionic-train
+        - bionic-ussuri
+        - focal-ussuri
+    vars:
+      needs_charm_build: true
+      charm_build_name: openstack-dashboard
+      build_type: charmcraft
 
-- job:
-    name: checklist-work-required-xenial-mitaka
-    parent: func-target
-    dependencies: &smoke-jobs
-      - bionic-ussuri
-    vars:
-      tox_extra_args: checklist-work-required:xenial-mitaka
-- job:
-    name: checklist-work-required-bionic-queens
-    parent: func-target
-    dependencies: *smoke-jobs
-    vars:
-      tox_extra_args: checklist-work-required:bionic-queens
 - job:
     name: bionic-train-gr
     parent: func-target
-    dependencies: *smoke-jobs
+    dependencies:
+      - bionic-train
     vars:
-      tox_extra_args: vault:bionic-vault dashboard:bionic-queens-cmr-vault
+      tox_extra_args: vault:bionic-vault dashboard:bionic-train-cmr-vault
