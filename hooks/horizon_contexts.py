@@ -304,11 +304,12 @@ class ApacheContext(OSContextGenerator):
             "custom_theme": config('custom-theme'),
         }
 
-        if config('enforce-ssl') and https():
-            ctxt['enforce_ssl'] = True
-        else:
-            log("Enforce ssl redirect requested but ssl not configured - "
-                "skipping redirect", level=WARNING)
+        if config('enforce-ssl'):
+            if https():
+                ctxt['enforce_ssl'] = True
+            else:
+                log("Enforce ssl redirect requested but ssl not configured - "
+                    "skipping redirect", level=WARNING)
 
         return ctxt
 
