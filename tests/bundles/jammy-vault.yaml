@@ -27,7 +27,7 @@ services:
     series: bionic
     charm: ch:vault
     to:
-      - '4'
+      - '3'
     channel: latest/edge
 relations:
 - - vault:shared-db
