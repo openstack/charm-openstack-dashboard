@@ -130,6 +130,8 @@ HORIZON_CONFIG["password_autocomplete"] = "on"
 HORIZON_CONFIG["disable_password_reveal"] = True
 {% endif %}
 
+HORIZON_CONFIG["customization_module"] = "{{ customization_module }}"
+
 LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Set custom secret key:
