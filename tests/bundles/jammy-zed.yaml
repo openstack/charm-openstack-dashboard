@@ -1,7 +1,7 @@
 variables:
-  openstack-origin: &openstack-origin distro
+  openstack-origin: &openstack-origin cloud:jammy-zed
 
-series: impish
+series: jammy
 
 comment:
   - 'machines section to decide order of deployment. database sooner = faster'
