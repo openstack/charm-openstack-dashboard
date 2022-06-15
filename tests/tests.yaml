@@ -4,18 +4,17 @@ comment:
   - ''
 
 smoke_bundles:
-  - focal-xena
+  - focal-yoga
 
 gate_bundles:
   - focal-xena
-  - impish-xena
-
-dev_bundles:
   - focal-yoga
   - jammy-yoga
   - jammy-yoga-gr:
     - vault: jammy-vault
     - dashboard: jammy-yoga-cmr-vault
+
+dev_bundles: []
 
 configure:
   - vault:
@@ -45,7 +44,6 @@ tests_options:
   policyd:
     service: openstack-dashboard
   force_deploy:
-    - impish-xena
     - jammy-yoga
 
 target_deploy_status:

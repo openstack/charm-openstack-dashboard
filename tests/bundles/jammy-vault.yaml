@@ -1,5 +1,5 @@
 series: jammy
-local_overlay_enabled: false
+local_overlay_enabled: False
 machines:
   '0':
     constraints: virt-type=kvm mem=3072M
@@ -18,17 +18,17 @@ services:
       - '0'
       - '1'
       - '2'
-    channel: latest/edge
+    channel: 8.0/edge
   vault-mysql-router:
     charm: ch:mysql-router
-    channel: latest/edge
+    channel: 8.0/edge
   vault:
     num_units: 1
     series: bionic
     charm: ch:vault
     to:
       - '4'
-    channel: latest/edge
+    channel: 1.7/edge
 relations:
 - - vault:shared-db
   - vault-mysql-router:shared-db
