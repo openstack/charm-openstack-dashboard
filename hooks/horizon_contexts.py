@@ -87,6 +87,14 @@ class HorizonHAProxyContext(OSContextGenerator):
             'prefer_ipv6': config('prefer-ipv6'),
             'haproxy_expose_stats': config('haproxy-expose-stats')
         }
+
+        if config('haproxy-rate-limiting-enabled'):
+            ctxt['haproxy_rate_limiting_enabled'] = \
+                config('haproxy-rate-limiting-enabled')
+            ctxt['haproxy_max_bytes_in_rate'] = \
+                config('haproxy-max-bytes-in-rate')
+            ctxt['haproxy_limit_period'] = config('haproxy-limit-period')
+
         return ctxt
 
 

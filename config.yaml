@@ -291,6 +291,24 @@ options:
     default: False
     description: |
       If True, exposes stats interface externally.
+  haproxy-rate-limiting-enabled:
+    type: boolean
+    default: False
+    description: |
+      If True, imposes source IP based rate limits on accessing the dashboard.
+      The actual limits are controlled through the configuration options:
+      haproxy-limit-period and haproxy-max-bytes-in-rate.
+  haproxy-max-bytes-in-rate:
+    type: int
+    default: 500000
+    description: |
+      The number of bytes the client is allowed to send through the connection
+      during one limit period.
+  haproxy-limit-period:
+    type: int
+    default: 10
+    description: |
+      The number of seconds over the number of bytes are counted.
   enforce-ssl:
     type: boolean
     default: False
