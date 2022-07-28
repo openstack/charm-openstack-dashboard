@@ -263,6 +263,8 @@ class HorizonContext(OSContextGenerator):
                 config('create-instance-flavor-sort-key'),
             'create_instance_flavor_sort_reverse':
                 config('create-instance-flavor-sort-reverse'),
+            'enable_router_panel':
+                config('enable-router-panel'),
         }
 
         return ctxt

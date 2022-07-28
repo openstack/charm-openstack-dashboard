@@ -145,6 +145,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -185,6 +186,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -226,6 +228,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -269,6 +272,50 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": 'vcpus',
                           "create_instance_flavor_sort_reverse": True,
+                          "enable_router_panel": True,
+                          }
+                         )
+
+    def test_HorizonContext_enable_router_panel(self):
+        self.maxDiff = None
+        self.test_config.set('enable-router-panel', False)
+        self.assertEqual(horizon_contexts.HorizonContext()(),
+                         {'compress_offline': True,
+                          'debug': False,
+                          'customization_module': '',
+                          'webroot': '/horizon',
+                          'ubuntu_theme': True,
+                          'default_theme': None,
+                          'custom_theme': False,
+                          'secret': 'secret',
+                          'support_profile': None,
+                          "neutron_network_dvr": False,
+                          "neutron_network_l3ha": False,
+                          "neutron_network_lb": False,
+                          "neutron_network_firewall": False,
+                          "neutron_network_vpn": False,
+                          "cinder_backup": False,
+                          "password_retrieve": False,
+                          "default_domain": None,
+                          "multi_domain": True,
+                          "allow_password_autocompletion": False,
+                          "default_create_volume": True,
+                          'hide_create_volume': False,
+                          "image_formats": '',
+                          "api_result_limit": 1000,
+                          "enable_fip_topology_check": True,
+                          "session_timeout": 3600,
+                          "dropdown_max_items": 30,
+                          "enable_consistency_groups": False,
+                          "disable_instance_snapshot": False,
+                          "disable_password_reveal": False,
+                          "enforce_password_check": True,
+                          "site_branding": None,
+                          "site_branding_link": None,
+                          "help_url": None,
+                          "create_instance_flavor_sort_key": None,
+                          "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": False,
                           }
                          )
 
@@ -310,6 +357,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -350,6 +398,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -390,6 +439,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -431,6 +481,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -475,6 +526,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -515,6 +567,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -560,6 +613,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -600,6 +654,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -640,6 +695,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -681,6 +737,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -722,6 +779,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -763,6 +821,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -804,6 +863,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -845,6 +905,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": None,
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 
@@ -890,6 +951,7 @@ class TestHorizonContexts(CharmTestCase):
                           "help_url": "https://mycloud.example.com/help",
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
+                          "enable_router_panel": True,
                           }
                          )
 

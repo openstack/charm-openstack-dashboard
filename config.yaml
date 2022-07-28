@@ -468,3 +468,9 @@ options:
     description: |
       This option can be used to set the instance sorting to either ascending or descending.
       Set True to sort in ascending order or False for descending order.
+  enable-router-panel:
+    type: boolean
+    default: True
+    description: |
+      This option can be used to toggle the Router/Floating-IP panel visibility in dashboard.
+      Set True for visibility and False to hide.
