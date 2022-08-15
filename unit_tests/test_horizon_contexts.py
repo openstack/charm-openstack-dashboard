@@ -1072,6 +1072,22 @@ class TestHorizonContexts(CharmTestCase):
                                        '# horizon-plugin/0\n'
                                        'FOO = True']})
 
+    def test_LocalSettingsContextJSON(self):
+        self.relation_ids.return_value = ['plugin:0', 'plugin-too:0']
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        # One JSON and one raw relation
+        self.relation_get.side_effect = [{'priority': "99",
+                                          'local-settings': '"FOO = True"'},
+                                         {'priority': 60,
+                                          'local-settings': 'BAR = False'}]
+
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': ['# horizon-plugin-too/0\n'
+                                       'BAR = False',
+                                       '# horizon-plugin/0\n'
+                                       'FOO = True']})
+
     def test_WebSSOFIDServiceProviderContext(self):
         def relation_ids_side_effect(rname):
             return {
