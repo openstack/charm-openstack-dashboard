@@ -331,6 +331,13 @@ class LocalSettingsContext(OSContextGenerator):
 
         relations = []
 
+        # Juju 'internal' data like egress-address is not json encoded. So only
+        # try and decode the keys we know to expect.
+        json_keys = [
+            'local-settings',
+            'priority',
+            'conflicting-packages',
+            'install-packages']
         for rid in relation_ids("dashboard-plugin"):
             try:
                 unit = related_units(rid)[0]
@@ -339,7 +346,20 @@ class LocalSettingsContext(OSContextGenerator):
             else:
                 rdata = relation_get(unit=unit, rid=rid)
                 if set(('local-settings', 'priority')) <= set(rdata.keys()):
-                    relations.append((unit, rdata))
+                    # Classic dashboard plugins may send non-json data but
+                    # reactive charms send json. Attempt to json decode the
+                    # data but fallback if that fails.
+                    decoded_data = {}
+                    try:
+                        for key in rdata.keys():
+                            if key in json_keys:
+                                decoded_data[key] = json.loads(rdata[key])
+                            else:
+                                decoded_data[key] = rdata[key]
+                    except (json.decoder.JSONDecodeError, TypeError):
+                        relations.append((unit, rdata))
+                    else:
+                        relations.append((unit, decoded_data))
 
         ctxt = {
             'settings': [
