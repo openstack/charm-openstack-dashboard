@@ -87,10 +87,6 @@ from charmhelpers.contrib.hahelpers.apache import (
     get_ca_cert,
     install_ca_cert,
 )
-from charmhelpers.contrib.openstack.cert_utils import (
-    x509_get_pubkey,
-    x509_validate_cert,
-)
 from charmhelpers.contrib.openstack.neutron import (
     neutron_plugin_attribute,
     parse_data_port_mappings,
@@ -317,22 +313,17 @@ class PostgresqlDBContext(OSContextGenerator):
 
 
 def db_ssl(rdata, ctxt, ssl_dir):
-    ssl_ca = b64decode(rdata.get('ssl_ca', bytes()))
-    if 'ssl_ca' in rdata and x509_get_pubkey(ssl_ca) and ssl_dir:
+    if 'ssl_ca' in rdata and ssl_dir:
         ca_path = os.path.join(ssl_dir, 'db-client.ca')
         with open(ca_path, 'wb') as fh:
-            fh.write(ssl_ca)
+            fh.write(b64decode(rdata['ssl_ca']))
 
         ctxt['database_ssl_ca'] = ca_path
     elif 'ssl_ca' in rdata:
         log("Charm not setup for ssl support but ssl ca found", level=INFO)
         return ctxt
 
-    ssl_cert = b64decode(rdata.get('ssl_cert', bytes()))
-    ssl_key = b64decode(rdata.get('ssl_key', bytes()))
-    if 'ssl_cert' in rdata and x509_validate_cert(
-        ssl_cert, ssl_key, ssl_ca.decode() if ssl_ca else None
-    ):
+    if 'ssl_cert' in rdata:
         cert_path = os.path.join(
             ssl_dir, 'db-client.cert')
         if not os.path.exists(cert_path):
@@ -340,12 +331,12 @@ def db_ssl(rdata, ctxt, ssl_dir):
             time.sleep(60)
 
         with open(cert_path, 'wb') as fh:
-            fh.write(ssl_cert)
+            fh.write(b64decode(rdata['ssl_cert']))
 
         ctxt['database_ssl_cert'] = cert_path
         key_path = os.path.join(ssl_dir, 'db-client.key')
         with open(key_path, 'wb') as fh:
-            fh.write(ssl_key)
+            fh.write(b64decode(rdata['ssl_key']))
 
         ctxt['database_ssl_key'] = key_path
 
@@ -706,7 +697,7 @@ class AMQPContext(OSContextGenerator):
                     rabbitmq_port = ssl_port
 
                 ssl_ca = relation_get('ssl_ca', rid=rid, unit=unit)
-                if ssl_ca and x509_get_pubkey(b64decode(ssl_ca)):
+                if ssl_ca:
                     ctxt['rabbit_ssl_ca'] = ssl_ca
 
                 if relation_get('ha_queues', rid=rid, unit=unit) is not None:
@@ -2569,14 +2560,18 @@ class OVSDPDKDeviceContext(OSContextGenerator):
         :rtype: List[int]
         """
         cores = []
-        ranges = cpulist.split(',')
-        for cpu_range in ranges:
-            if "-" in cpu_range:
-                cpu_min_max = cpu_range.split('-')
-                cores += range(int(cpu_min_max[0]),
-                               int(cpu_min_max[1]) + 1)
-            else:
-                cores.append(int(cpu_range))
+        if cpulist and re.match(r"^[0-9,\-^]*$", cpulist):
+            ranges = cpulist.split(',')
+            for cpu_range in ranges:
+                if "-" in cpu_range:
+                    cpu_min_max = cpu_range.split('-')
+                    cores += range(int(cpu_min_max[0]),
+                                   int(cpu_min_max[1]) + 1)
+                elif "^" in cpu_range:
+                    cpu_rm = cpu_range.split('^')
+                    cores.remove(int(cpu_rm[1]))
+                else:
+                    cores.append(int(cpu_range))
         return cores
 
     def _numa_node_cores(self):
@@ -2595,36 +2590,32 @@ class OVSDPDKDeviceContext(OSContextGenerator):
 
     def cpu_mask(self):
         """Get hex formatted CPU mask
-
         The mask is based on using the first config:dpdk-socket-cores
         cores of each NUMA node in the unit.
         :returns: hex formatted CPU mask
         :rtype: str
         """
-        return self.cpu_masks()['dpdk_lcore_mask']
-
-    def cpu_masks(self):
-        """Get hex formatted CPU masks
-
-        The mask is based on using the first config:dpdk-socket-cores
-        cores of each NUMA node in the unit, followed by the
-        next config:pmd-socket-cores
-
-        :returns: Dict of hex formatted CPU masks
-        :rtype: Dict[str, str]
-        """
-        num_lcores = config('dpdk-socket-cores')
-        pmd_cores = config('pmd-socket-cores')
-        lcore_mask = 0
-        pmd_mask = 0
+        num_cores = config('dpdk-socket-cores')
+        mask = 0
         for cores in self._numa_node_cores().values():
-            for core in cores[:num_lcores]:
-                lcore_mask = lcore_mask | 1 << core
-            for core in cores[num_lcores:][:pmd_cores]:
-                pmd_mask = pmd_mask | 1 << core
-        return {
-            'pmd_cpu_mask': format(pmd_mask, '#04x'),
-            'dpdk_lcore_mask': format(lcore_mask, '#04x')}
+            for core in cores[:num_cores]:
+                mask = mask | 1 << core
+        return format(mask, '#04x')
+
+    @classmethod
+    def pmd_cpu_mask(cls):
+        """Get hex formatted pmd CPU mask
+
+        The mask is based on config:pmd-cpu-set.
+        :returns: hex formatted CPU mask
+        :rtype: str
+        """
+        mask = 0
+        cpu_list = cls._parse_cpu_list(config('pmd-cpu-set'))
+        if cpu_list:
+            for core in cpu_list:
+                mask = mask | 1 << core
+        return format(mask, '#x')
 
     def socket_memory(self):
         """Formatted list of socket memory configuration per socket.
@@ -2703,6 +2694,7 @@ class OVSDPDKDeviceContext(OSContextGenerator):
             ctxt['device_whitelist'] = self.device_whitelist()
             ctxt['socket_memory'] = self.socket_memory()
             ctxt['cpu_mask'] = self.cpu_mask()
+            ctxt['pmd_cpu_mask'] = self.pmd_cpu_mask()
         return ctxt
 
 

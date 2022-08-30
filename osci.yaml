@@ -1,9 +1,7 @@
 - project:
     templates:
-      - charm-unit-jobs-py38
       - charm-unit-jobs-py310
-      - charm-xena-functional-jobs
-      - charm-yoga-functional-jobs
+      - charm-zed-functional-jobs
     check:
       jobs:
       # gr tests are disabled due to:
@@ -14,13 +12,13 @@
       needs_charm_build: true
       charm_build_name: openstack-dashboard
       build_type: charmcraft
+      charmcraft_channel: 2.0/stable
 
 - job:
     name: jammy-yoga-gr
     parent: func-target
     dependencies:
       - osci-lint
-      - tox-py38
       - name: tox-py310
         soft: true
       - charm-build

@@ -4,15 +4,15 @@ comment:
   - ''
 
 smoke_bundles:
-  - focal-xena
+  - jammy-yoga
 
 gate_bundles:
-  - focal-xena
-  - impish-xena
+  - jammy-yoga
 
 dev_bundles:
-  - focal-yoga
   - jammy-yoga
+  - jammy-zed
+  - kinetic-zed
   - jammy-yoga-gr:
     - vault: jammy-vault
     - dashboard: jammy-yoga-cmr-vault
@@ -45,8 +45,7 @@ tests_options:
   policyd:
     service: openstack-dashboard
   force_deploy:
-    - impish-xena
-    - jammy-yoga
+    - kinetic-zed
 
 target_deploy_status:
   vault:

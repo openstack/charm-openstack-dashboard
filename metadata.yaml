@@ -7,11 +7,10 @@ description: |
 tags:
 - openstack
 - misc
+series:
+- jammy
 extra-bindings:
   public:  # Only used to allow specifying a hostname for DNS-HA.
-series:
-- focal
-- jammy
 provides:
   nrpe-external-master:
     interface: nrpe-external-master
