@@ -9,6 +9,7 @@ tags:
 - misc
 series:
 - jammy
+- kinetic
 extra-bindings:
   public:  # Only used to allow specifying a hostname for DNS-HA.
 provides:
