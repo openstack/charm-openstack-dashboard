@@ -86,6 +86,32 @@ the file 'local_settings.py' is included it will be sourced.
 Repeating the attach-resource will update the theme and turning off the
 custom-theme option will return to the default.
 
+The extracted .tgz file should contain the root of the custom theme directory,
+where all static content is placed in a directory named 'static'. Here is an
+example directory structure:
+
+    theme.tgz
+    \ static - _styles.scss
+    |        | _variables.scss
+    |        \ img - favicon.ico
+    |              | logo.svg
+    |              \ logo-splash.svg
+    |
+    \ local_settings.py (optional)
+
+A barebone custom theme would include only the files shown in the example
+above, where the '\_styles.scss' file is empty, and the '\_variables.scss'
+file contains:
+
+    $brand-primary: #772953; // the key brand color
+    $navbar-default-bg: $brand-primary;
+    $navbar-default-link-hover-bg: darken($navbar-default-bg, 15%);
+    $navbar-default-color: #fff;
+    $navbar-default-toggle-hover-bg: darken($navbar-default-bg, 10%);
+    $navbar-default-toggle-icon-bar-bg: #fff;
+    $navbar-height: 36px;
+    @import "/themes/default/variables";
+
 Optionally, the uploaded custom theme can be set as the default theme.
 
     juju config openstack-dashboard default-theme='custom'
