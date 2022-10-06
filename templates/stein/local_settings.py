@@ -1036,6 +1036,8 @@ ALLOWED_PRIVATE_SUBNET_CIDR = {'ipv4': [], 'ipv6': []}
 
 {% if websso_data %}
 WEBSSO_ENABLED = True
+WEBSSO_DEFAULT_REDIRECT = True
+WEBSSO_DEFAULT_REDIRECT_LOGOUT = "{{ logout_sp_link }}?ReturnTo={{ webroot }}/auth/logout/"
 WEBSSO_CHOICES = (
 {% for provider_data in websso_data -%}
     ("{{ '{}_{}'.format(provider_data['idp-name'], provider_data['protocol-name']) }}", "{{ provider_data['user-facing-name'] }}"),

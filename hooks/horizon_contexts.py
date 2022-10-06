@@ -273,6 +273,8 @@ class HorizonContext(OSContextGenerator):
                 config('create-instance-flavor-sort-reverse'),
             'enable_router_panel':
                 config('enable-router-panel'),
+            'logout_sp_link':
+                config('logout-sp-link'),
         }
 
         return ctxt
