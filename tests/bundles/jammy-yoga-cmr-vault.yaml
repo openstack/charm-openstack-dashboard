@@ -31,10 +31,10 @@ relations:
 applications:
   keystone-mysql-router:
     charm: ch:mysql-router
-    channel: latest/edge
+    channel: 8.0/edge
   openstack-dashboard-mysql-router:
     charm: ch:mysql-router
-    channel: latest/edge
+    channel: 8.0/edge
 
   mysql-innodb-cluster:
     charm: ch:mysql-innodb-cluster
@@ -45,13 +45,13 @@ applications:
       - '0'
       - '1'
       - '2'
-    channel: latest/edge
+    channel: 8.0/edge
   keystone:
     charm: ch:keystone
     num_units: 1
     to:
       - '3'
-    channel: latest/edge
+    channel: zed/edge
   openstack-dashboard:
     charm: ../../openstack-dashboard.charm
     num_units: 3
@@ -64,4 +64,4 @@ applications:
     options:
       corosync_transport: unicast
       cluster_count: 3
-    channel: latest/edge
+    channel: 2.4/edge
