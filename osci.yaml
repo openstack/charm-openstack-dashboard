@@ -12,7 +12,7 @@
       needs_charm_build: true
       charm_build_name: openstack-dashboard
       build_type: charmcraft
-      charmcraft_channel: 2.0/stable
+      charmcraft_channel: 2.1/stable
 
 - job:
     name: jammy-yoga-gr
@@ -23,4 +23,4 @@
         soft: true
       - charm-build
     vars:
-      tox_extra_args: vault:jammy-vault dashboard:jammy-yoga-cmr-vault
+      tox_extra_args: '-- vault:jammy-vault dashboard:jammy-yoga-cmr-vault'
