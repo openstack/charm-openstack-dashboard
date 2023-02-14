@@ -1,3 +1,6 @@
+variables:
+  openstack-origin: &openstack-origin cloud:jammy-zed
+
 series: jammy
 
 comment:
@@ -39,8 +42,6 @@ applications:
   mysql-innodb-cluster:
     charm: ch:mysql-innodb-cluster
     num_units: 3
-    options:
-      source: *openstack-origin
     to:
       - '0'
       - '1'
@@ -49,11 +50,15 @@ applications:
   keystone:
     charm: ch:keystone
     num_units: 1
+    options:
+      openstack-origin: *openstack-origin
     to:
       - '3'
     channel: latest/edge
   openstack-dashboard:
     charm: ../../openstack-dashboard.charm
+    options:
+      openstack-origin: *openstack-origin
     num_units: 3
     to:
       - '4'

@@ -1,7 +1,7 @@
 - project:
     templates:
       - charm-unit-jobs-py310
-      - charm-zed-functional-jobs
+      - charm-functional-jobs
     check:
       jobs:
       # gr tests are disabled due to:

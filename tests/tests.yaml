@@ -4,18 +4,18 @@ comment:
   - ''
 
 smoke_bundles:
-  - jammy-yoga
+  - jammy-zed
 
 gate_bundles:
-  - jammy-yoga
+  - jammy-zed
 
 dev_bundles:
-  - jammy-yoga
-  - jammy-zed
+  - jammy-antelope
   - kinetic-zed
-  - jammy-yoga-gr:
+  - lunar-antelope
+  - jammy-zed-gr:
     - vault: jammy-vault
-    - dashboard: jammy-yoga-cmr-vault
+    - dashboard: jammy-zed-cmr-vault
 
 configure:
   - vault:
@@ -46,6 +46,7 @@ tests_options:
     service: openstack-dashboard
   force_deploy:
     - kinetic-zed
+    - lunar-antelope
 
 target_deploy_status:
   vault:
