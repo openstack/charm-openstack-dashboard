@@ -4,5 +4,8 @@ resume:
   descrpition: Resume the openstack-dashboard unit.
 openstack-upgrade:
   description: Perform openstack upgrades. Config option action-managed-upgrade must be set to True.
+package-upgrade:
+  description: |
+    Perform package upgrades for the current OpenStack release.
 security-checklist:
   description: Validate the running configuration against the OpenStack security guides checklist

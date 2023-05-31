@@ -591,7 +591,7 @@ def _get_key_by_keyid(keyid):
     curl_cmd = ['curl', keyserver_url.format(keyid)]
     # use proxy server settings in order to retrieve the key
     return subprocess.check_output(curl_cmd,
-                                   env=env_proxy_settings(['https']))
+                                   env=env_proxy_settings(['https', 'no_proxy']))
 
 
 def _dearmor_gpg_key(key_asc):
