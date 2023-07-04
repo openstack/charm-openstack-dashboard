@@ -1036,6 +1036,115 @@ class TestHorizonContexts(CharmTestCase):
                                        '# horizon-plugin/0\n'
                                        'FOO = True']})
 
+    def test_LocalSettingsContext_unusual_priority(self):
+        # First, left priority missing.
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        self.relation_get.side_effect = [{'local-settings': 'FOO = True'},
+                                         {'priority': 60,
+                                          'local-settings': 'BAR = False'}]
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': []})
+        # First, right priority missing.
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        self.relation_get.side_effect = [{'priority': 99,
+                                          'local-settings': 'FOO = True'},
+                                         {'local-settings': 'BAR = False'}]
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': []})
+        # Left priority is None.
+        self.relation_ids.return_value = ['plugin:0', 'plugin-too:0']
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        self.relation_get.side_effect = [{'priority': None,
+                                          'local-settings': 'FOO = True'},
+                                         {'priority': 60,
+                                          'local-settings': 'BAR = False'}]
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': ['# horizon-plugin-too/0\n'
+                                       'BAR = False',
+                                       '# horizon-plugin/0\n'
+                                       'FOO = True']})
+        # Right priority is None.
+        self.relation_ids.return_value = ['plugin:0', 'plugin-too:0']
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        self.relation_get.side_effect = [{'priority': 99,
+                                          'local-settings': 'FOO = True'},
+                                         {'priority': None,
+                                          'local-settings': 'BAR = False'}]
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': ['# horizon-plugin/0\n'
+                                       'FOO = True',
+                                       '# horizon-plugin-too/0\n'
+                                       'BAR = False']})
+        # Left priority is stringy number.
+        self.relation_ids.return_value = ['plugin:0', 'plugin-too:0']
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        self.relation_get.side_effect = [{'priority': "99",
+                                          'local-settings': 'FOO = True'},
+                                         {'priority': 60,
+                                          'local-settings': 'BAR = False'}]
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': ['# horizon-plugin-too/0\n'
+                                       'BAR = False',
+                                       '# horizon-plugin/0\n'
+                                       'FOO = True']})
+        # Right priority is stringy number.
+        self.relation_ids.return_value = ['plugin:0', 'plugin-too:0']
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        self.relation_get.side_effect = [{'priority': 99,
+                                          'local-settings': 'FOO = True'},
+                                         {'priority': "60",
+                                          'local-settings': 'BAR = False'}]
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': ['# horizon-plugin-too/0\n'
+                                       'BAR = False',
+                                       '# horizon-plugin/0\n'
+                                       'FOO = True']})
+        # Both priorities are strings
+        self.relation_ids.return_value = ['plugin:0', 'plugin-too:0']
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        self.relation_get.side_effect = [{'priority': "99",
+                                          'local-settings': 'FOO = True'},
+                                         {'priority': "60",
+                                          'local-settings': 'BAR = False'}]
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': ['# horizon-plugin-too/0\n'
+                                       'BAR = False',
+                                       '# horizon-plugin/0\n'
+                                       'FOO = True']})
+        # Left priority is weired json object
+        self.relation_ids.return_value = ['plugin:0', 'plugin-too:0']
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        self.relation_get.side_effect = [{'priority': "{'a': 1}",
+                                          'local-settings': 'FOO = True'},
+                                         {'priority': "60",
+                                          'local-settings': 'BAR = False'}]
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': ['# horizon-plugin-too/0\n'
+                                       'BAR = False',
+                                       '# horizon-plugin/0\n'
+                                       'FOO = True']})
+        # right priority is weired json object
+        self.relation_ids.return_value = ['plugin:0', 'plugin-too:0']
+        self.related_units.side_effect = [['horizon-plugin/0'],
+                                          ['horizon-plugin-too/0']]
+        self.relation_get.side_effect = [{'priority': "99",
+                                          'local-settings': 'FOO = True'},
+                                         {'priority': "[1,2,3]",
+                                          'local-settings': 'BAR = False'}]
+        self.assertEqual(horizon_contexts.LocalSettingsContext()(),
+                         {'settings': ['# horizon-plugin/0\n'
+                                       'FOO = True',
+                                       '# horizon-plugin-too/0\n'
+                                       'BAR = False']})
+
     def test_WebSSOFIDServiceProviderContext(self):
         def relation_ids_side_effect(rname):
             return {

@@ -14,6 +14,7 @@
 
 # vim: set ts=4:et
 
+import functools
 import json
 
 from charmhelpers.core.hookenv import (
@@ -363,10 +364,78 @@ class LocalSettingsContext(OSContextGenerator):
         ctxt = {
             'settings': [
                 '# {0}\n{1}'.format(u, rd['local-settings'])
-                for u, rd in sorted(relations,
-                                    key=lambda r: r[1]['priority'])]
+                for u, rd in sorted(
+                    relations,
+                    key=functools.cmp_to_key(self._priority_sort_cmp))]
         }
         return ctxt
+
+    @staticmethod
+    def _priority_sort_cmp(unit_rdata_l, unit_rdata_r):
+        """Sort two replates for __call__ .
+
+        This is used from functools.cmp_to_key() function.
+
+        It compares items in the (unit, rdata) as rdata['priority'] where
+
+         * No 'priority' value > one that is present; technically this isn't
+           possible, but is defensive here.
+         * None > that something that is present.
+         * types are int-ed() and attempted to be compared
+         * Two identical types are cmp-ed
+         * If types won't compare or can't be converted to an int, then they
+         are assumed to be non comparable and return 'equal' (0)
+
+        :param unit_rdata_l: the (unit, relation_data) on the left.
+        :type unit_data_l: Tuple[str, Any]
+        :param unit_rdata_r: the (unit, relation_data) on the right.
+        :type unit_data_r: Tuple[str, Any]
+        :returns: a cmp return value (-1 is l<r, +1 is l>r, 0 is l==r)
+        :rtype: int
+        """
+        try:
+            priority_l = unit_rdata_l[1].get('priority')
+            if priority_l is None:
+                # cmp(None, Anything) is 1
+                return 1
+        except IndexError:
+            # cmp( <missing>, Anything) is 1: i.e. missing to end of list
+            return 1
+        try:
+            priority_r = unit_rdata_r[1]['priority']
+            if priority_r is None:
+                # cmp(Anything, None) is -1
+                return -1
+        except IndexError:
+            # cmp( Anything, <missing>) is -1: i.e. missing already at end
+            return -1
+
+        # define a _cmp function.
+        def _cmp(a, b):
+            if a < b:
+                return -1
+            elif a > b:
+                return 1
+            else:
+                return 0
+
+        # try converting to ints before doing strings, as the strings may be
+        # numbers.
+        try:
+            return _cmp(int(priority_l), int(priority_r))
+        except ValueError:
+            pass
+
+        # if they are the same type, try comparing them.
+        if type(priority_l) == type(priority_r):
+            try:
+                return _cmp(priority_l, priority_r)
+            except TypeError:
+                # types don't support comparisions
+                return 0
+        # different types, that won't become ints, and also don't support
+        # so just say they are the same.
+        return 0
 
 
 class WebSSOFIDServiceProviderContext(OSContextGenerator):
