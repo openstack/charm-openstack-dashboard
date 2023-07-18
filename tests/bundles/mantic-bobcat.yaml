@@ -1,7 +1,7 @@
 variables:
-  openstack-origin: &openstack-origin cloud:jammy-zed
+  openstack-origin: &openstack-origin distro
 
-series: jammy
+series: mantic
 
 comment:
   - 'machines section to decide order of deployment. database sooner = faster'
@@ -15,23 +15,12 @@ machines:
   '2':
     constraints: virt-type=kvm mem=3072M
   '3':
-    constraints: virt-type=kvm mem=3072M
+    constraints: virt-type=kvm
   '4':
     constraints: virt-type=kvm mem=3072M
-  '5':
-    constraints: virt-type=kvm mem=3072M
-  '6':
-    constraints: virt-type=kvm mem=3072M
-
-relations:
-  - ["keystone:shared-db", "keystone-mysql-router:shared-db"]
-  - ["keystone-mysql-router:db-router", "mysql-innodb-cluster:db-router"]
-  - ["openstack-dashboard:shared-db", "openstack-dashboard-mysql-router:shared-db"]
-  - ["openstack-dashboard-mysql-router:db-router", "mysql-innodb-cluster:db-router"]
-  - ["openstack-dashboard:identity-service", "keystone:identity-service"]
-  - ["openstack-dashboard:ha", "hacluster:ha"]
 
 applications:
+
   keystone-mysql-router:
     charm: ch:mysql-router
     channel: latest/edge
@@ -42,11 +31,14 @@ applications:
   mysql-innodb-cluster:
     charm: ch:mysql-innodb-cluster
     num_units: 3
+    options:
+      source: *openstack-origin
     to:
       - '0'
       - '1'
       - '2'
     channel: latest/edge
+
   keystone:
     charm: ch:keystone
     num_units: 1
@@ -55,18 +47,27 @@ applications:
     to:
       - '3'
     channel: latest/edge
+
   openstack-dashboard:
     charm: ../../openstack-dashboard.charm
+    num_units: 1
     options:
       openstack-origin: *openstack-origin
-    num_units: 3
     to:
       - '4'
-      - '5'
-      - '6'
-  hacluster:
-    charm: ch:hacluster
-    options:
-      corosync_transport: unicast
-      cluster_count: 3
-    channel: latest/edge
+
+relations:
+
+  - - 'keystone:shared-db'
+    - 'keystone-mysql-router:shared-db'
+  - - 'keystone-mysql-router:db-router'
+    - 'mysql-innodb-cluster:db-router'
+
+  - - 'openstack-dashboard:shared-db'
+    - 'openstack-dashboard-mysql-router:shared-db'
+  - - 'openstack-dashboard-mysql-router:db-router'
+    - 'mysql-innodb-cluster:db-router'
+
+
+  - - 'openstack-dashboard:identity-service'
+    - 'keystone:identity-service'

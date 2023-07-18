@@ -4,17 +4,18 @@ comment:
   - ''
 
 smoke_bundles:
-  - jammy-zed
+  - jammy-antelope
 
 gate_bundles:
-  - jammy-zed
+  - jammy-antelope
 
 dev_bundles:
-  - jammy-antelope
+  - jammy-bobcat
   - lunar-antelope
-  - jammy-zed-gr:
+  - mantic-bobcat
+  - jammy-antelope-gr:
     - vault: jammy-vault
-    - dashboard: jammy-zed-cmr-vault
+    - dashboard: jammy-antelope-cmr-vault
 
 configure:
   - vault:
@@ -45,6 +46,7 @@ tests_options:
     service: openstack-dashboard
   force_deploy:
     - lunar-antelope
+    - mantic-bobcat
 
 target_deploy_status:
   vault:
