@@ -1,7 +1,7 @@
 pause:
   description: Pause the openstack-dashboard unit.
 resume:
-  descrpition: Resume the openstack-dashboard unit.
+  description: Resume the openstack-dashboard unit.
 openstack-upgrade:
   description: Perform openstack upgrades. Config option action-managed-upgrade must be set to True.
 package-upgrade:
