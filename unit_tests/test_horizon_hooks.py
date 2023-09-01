@@ -252,6 +252,7 @@ class TestHorizonHooks(CharmTestCase):
                 ],
                 'certificates': [],
                 'ha': [],
+                'dashboard': [],
             }[rname]
         self.relation_ids.side_effect = relation_ids_side_effect
 
@@ -525,3 +526,19 @@ class TestHorizonHooks(CharmTestCase):
                      "group": "[local] OpenStack"
                  })
         ])
+
+    def test_dashboard_relation_changed(self):
+        self.relation_ids.return_value = None
+        hooks.dashboard_relation_changed()
+
+        self.test_config.set('os-public-hostname', 'mydashboard.local')
+        self.test_config.set('vip', '1.2.3.4')
+        self.relation_ids.return_value = ['dashboard:0']
+        hooks.dashboard_relation_changed()
+
+        self.relation_set.assert_called_with(
+            'dashboard:0',
+            relation_settings={'os-public-hostname': 'mydashboard.local',
+                               'vip': '1.2.3.4'},
+            app=True,
+        )
