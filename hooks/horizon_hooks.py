@@ -224,6 +224,7 @@ def config_changed():
         ha_relation_joined(relation_id=relid)
 
     websso_trusted_dashboard_changed()
+    dashboard_relation_changed()
 
 
 @hooks.hook('identity-service-relation-joined')
@@ -461,6 +462,25 @@ def websso_trusted_dashboard_changed():
             "hostname": hostname,
             "path": path,
         })
+
+
+@hooks.hook('dashboard-relation-joined',
+            'dashboard-relation-changed')
+def dashboard_relation_changed():
+    """
+    Provide dashboard information.
+    """
+    relations = relation_ids('dashboard')
+    if not relations:
+        return
+
+    relation_settings = {
+        'os-public-hostname': config('os-public-hostname'),
+        'vip': config('vip'),
+    }
+
+    for rel_id in relations:
+        relation_set(rel_id, relation_settings=relation_settings, app=True)
 
 
 def main():
