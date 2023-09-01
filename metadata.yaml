@@ -24,6 +24,8 @@ provides:
     scope: container
   websso-trusted-dashboard:
     interface: websso-trusted-dashboard
+  dashboard:
+    interface: dashboard
 requires:
   identity-service:
     interface: keystone
