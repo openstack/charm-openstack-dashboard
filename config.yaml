@@ -454,3 +454,11 @@ options:
       A custom hyperlink for the "Help" menu, e.g.
       https://mycloud.example.com/help. The default value is
       https://docs.openstack.org/
+  wsgi-socket-rotation:
+    type: boolean
+    default: True
+    description: |
+      Allow users to disable Apache wsgi socket rotation. If not configured,
+      this option sets True as the default value, which is consistent with the
+      default value 'WSGISocketRotation On' in Apache. This option should be
+      used with caution. Please read the Apache doc page for more information.
