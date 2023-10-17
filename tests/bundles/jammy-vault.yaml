@@ -18,17 +18,17 @@ services:
       - '0'
       - '1'
       - '2'
-    channel: latest/edge
+    channel: 8.0/edge
   vault-mysql-router:
     charm: ch:mysql-router
-    channel: latest/edge
+    channel: 8.0/edge
   vault:
     num_units: 1
     series: bionic
     charm: ch:vault
     to:
       - '3'
-    channel: latest/edge
+    channel: 1.8/edge
 relations:
 - - vault:shared-db
   - vault-mysql-router:shared-db

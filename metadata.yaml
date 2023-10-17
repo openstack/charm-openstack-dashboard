@@ -9,10 +9,9 @@ tags:
 - misc
 series:
 - jammy
-- lunar
 - mantic
 extra-bindings:
-  public:  # Only used to allow specifying a hostname for DNS-HA.
+  public:
 provides:
   nrpe-external-master:
     interface: nrpe-external-master
