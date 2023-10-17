@@ -492,3 +492,11 @@ options:
     description: |
       This option can be used to toggle the Router/Floating-IP panel visibility in dashboard.
       Set True for visibility and False to hide.
+  wsgi-socket-rotation:
+    type: boolean
+    default: True
+    description: |
+      Allow users to disable Apache wsgi socket rotation. If not configured,
+      this option sets True as the default value, which is consistent with the
+      default value 'WSGISocketRotation On' in Apache. This option should be
+      used with caution. Please read the Apache doc page for more information.
