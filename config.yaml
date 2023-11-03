@@ -428,3 +428,11 @@ options:
       Openstack mostly defaults to using public endpoints for internal
       communication between services. If set to True this option will
       configure services to use internal endpoints where possible.
+  wsgi-socket-rotation:
+    type: boolean
+    default: True
+    description: |
+      Allow users to disable Apache wsgi socket rotation. If not configured,
+      this option sets True as the default value, which is consistent with the
+      default value 'WSGISocketRotation On' in Apache. This option should be
+      used with caution. Please read the Apache doc page for more information.
