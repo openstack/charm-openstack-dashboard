@@ -480,8 +480,13 @@ def dashboard_relation_changed():
         'vip': config('vip'),
     }
 
-    for rel_id in relations:
-        relation_set(rel_id, relation_settings=relation_settings, app=True)
+    if is_leader():
+        log("Setting dashboard access information on 'dashboard' relation",
+            level="INFO")
+        for rel_id in relations:
+            relation_set(rel_id, relation_settings=relation_settings, app=True)
+    else:
+        log("Skipping relation_set, because not leader.", level="DEBUG")
 
 
 def main():

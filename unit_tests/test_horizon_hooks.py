@@ -527,13 +527,15 @@ class TestHorizonHooks(CharmTestCase):
                  })
         ])
 
-    def test_dashboard_relation_changed(self):
+    @patch.object(hooks, 'is_leader')
+    def test_dashboard_relation_changed(self, is_leader):
         self.relation_ids.return_value = None
         hooks.dashboard_relation_changed()
 
         self.test_config.set('os-public-hostname', 'mydashboard.local')
         self.test_config.set('vip', '1.2.3.4')
         self.relation_ids.return_value = ['dashboard:0']
+        is_leader.return_value = True
         hooks.dashboard_relation_changed()
 
         self.relation_set.assert_called_with(
@@ -542,3 +544,8 @@ class TestHorizonHooks(CharmTestCase):
                                'vip': '1.2.3.4'},
             app=True,
         )
+
+        self.relation_set.reset_mock()
+        is_leader.return_value = False
+        hooks.dashboard_relation_changed()
+        self.relation_set.assert_not_called()
