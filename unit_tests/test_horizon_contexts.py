@@ -126,6 +126,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -161,6 +162,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -197,6 +199,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": True,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -233,6 +236,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": False,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -268,6 +272,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -303,6 +308,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -339,6 +345,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -378,6 +385,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -413,6 +421,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -423,6 +432,8 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('neutron-network-firewall', True)
         self.test_config.set('neutron-network-vpn', True)
         self.test_config.set('cinder-backup', True)
+        self.test_config.set(
+            'retrieve-network-data-when-listing-instances', False)
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
@@ -453,6 +464,8 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": (
+                              False),
                           }
                          )
 
@@ -488,6 +501,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -523,6 +537,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -559,6 +574,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -595,6 +611,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -631,6 +648,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -667,6 +685,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -703,6 +722,7 @@ class TestHorizonContexts(CharmTestCase):
                           "disable_instance_snapshot": False,
                           "disable_password_reveal": False,
                           "enforce_password_check": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
