@@ -15,7 +15,7 @@ from openstack_dashboard.settings import HORIZON_CONFIG
 
 DEBUG = {{ debug }}
 TEMPLATE_DEBUG = DEBUG
-
+OPENSTACK_INSTANCE_RETRIEVE_IP_ADDRESSES = {{ retrieve_network_data_when_listing_instances }}
 
 # WEBROOT is the location relative to Webserver root
 # should end with a slash.
