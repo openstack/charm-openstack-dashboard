@@ -257,6 +257,8 @@ class HorizonContext(OSContextGenerator):
                 config('disable-instance-snapshot')),
             'disable_password_reveal': config('disable-password-reveal'),
             'enforce_password_check': config('enforce-password-check'),
+            'retrieve_network_data_when_listing_instances':
+                config('retrieve-network-data-when-listing-instances'),
         }
 
         return ctxt
