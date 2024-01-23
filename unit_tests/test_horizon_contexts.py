@@ -146,6 +146,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -187,6 +188,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -229,6 +231,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -273,6 +276,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": 'vcpus',
                           "create_instance_flavor_sort_reverse": True,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -316,6 +320,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": False,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -358,6 +363,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -399,6 +405,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -440,6 +447,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -482,6 +490,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -527,6 +536,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -568,6 +578,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -578,6 +589,8 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('neutron-network-firewall', True)
         self.test_config.set('neutron-network-vpn', True)
         self.test_config.set('cinder-backup', True)
+        self.test_config.set(
+            'retrieve-network-data-when-listing-instances', False)
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
@@ -614,6 +627,8 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": (
+                              False),
                           }
                          )
 
@@ -655,6 +670,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -696,6 +712,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -738,6 +755,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -780,6 +798,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -822,6 +841,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -864,6 +884,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -906,6 +927,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -952,6 +974,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 

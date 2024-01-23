@@ -274,6 +274,8 @@ class HorizonContext(OSContextGenerator):
                 config('create-instance-flavor-sort-reverse'),
             'enable_router_panel':
                 config('enable-router-panel'),
+            'retrieve_network_data_when_listing_instances':
+                config('retrieve-network-data-when-listing-instances'),
         }
 
         return ctxt
