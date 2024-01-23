@@ -143,6 +143,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -181,6 +182,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -220,6 +222,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -259,6 +262,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -297,6 +301,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -335,6 +340,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -374,6 +380,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -416,6 +423,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -454,6 +462,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -464,6 +473,8 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('neutron-network-firewall', True)
         self.test_config.set('neutron-network-vpn', True)
         self.test_config.set('cinder-backup', True)
+        self.test_config.set(
+            'retrieve-network-data-when-listing-instances', False)
         self.assertEqual(horizon_contexts.HorizonContext()(),
                          {'compress_offline': True, 'debug': False,
                           'customization_module': '',
@@ -497,6 +508,8 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": (
+                              False),
                           }
                          )
 
@@ -535,6 +548,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -573,6 +587,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -612,6 +627,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -651,6 +667,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -690,6 +707,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -729,6 +747,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -768,6 +787,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding": None,
                           "site_branding_link": None,
                           "help_url": None,
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 
@@ -811,6 +831,7 @@ class TestHorizonContexts(CharmTestCase):
                           "site_branding_link":
                               "https://mycloud.example.com/",
                           "help_url": "https://mycloud.example.com/help",
+                          "retrieve_network_data_when_listing_instances": True,
                           }
                          )
 

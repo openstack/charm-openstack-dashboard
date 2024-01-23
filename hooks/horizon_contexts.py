@@ -260,6 +260,8 @@ class HorizonContext(OSContextGenerator):
             'site_branding': config('site-branding'),
             'site_branding_link': config('site-branding-link'),
             'help_url': config('help-url'),
+            'retrieve_network_data_when_listing_instances':
+                config('retrieve-network-data-when-listing-instances'),
         }
 
         return ctxt

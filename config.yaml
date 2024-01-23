@@ -454,6 +454,18 @@ options:
       A custom hyperlink for the "Help" menu, e.g.
       https://mycloud.example.com/help. The default value is
       https://docs.openstack.org/
+  retrieve-network-data-when-listing-instances:
+    type: boolean
+    default: True
+    description: |
+      By setting this option to False, it can be used as a workaround to improve performance and
+      avoid downtime when the Project > Instances page is timing out due to the neutron requests
+      to retrieve ports and floating IPs taking too long. The side effect is that actions such
+      as adding/removing floating IPs or interfaces no longer immediately update the network
+      data in instance list, requiring a manual reload of the page. The default value for this
+      config is True. For more information see
+      https://docs.openstack.org/horizon/latest/configuration/settings.html#openstack-instance-retrieve-ip-addresses
+      and LP#2045168.
   wsgi-socket-rotation:
     type: boolean
     default: True
