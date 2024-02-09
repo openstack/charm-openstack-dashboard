@@ -4,39 +4,33 @@ comment:
   - ''
 
 smoke_bundles:
-  - jammy-antelope
-
+  - jammy-caracal
 gate_bundles:
   - jammy-antelope
-
-dev_bundles:
   - jammy-bobcat
-  - lunar-antelope
-  - mantic-bobcat
-  - jammy-antelope-gr:
-    - vault: jammy-vault
-    - dashboard: jammy-antelope-cmr-vault
-
+  - jammy-caracal
+dev_bundles:
+  - noble-caracal
 configure:
   - vault:
-    - zaza.openstack.charm_tests.vault.setup.auto_initialize_no_validation_no_wait
+      - zaza.openstack.charm_tests.vault.setup.auto_initialize_no_validation_no_wait
   - dashboard:
-    - zaza.openstack.charm_tests.keystone.setup.wait_for_cacert
-    - zaza.openstack.charm_tests.keystone.setup.add_demo_user
+      - zaza.openstack.charm_tests.keystone.setup.wait_for_cacert
+      - zaza.openstack.charm_tests.keystone.setup.add_demo_user
   - checklist-work-required:
-    - zaza.openstack.charm_tests.keystone.setup.add_demo_user
+      - zaza.openstack.charm_tests.keystone.setup.add_demo_user
   - zaza.openstack.charm_tests.keystone.setup.add_demo_user
 
 tests:
   - vault:
-    - zaza.charm_tests.noop.tests.NoopTest
+      - zaza.charm_tests.noop.tests.NoopTest
   - dashboard:
-    - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
-    - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
-    - zaza.openstack.charm_tests.openstack_dashboard.tests.SecurityTests
+      - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
+      - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
+      - zaza.openstack.charm_tests.openstack_dashboard.tests.SecurityTests
   - checklist-work-required:
-    - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
-    - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
+      - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
+      - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
   - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardTests
   - zaza.openstack.charm_tests.openstack_dashboard.tests.OpenStackDashboardPolicydTests
   - zaza.openstack.charm_tests.openstack_dashboard.tests.SecurityTests
@@ -45,9 +39,7 @@ tests_options:
   policyd:
     service: openstack-dashboard
   force_deploy:
-    - lunar-antelope
-    - mantic-bobcat
-
+    - noble-caracal
 target_deploy_status:
   vault:
     workload-status: blocked

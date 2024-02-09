@@ -5,12 +5,10 @@ description: |
   The OpenStack Dashboard provides a full feature web interface for interacting
   with instances, images, volumes and networks within an OpenStack deployment.
 tags:
-- openstack
-- misc
+  - openstack
+  - misc
 series:
-- jammy
-- lunar
-- mantic
+  - jammy
 extra-bindings:
   public:  # Only used to allow specifying a hostname for DNS-HA.
 provides:
