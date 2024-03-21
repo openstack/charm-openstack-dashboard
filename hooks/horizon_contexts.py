@@ -16,6 +16,7 @@
 
 import functools
 import json
+from typing import Set, Tuple
 
 from charmhelpers.core.hookenv import (
     config,
@@ -53,6 +54,25 @@ VALID_ENDPOINT_TYPES = {
 
 SSL_CERT_FILE = '/etc/apache2/ssl/horizon/cert_dashboard'
 SSL_KEY_FILE = '/etc/apache2/ssl/horizon/key_dashboard'
+
+
+def get_extra_regions() -> Set[Tuple[str, str]]:
+    """
+    Get extra regions from config, as a set of (name, url) tuples
+
+    Raises ValueError if parsing fails.
+    """
+    extra_regions = set()
+    try:
+        extra_regions_config = json.loads(config("extra-regions"))
+        for title, endpoint in extra_regions_config.items():
+            if isinstance(title, str) and isinstance(endpoint, str):
+                extra_regions.add((endpoint, title))
+            else:
+                raise ValueError("keys and values must be strings")
+    except Exception as e:
+        raise ValueError(f"failed parsing extra-regions config: {e!r}")
+    return extra_regions
 
 
 class HorizonHAProxyContext(OSContextGenerator):
@@ -202,6 +222,14 @@ class IdentityServiceContext(OSContextGenerator):
 
                 if len(ctxt) == 0:
                     ctxt = local_ctxt
+
+        try:
+            regions.update(get_extra_regions())
+        except ValueError as e:
+            log(
+                f"Ignoring 'extra-regions' config, it is invalid.  Err: {e}",
+                WARNING
+            )
 
         if len(regions) > 1:
             avail_regions = map(lambda r: {'endpoint': r[0], 'title': r[1]},
