@@ -512,6 +512,7 @@ options:
       this option sets True as the default value, which is consistent with the
       default value 'WSGISocketRotation On' in Apache. This option should be
       used with caution. Please read the Apache doc page for more information.
+
   extra-regions:
     type: string
     default: "{}"
@@ -528,3 +529,11 @@ options:
           "another cluster": "https://another.example.com/identity/v3"
         }
 
+  mfa-totp-enabled:
+    type: boolean
+    default: False
+    description: |
+      Allow users to enable TOTP Authentication form. If not configured, this option sets False
+      as the default value, which in turns does not display the form for MFA enabled users. If
+      this option is set to True, Horizon will display a second login form requesting the TOTP
+      code for MFA enabled users.
