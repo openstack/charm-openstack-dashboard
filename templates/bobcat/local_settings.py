@@ -1053,3 +1053,13 @@ SITE_BRANDING_LINK = "{{ site_branding_link }}"
 {%- if help_url %}
 HORIZON_CONFIG["help_url"] = "{{ help_url }}"
 {%- endif %}
+
+{%- if openstack_keystone_mfa_totp_enabled %}
+OPENSTACK_KEYSTONE_MFA_TOTP_ENABLED = "{{ openstack_keystone_mfa_totp_enabled }}"
+
+AUTHENTICATION_PLUGINS = [
+    'openstack_auth.plugin.totp.TotpPlugin',
+    'openstack_auth.plugin.password.PasswordPlugin',
+    'openstack_auth.plugin.token.TokenPlugin'
+]
+{%- endif %}

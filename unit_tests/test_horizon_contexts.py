@@ -147,6 +147,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -189,6 +190,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -232,6 +234,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -277,6 +280,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": True,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -321,6 +325,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": False,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -364,6 +369,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -406,6 +412,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -448,6 +455,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -491,6 +499,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -537,6 +546,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -579,6 +589,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -629,6 +640,7 @@ class TestHorizonContexts(CharmTestCase):
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": (
                               False),
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -670,6 +682,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_key": None,
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           "retrieve_network_data_when_listing_instances": True,
                           }
                          )
@@ -713,6 +726,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -756,6 +770,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -799,6 +814,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -842,6 +858,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -885,6 +902,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -928,6 +946,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -975,6 +994,7 @@ class TestHorizonContexts(CharmTestCase):
                           "create_instance_flavor_sort_reverse": False,
                           "enable_router_panel": True,
                           "retrieve_network_data_when_listing_instances": True,
+                          "openstack_keystone_mfa_totp_enabled": False,
                           }
                          )
 
@@ -983,6 +1003,13 @@ class TestHorizonContexts(CharmTestCase):
         self.test_config.set('disable-instance-snapshot', True)
         self.assertTrue(horizon_contexts
                         .HorizonContext()()['disable_instance_snapshot'])
+
+    def test_HorizonContext_can_set_openstack_keystone_mfa_totp_enabled(self):
+        self.maxDiff = 900
+        self.test_config.set('mfa-totp-enabled', True)
+        self.assertTrue(horizon_contexts
+                        .HorizonContext()()
+                        ['openstack_keystone_mfa_totp_enabled'])
 
     def test_IdentityServiceContext_not_related(self):
         self.relation_ids.return_value = []

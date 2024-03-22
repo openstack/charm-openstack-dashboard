@@ -276,6 +276,8 @@ class HorizonContext(OSContextGenerator):
                 config('enable-router-panel'),
             'retrieve_network_data_when_listing_instances':
                 config('retrieve-network-data-when-listing-instances'),
+            'openstack_keystone_mfa_totp_enabled':
+                config('mfa-totp-enabled'),
         }
 
         return ctxt
