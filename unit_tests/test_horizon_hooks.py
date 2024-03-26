@@ -266,6 +266,7 @@ class TestHorizonHooks(CharmTestCase):
                 'action-managed-upgrade': False,
                 'webroot': '/horizon',
                 'site-name': 'local',
+                'extra-regions': '{}',
             }[key]
         self.config.side_effect = config_side_effect
         _is_leader.return_value = True
@@ -282,6 +283,88 @@ class TestHorizonHooks(CharmTestCase):
         self.assertTrue(self.register_configs().write_all.called)
         self.open_port.assert_has_calls([call(80), call(443)])
         self.assertTrue(_custom_theme.called)
+
+    @patch('hooks.horizon_contexts.config')
+    @patch('hooks.horizon_hooks.check_custom_theme')
+    @patch('hooks.horizon_hooks.keystone_joined')
+    @patch('hooks.horizon_hooks.is_leader')
+    @patch('os.environ.get')
+    def test_config_changed_invalid_extra_regions(
+        self, _environ_get, _is_leader, _joined, _custom_theme, _config
+    ):
+        self.relation_ids.side_effect = lambda _: []
+        self.config.side_effect = _config.side_effect = lambda key: {
+            'ssl_key': 'somekey',
+            'enforce-ssl': True,
+            'dns-ha': True,
+            'os-public-hostname': 'dashboard.intranet.test',
+            'prefer-ipv6': False,
+            'action-managed-upgrade': False,
+            'webroot': '/horizon',
+            'site-name': 'local',
+            'extra-regions': '{',
+        }[key]
+        _is_leader.return_value = True
+        _environ_get.return_value = ''
+        self.openstack_upgrade_available.return_value = False
+        self._call_hook('config-changed')
+        self.status_set.assert_has_calls([
+            call("blocked", "Invalid 'extra-regions' config value")
+        ])
+
+    @patch('hooks.horizon_contexts.config')
+    @patch('hooks.horizon_hooks.check_custom_theme')
+    @patch('hooks.horizon_hooks.keystone_joined')
+    @patch('hooks.horizon_hooks.is_leader')
+    @patch('os.environ.get')
+    def test_config_changed_invalid_extra_regions2(
+        self, _environ_get, _is_leader, _joined, _custom_theme, _config
+    ):
+        self.relation_ids.side_effect = lambda _: []
+        self.config.side_effect = _config.side_effect = lambda key: {
+            'ssl_key': 'somekey',
+            'enforce-ssl': True,
+            'dns-ha': True,
+            'os-public-hostname': 'dashboard.intranet.test',
+            'prefer-ipv6': False,
+            'action-managed-upgrade': False,
+            'webroot': '/horizon',
+            'site-name': 'local',
+            'extra-regions': '{"test": 2}',
+        }[key]
+        _is_leader.return_value = True
+        _environ_get.return_value = ''
+        self.openstack_upgrade_available.return_value = False
+        self._call_hook('config-changed')
+        self.status_set.assert_has_calls([
+            call("blocked", "Invalid 'extra-regions' config value")
+        ])
+
+    @patch('hooks.horizon_contexts.config')
+    @patch('hooks.horizon_hooks.check_custom_theme')
+    @patch('hooks.horizon_hooks.keystone_joined')
+    @patch('hooks.horizon_hooks.is_leader')
+    @patch('os.environ.get')
+    def test_config_changed_valid_extra_regions(
+        self, _environ_get, _is_leader, _joined, _custom_theme, _config
+    ):
+        self.relation_ids.side_effect = lambda _: []
+        self.config.side_effect = _config.side_effect = lambda key: {
+            'ssl_key': 'somekey',
+            'enforce-ssl': True,
+            'dns-ha': True,
+            'os-public-hostname': 'dashboard.intranet.test',
+            'prefer-ipv6': False,
+            'action-managed-upgrade': False,
+            'webroot': '/horizon',
+            'site-name': 'local',
+            'extra-regions': '{"test": "http://example.com/v3"}',
+        }[key]
+        _is_leader.return_value = True
+        _environ_get.return_value = ''
+        self.openstack_upgrade_available.return_value = False
+        self._call_hook('config-changed')
+        self.status_set.assert_not_called()
 
     @patch('hooks.horizon_hooks.check_custom_theme')
     @patch('hooks.horizon_hooks.is_leader')

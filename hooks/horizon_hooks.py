@@ -114,6 +114,8 @@ from hooks.horizon_utils import (
     update_plugin_packages_in_kv,
 )
 
+from hooks.horizon_contexts import get_extra_regions
+
 
 hooks = Hooks()
 # Note that CONFIGS is now set up via resolve_CONFIGS so that it is not a
@@ -226,6 +228,12 @@ def config_changed():
     websso_trusted_dashboard_changed()
     application_dashboard_relation_changed()
     dashboard_relation_changed()
+
+    # Provide a message to the user if extra regions config is invalid
+    try:
+        get_extra_regions()
+    except ValueError:
+        status_set("blocked", "Invalid 'extra-regions' config value")
 
 
 @hooks.hook('identity-service-relation-joined')

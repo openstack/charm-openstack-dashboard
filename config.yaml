@@ -512,3 +512,19 @@ options:
       this option sets True as the default value, which is consistent with the
       default value 'WSGISocketRotation On' in Apache. This option should be
       used with caution. Please read the Apache doc page for more information.
+  extra-regions:
+    type: string
+    default: "{}"
+    description: |
+      Define extra regions to register in the region selector.
+      Only use this if it's not possible to integrate the keystone unit with juju.
+      It must be a json dictionary where the keys are region names,
+      and the values are keystone endpoint urls.
+
+      Example:
+
+        {
+          "cluster2": "https://cluster2.example.com/identity/v3",
+          "another cluster": "https://another.example.com/identity/v3"
+        }
+
