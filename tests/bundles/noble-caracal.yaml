@@ -46,7 +46,7 @@ applications:
       openstack-origin: *openstack-origin
     to:
       - '3'
-    channel: 2024.1/edge
+    channel: latest/edge
 
   openstack-dashboard:
     charm: ../../openstack-dashboard.charm

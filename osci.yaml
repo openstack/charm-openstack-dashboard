@@ -6,16 +6,16 @@
       jobs:
       # gr tests are disabled due to:
       # https://bugs.launchpad.net/charm-openstack-dashboard/+bug/1951644
-      - jammy-antelope-gr:
+      - noble-caracal-gr:
           voting: false
     vars:
       needs_charm_build: true
       charm_build_name: openstack-dashboard
       build_type: charmcraft
-      charmcraft_channel: 2.x/stable
+      charmcraft_channel: 3.x/beta
 
 - job:
-    name: jammy-antelope-gr
+    name: noble-caracal-gr
     parent: func-target
     dependencies:
       - osci-lint
@@ -23,4 +23,4 @@
         soft: true
       - charm-build
     vars:
-      tox_extra_args: '-- vault:jammy-vault dashboard:jammy-antelope-cmr-vault'
+      tox_extra_args: '-- vault:noble-vault dashboard:noble-caracal-cmr-vault'
