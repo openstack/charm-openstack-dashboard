@@ -36,4 +36,5 @@
 
         KeepAliveTimeout 75
         MaxKeepAliveRequests 1000
+        Header set X-Frame-Options: "sameorigin"
 </VirtualHost>
