@@ -83,30 +83,30 @@ class TestHorizonContexts(CharmTestCase):
     def test_Apachecontext_enforce_ssl(self):
         self.test_config.set('enforce-ssl', True)
         self.https.return_value = True
-        self.assertEquals(horizon_contexts.ApacheContext()(),
-                          {'http_port': 70, 'https_port': 433,
-                           'enforce_ssl': True,
-                           'hsts_max_age_seconds': 0,
-                           'custom_theme': False})
+        self.assertEqual(horizon_contexts.ApacheContext()(),
+                         {'http_port': 70, 'https_port': 433,
+                          'enforce_ssl': True,
+                          'hsts_max_age_seconds': 0,
+                          'custom_theme': False})
 
     def test_Apachecontext_enforce_ssl_no_cert(self):
         self.test_config.set('enforce-ssl', True)
         self.https.return_value = False
-        self.assertEquals(horizon_contexts.ApacheContext()(),
-                          {'http_port': 70, 'https_port': 433,
-                           'enforce_ssl': False,
-                           'hsts_max_age_seconds': 0,
-                           'custom_theme': False})
+        self.assertEqual(horizon_contexts.ApacheContext()(),
+                         {'http_port': 70, 'https_port': 433,
+                          'enforce_ssl': False,
+                          'hsts_max_age_seconds': 0,
+                          'custom_theme': False})
 
     def test_Apachecontext_hsts_max_age_seconds(self):
         self.test_config.set('enforce-ssl', True)
         self.https.return_value = True
         self.test_config.set('hsts-max-age-seconds', 15768000)
-        self.assertEquals(horizon_contexts.ApacheContext()(),
-                          {'http_port': 70, 'https_port': 433,
-                           'enforce_ssl': True,
-                           'hsts_max_age_seconds': 15768000,
-                           'custom_theme': False})
+        self.assertEqual(horizon_contexts.ApacheContext()(),
+                         {'http_port': 70, 'https_port': 433,
+                          'enforce_ssl': True,
+                          'hsts_max_age_seconds': 15768000,
+                          'custom_theme': False})
 
     def test_HorizonContext_defaults(self):
         self.assertEqual(horizon_contexts.HorizonContext()(),
@@ -1404,12 +1404,12 @@ class TestHorizonContexts(CharmTestCase):
         self.local_unit.return_value = 'openstack-dashboard/0'
         self.get_relation_ip.return_value = "10.5.0.1"
         with patch_open() as (_open, _file):
-            self.assertEquals(horizon_contexts.HorizonHAProxyContext()(),
-                              {'units': {'openstack-dashboard-0': '10.5.0.1'},
-                               'service_ports': {'dash_insecure': [80, 70],
-                                                 'dash_secure': [443, 433]},
-                               'prefer_ipv6': False,
-                               'haproxy_expose_stats': True})
+            self.assertEqual(horizon_contexts.HorizonHAProxyContext()(),
+                             {'units': {'openstack-dashboard-0': '10.5.0.1'},
+                              'service_ports': {'dash_insecure': [80, 70],
+                                                'dash_secure': [443, 433]},
+                              'prefer_ipv6': False,
+                              'haproxy_expose_stats': True})
             _open.assert_called_with('/etc/default/haproxy', 'w')
             self.assertTrue(_file.write.called)
 
@@ -1424,15 +1424,15 @@ class TestHorizonContexts(CharmTestCase):
         self.local_unit.return_value = 'openstack-dashboard/0'
         self.get_relation_ip.return_value = "10.5.0.1"
         with patch_open() as (_open, _file):
-            self.assertEquals(horizon_contexts.HorizonHAProxyContext()(),
-                              {'units': {'openstack-dashboard-0': '10.5.0.1'},
-                               'service_ports': {'dash_insecure': [80, 70],
-                                                 'dash_secure': [443, 433]},
-                               'prefer_ipv6': False,
-                               'haproxy_expose_stats': False,
-                               'haproxy_rate_limiting_enabled': limiting,
-                               'haproxy_max_bytes_in_rate': max_bytes_in,
-                               'haproxy_limit_period': limit_period})
+            self.assertEqual(horizon_contexts.HorizonHAProxyContext()(),
+                             {'units': {'openstack-dashboard-0': '10.5.0.1'},
+                              'service_ports': {'dash_insecure': [80, 70],
+                                                'dash_secure': [443, 433]},
+                              'prefer_ipv6': False,
+                              'haproxy_expose_stats': False,
+                              'haproxy_rate_limiting_enabled': limiting,
+                              'haproxy_max_bytes_in_rate': max_bytes_in,
+                              'haproxy_limit_period': limit_period})
             _open.assert_called_with('/etc/default/haproxy', 'w')
             self.assertTrue(_file.write.called)
 
