@@ -68,6 +68,7 @@ NameVirtualHost *:{{ 443 }}
             downgrade-1.0 force-response-1.0
     BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
 
+    Header set X-Frame-Options: "sameorigin"
 </VirtualHost>
 {% endfor -%}
 {% endif -%}
