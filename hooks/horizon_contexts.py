@@ -478,7 +478,7 @@ class LocalSettingsContext(OSContextGenerator):
             pass
 
         # if they are the same type, try comparing them.
-        if type(priority_l) == type(priority_r):
+        if type(priority_l) is type(priority_r):
             try:
                 return _cmp(priority_l, priority_r)
             except TypeError:
