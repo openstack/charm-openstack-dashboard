@@ -364,7 +364,10 @@ class ApacheSSLContext(context.ApacheSSLContext):
     service_namespace = 'horizon'
 
     def __call__(self):
-        return super(ApacheSSLContext, self).__call__()
+        ctxt = super(ApacheSSLContext, self).__call__()
+        ctxt["ssl_configured"] = https()
+
+        return ctxt
 
 
 class RouterSettingContext(OSContextGenerator):
