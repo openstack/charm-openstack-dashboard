@@ -317,6 +317,7 @@ class ApacheContext(OSContextGenerator):
             'enforce_ssl': False,
             'hsts_max_age_seconds': config('hsts-max-age-seconds'),
             "custom_theme": config('custom-theme'),
+            'csp_options': config('csp-options'),
         }
 
         if config('enforce-ssl'):
