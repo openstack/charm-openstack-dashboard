@@ -36,4 +36,8 @@
 
         KeepAliveTimeout 75
         MaxKeepAliveRequests 1000
+        Header set X-Frame-Options: "sameorigin"
+{% if csp_options %}
+        Header set Content-Security-Policy "{{ csp_options }}"
+{% endif %}
 </VirtualHost>

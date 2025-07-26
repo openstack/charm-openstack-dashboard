@@ -2,24 +2,12 @@
     templates:
       - charm-unit-jobs-py36
       - charm-unit-jobs-py38
+      - charm-ussuri-functional-jobs
     check:
       jobs:
-        # gr tests are disabled due to:
-        # https://bugs.launchpad.net/charm-openstack-dashboard/+bug/1951644
-        - bionic-train-gr:
-            voting: false
-        - bionic-train
         - bionic-ussuri
         - focal-ussuri
     vars:
       needs_charm_build: true
       charm_build_name: openstack-dashboard
       build_type: charmcraft
-
-- job:
-    name: bionic-train-gr
-    parent: func-target
-    dependencies:
-      - bionic-train
-    vars:
-      tox_extra_args: vault:bionic-vault dashboard:bionic-train-cmr-vault

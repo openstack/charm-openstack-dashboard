@@ -60,39 +60,68 @@ class TestHorizonContexts(CharmTestCase):
         self.pwgen.return_value = "secret"
 
     def test_Apachecontext(self):
-        self.assertEqual(horizon_contexts.ApacheContext()(),
-                         {'http_port': 70, 'https_port': 433,
-                          'enforce_ssl': False,
-                          'hsts_max_age_seconds': 0,
-                          'custom_theme': False})
+        self.assertEqual(
+            horizon_contexts.ApacheContext()(),
+            {'http_port': 70, 'https_port': 433,
+             'enforce_ssl': False,
+             'hsts_max_age_seconds': 0,
+             'csp_options': "frame-ancestors 'self'; form-action 'self';",
+             'custom_theme': False},
+        )
 
     def test_Apachecontext_enforce_ssl(self):
         self.test_config.set('enforce-ssl', True)
         self.https.return_value = True
-        self.assertEquals(horizon_contexts.ApacheContext()(),
-                          {'http_port': 70, 'https_port': 433,
-                           'enforce_ssl': True,
-                           'hsts_max_age_seconds': 0,
-                           'custom_theme': False})
+        self.assertEqual(
+            horizon_contexts.ApacheContext()(),
+            {'http_port': 70, 'https_port': 433,
+             'enforce_ssl': True,
+             'hsts_max_age_seconds': 0,
+             'csp_options': "frame-ancestors 'self'; form-action 'self';",
+             'custom_theme': False},
+        )
 
     def test_Apachecontext_enforce_ssl_no_cert(self):
         self.test_config.set('enforce-ssl', True)
         self.https.return_value = False
-        self.assertEquals(horizon_contexts.ApacheContext()(),
-                          {'http_port': 70, 'https_port': 433,
-                           'enforce_ssl': False,
-                           'hsts_max_age_seconds': 0,
-                           'custom_theme': False})
+        self.assertEqual(
+            horizon_contexts.ApacheContext()(),
+            {'http_port': 70, 'https_port': 433,
+             'enforce_ssl': False,
+             'hsts_max_age_seconds': 0,
+             'csp_options': "frame-ancestors 'self'; form-action 'self';",
+             'custom_theme': False},
+        )
 
     def test_Apachecontext_hsts_max_age_seconds(self):
         self.test_config.set('enforce-ssl', True)
         self.https.return_value = True
         self.test_config.set('hsts-max-age-seconds', 15768000)
-        self.assertEquals(horizon_contexts.ApacheContext()(),
-                          {'http_port': 70, 'https_port': 433,
-                           'enforce_ssl': True,
-                           'hsts_max_age_seconds': 15768000,
-                           'custom_theme': False})
+        self.assertEqual(
+            horizon_contexts.ApacheContext()(),
+            {'http_port': 70, 'https_port': 433,
+             'enforce_ssl': True,
+             'hsts_max_age_seconds': 15768000,
+             'csp_options': "frame-ancestors 'self'; form-action 'self';",
+             'custom_theme': False},
+        )
+
+    def test_Apachecontext_csp_options(self):
+        self.https.return_value = True
+        self.test_config.set(
+            'csp-options',
+            "default-src https: 'unsafe-eval'; object-src 'none'",
+        )
+        self.assertEqual(
+            horizon_contexts.ApacheContext()(),
+            {'http_port': 70,
+             'https_port': 433,
+             'enforce_ssl': False,
+             'hsts_max_age_seconds': 0,
+             'csp_options':
+                 "default-src https: 'unsafe-eval'; object-src 'none'",
+             'custom_theme': False},
+        )
 
     def test_HorizonContext_defaults(self):
         self.assertEqual(horizon_contexts.HorizonContext()(),

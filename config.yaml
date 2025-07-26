@@ -313,6 +313,13 @@ options:
       .
       For this option to have an effect, SSL must be configured and
       enforce-ssl option must be true.
+  csp-options:
+    type: string
+    default: "frame-ancestors 'self'; form-action 'self';"
+    description: |
+      Options for the CSP (Content Security Policy) header. This header allows to
+      control which resources the user agent is allowed to load. For more details
+      on CSP refer to: https://developer.mozilla.org/docs/Web/HTTP/Guides/CSP
   database-user:
     type: string
     default: horizon

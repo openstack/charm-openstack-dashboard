@@ -54,3 +54,4 @@ croniter            # needed for charm-rabbitmq-server unit tests
 
 jsonschema<4.18.0   # jsonschema 4.18.0 depends on Rust (via rpds-py)
 
+MarkupSafe>=2.0,<3.0.3
