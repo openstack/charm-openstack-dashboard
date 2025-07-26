@@ -42,3 +42,5 @@ tempest<31.0.0;python_version<'3.8' and python_version>='3.6'
 tempest<24.0.0;python_version<'3.6'
 
 croniter            # needed for charm-rabbitmq-server unit tests
+
+MarkupSafe>=2.0,<3.0.3
