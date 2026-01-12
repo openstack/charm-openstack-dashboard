@@ -79,7 +79,7 @@ class TestHorizonContexts(CharmTestCase):
             {'http_port': 70, 'https_port': 433,
              'enforce_ssl': False,
              'hsts_max_age_seconds': 0,
-             'csp_options': "frame-ancestors 'self'; form-action 'self';",
+             'csp_options': "frame-ancestors 'self';",
              'custom_theme': False},
         )
 
@@ -91,7 +91,7 @@ class TestHorizonContexts(CharmTestCase):
             {'http_port': 70, 'https_port': 433,
              'enforce_ssl': True,
              'hsts_max_age_seconds': 0,
-             'csp_options': "frame-ancestors 'self'; form-action 'self';",
+             'csp_options': "frame-ancestors 'self';",
              'custom_theme': False},
         )
 
@@ -103,7 +103,7 @@ class TestHorizonContexts(CharmTestCase):
             {'http_port': 70, 'https_port': 433,
              'enforce_ssl': False,
              'hsts_max_age_seconds': 0,
-             'csp_options': "frame-ancestors 'self'; form-action 'self';",
+             'csp_options': "frame-ancestors 'self';",
              'custom_theme': False},
         )
 
@@ -116,7 +116,7 @@ class TestHorizonContexts(CharmTestCase):
             {'http_port': 70, 'https_port': 433,
              'enforce_ssl': True,
              'hsts_max_age_seconds': 15768000,
-             'csp_options': "frame-ancestors 'self'; form-action 'self';",
+             'csp_options': "frame-ancestors 'self';",
              'custom_theme': False},
         )
 
