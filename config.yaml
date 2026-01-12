@@ -315,7 +315,7 @@ options:
       enforce-ssl option must be true.
   csp-options:
     type: string
-    default: "frame-ancestors 'self'; form-action 'self';"
+    default: "frame-ancestors 'self';"
     description: |
       Options for the CSP (Content Security Policy) header. This header allows to
       control which resources the user agent is allowed to load. For more details
