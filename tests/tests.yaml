@@ -4,11 +4,9 @@ comment:
   - ''
 
 smoke_bundles:
-  - focal-yoga
+  - jammy-yoga
 
 gate_bundles:
-  - focal-xena
-  - focal-yoga
   - jammy-yoga
   - jammy-yoga-gr:
     - vault: jammy-vault

@@ -55,7 +55,7 @@ applications:
       - '3'
     channel: yoga/edge
   openstack-dashboard:
-    charm: ../../openstack-dashboard.charm
+    charm: ../../openstack-dashboard_ubuntu@22.04-amd64.charm
     num_units: 3
     to:
       - '4'
